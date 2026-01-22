@@ -1,4 +1,4 @@
-:root {
+/*:root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -65,4 +65,90 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+*/
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #333;
+}
+
+.booking-section {
+  padding: 80px 20px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.search-box {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.search-box input,
+.search-box select {
+  padding: 10px;
+  font-size: 14px;
+}
+
+.search-box button {
+  padding: 10px 20px;
+  background: #063b78;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.info-section {
+  padding: 60px 20px;
+  background: #f1f5f9;
+}
+
+.steps {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.step {
+  background: white;
+  padding: 20px;
+  width: 250px;
+  border-radius: 8px;
+}
+
+.footer {
+  padding: 20px;
+  text-align: center;
+  background: white;
+  border-top: 1px solid #eee;
 }
