@@ -3,6 +3,10 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import Map from "./components/Map";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
+import HostLogin from "./Pages/HostLogin";
 
 
 /*function App() {
@@ -36,14 +40,15 @@ import Map from "./components/Map";
 
 export default App*/
 
-function App() {
+function Home() {
   return (
     <div className="app">
       <header className="header">
         <div className="logo">Finnamie</div>
         <nav className="nav">
           <a href="#">Discover activities</a>
-          <a href="#">Login</a>
+            <Link to="/login">Login</Link>
+            <Link to="/register">Register</Link>
         </nav>
       </header>
 
@@ -92,6 +97,18 @@ function App() {
         </div>
       </footer>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/host/login" element={<HostLogin />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

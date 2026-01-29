@@ -40,3 +40,72 @@
 .read-the-docs {
   color: #888;
 }
+
+ /* Login and Register page styles */
+
+.login_register-page {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 16px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid rgba(124, 82, 82, 0.15);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+}
+
+.login_register-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.login_register-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.login_register-form input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+}
+
+
+.login_register-btn {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #9fe0ec;
+  
+}
+
+.login_register-links {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.login_register-error {
+  color: crimson;
+  margin: 0;
+}
+
+.login_register-card {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid rgba(124, 82, 82, 0.15);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+}
+
+
