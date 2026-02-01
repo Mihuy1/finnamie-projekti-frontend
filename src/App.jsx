@@ -1,112 +1,24 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Map from "./components/Map";
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Home from "./Pages/Home";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
+import HostRegister from "./Pages/HostRegister";
 import HostLogin from "./Pages/HostLogin";
-
-
-/*function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
-
-export default App*/
-
-function Home() {
-  return (
-    <div className="app">
-      <header className="header">
-        <div className="logo">Finnamie</div>
-        <nav className="nav">
-          <a href="#">Discover activities</a>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-        </nav>
-      </header>
-
-      <section className="booking-section">
-        <h1>Discover Finland with a local</h1>
-        <p>
-          Find trusted local hosts for authentic experiences.
-        </p>
-
-        <div className="search-box">
-          <input type="text" placeholder="Location" />
-          <input type="date" />
-          <select>
-            <option>Activity type</option>
-          </select>
-          <button>Search</button>
-        </div>
-      </section>
-
-      <section className="map-section">
-        <Map />
-      </section>
-
-      <section className="info-section">
-        <h2>How it works</h2>
-        <div className="steps">
-          <div className="step">
-            <h3>1. Search</h3>
-            <p>Find a local host, place or activity that fits you.</p>
-          </div>
-          <div className="step">
-            <h3>2. Book</h3>
-            <p>Choose a time and book securely online.</p>
-          </div>
-          <div className="step">
-            <h3>3. Experience</h3>
-            <p>Enjoy Finland like a local.</p>
-          </div>
-        </div>
-      </section>
-
-      <footer className="footer">
-        <p>Finnamie</p>
-        <div className="footer-links">
-          <a href="#">About</a>
-        </div>
-      </footer>
-    </div>
-  );
-};
+import Discover from "./Pages/Discover";
+import Booking from "./Pages/Booking";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/discover" element={<Discover />} />
+      <Route path="/host/register" element={<HostRegister />} />
+      <Route path="/booking/:id" element={<Booking />} />
+
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/host/login" element={<HostLogin />} />
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
