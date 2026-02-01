@@ -1,42 +1,280 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:root {
+  --bg-header-footer: rgba(249, 242, 234, 1);
+  --bg-main: #ffffff;
+  --text-main: rgba(170, 0, 162, 1);
+  --text-primary: rgba(0, 47, 108, 1);
+  --text-muted: rgba(72, 104, 145, 1);
+  --accent: rgba(170, 0, 162, 1);
+  --accent-hover: rgba(150, 0, 140, 1);
+}
+
+/* Home page */
+
+body {
+  margin: 0;
+  font-family: BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.header {
+  background: var(--bg-header-footer);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 64px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  font-size: 22px;
+  font-weight: 600;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nav a {
+  margin-left: 24px;
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 15px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.nav a:hover {
+  color: var(--accent);
 }
 
-.card {
-  padding: 2em;
+.booking-section {
+  background: var(--bg-section);
+  padding: 110px 20px 90px;
+  text-align: center;
 }
 
-.read-the-docs {
-  color: #888;
+.booking-section h1 {
+  color: var(--text-main);
+  font-size: 52px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.booking-section p {
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.search-box {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.search-box input,
+.search-box select {
+  padding: 14px 16px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 160px;
+}
+
+.search-box button {
+  background: var(--text-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 26px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.search-box button:hover {
+  background: var(--accent-hover);
+}
+
+.map-and-calendar {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 20px;
+  flex-wrap: wrap;
+  background: var(--bg-soft);
+}
+
+.map-container {
+  flex: 1 1 500px;
+  max-width: 600px;
+}
+
+.calendar-container {
+  flex: 1 1 300px;
+  max-width: 400px;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-container h2 {
+  margin-bottom: 16px;
+  color: var(--text-main);
+}
+
+.calendar-container .react-calendar {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-container .react-calendar__tile {
+  border-radius: 6px;
+}
+
+.calendar-container .react-calendar__tile:enabled:hover {
+  background: var(--accent-hover);
+  color: white;
+}
+
+.calendar-container .react-calendar__tile--active {
+  background: var(--accent);
+  color: white;
+}
+
+.calendar-container input,
+.calendar-container select {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.calendar-container button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 6px;
+  border: none;
+  background: var(--text-primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.calendar-container button:hover {
+  background: var(--accent-hover);
+}
+
+.leaflet-container {
+  height: 570px;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 12px;
+}
+
+.info-section {
+  padding: 80px 20px;
+}
+
+.info-section h2 {
+  color: var(--text-primary);
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 40px;
+}
+
+.steps {
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.step {
+  max-width: 260px;
+  text-align: center;
+}
+
+.step p {
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.footer {
+  background: var(--bg-header-footer);
+  padding: 40px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Login and Register page styles */
+
+.login_register-page {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 16px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid rgba(124, 82, 82, 0.15);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+}
+
+.login_register-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.login_register-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.login_register-form input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+}
+
+
+.login_register-btn {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #9fe0ec;
+
+}
+
+.login_register-links {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.login_register-error {
+  color: crimson;
+  margin: 0;
+}
+
+.login_register-card {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid rgba(124, 82, 82, 0.15);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
 }
