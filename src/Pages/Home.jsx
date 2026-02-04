@@ -49,10 +49,18 @@ function Home() {
       <header className="header">
         <div className="logo">Finnamie</div>
         <nav className="nav">
-          <Link to="/discover">Discover activities</Link>
-          <Link to="/host/register">Become a Host</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
+          {!user ? (
+            <ul>
+              <Link to="/discover">Discover activities</Link>
+              <Link to="/host/register">Become a Host</Link>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
+            </ul>
+          ) : (
+            <p>
+              {user.first_name} {user.last_name}
+            </p>
+          )}
         </nav>
       </header>
 
