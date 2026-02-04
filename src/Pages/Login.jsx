@@ -1,20 +1,28 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { postLogin } from "../api/apiClient";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    alert( 'login onnistui')
+    try {
+      await postLogin(email, password);
+
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error("login failed:", err);
+      alert("login ei onnistunut");
+    }
   }
 
   return (
     <div className="login_register-page">
       <div className="login_register-card">
         <h1>Login</h1>
-        
 
         <form onSubmit={handleSubmit} className="login_register-form">
           <label>
@@ -39,13 +47,13 @@ export default function Login() {
             />
           </label>
 
-          <button type="submit" className="login_register-btn">Sign in</button>
+          <button type="submit" className="login_register-btn">
+            Sign in
+          </button>
         </form>
 
-                <p className="login_register-links">
-            
-            Are you a host? <Link to="/host/login">Login here</Link>
-
+        <p className="login_register-links">
+          Are you a host? <Link to="/host/login">Login here</Link>
         </p>
         <p className="login_register-links">
           No account? <Link to="/register">Register</Link>
