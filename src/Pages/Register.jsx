@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { register } from "../api/apiClient";
 
 export default function Register() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
@@ -17,7 +19,12 @@ export default function Register() {
       return;
     }
 
-    alert(` rekisteröityminen onnistui`);
+    try {
+      await register(firstName, lastName, email, password, "guest");
+      alert("Registration successful!");
+    } catch (error) {
+      setError(error?.message || "Registration failed.");
+    }
   }
 
   return (
@@ -27,11 +34,22 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className="login_register-form">
           <label>
-            Name
+            First Name
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder=""
+              required
+            />
+          </label>
+
+          <label>
+            Last Name
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               placeholder=""
               required
             />
@@ -72,7 +90,9 @@ export default function Register() {
 
           {error && <p className="login_register-error">{error}</p>}
 
-          <button type="submit" className="login_register-btn">Create account</button>
+          <button type="submit" className="login_register-btn">
+            Create account
+          </button>
         </form>
 
         <p className="login_register-links">

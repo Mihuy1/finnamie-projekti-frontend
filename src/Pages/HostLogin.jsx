@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { postLogin } from "../api/apiClient";
 
 export default function HostLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    alert("Host login onnistui");
-    navigate("/host/dashboard");
+
+    try {
+      await postLogin(email, password);
+
+      alert("successful login!");
+      navigate("/host/dashboard");
+    } catch (error) {
+      alert("login failed:", error);
+    }
   }
 
   return (

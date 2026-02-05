@@ -14,8 +14,7 @@ export default function Login() {
 
       navigate("/", { replace: true });
     } catch (err) {
-      console.error("login failed:", err);
-      alert("login ei onnistunut");
+      alert(`login failed: ${err?.message || "Unkown error"}`);
     }
   }
 
