@@ -6,6 +6,7 @@ import HostRegister from "./Pages/HostRegister";
 import HostLogin from "./Pages/HostLogin";
 import Discover from "./Pages/Discover";
 import Booking from "./Pages/Booking";
+import { MessageTest } from "./Pages/MessageTest";
 
 function App() {
   return (
@@ -14,6 +15,8 @@ function App() {
       <Route path="/discover" element={<Discover />} />
       <Route path="/host/register" element={<HostRegister />} />
       <Route path="/booking/:id" element={<Booking />} />
+
+      <Route path="/test/messages" element={<MessageTest />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

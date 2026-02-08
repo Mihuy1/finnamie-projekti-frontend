@@ -2,7 +2,31 @@ const BASE_URL = "http://localhost:3000/api/";
 
 export const getAllTimeSlots = async () => {
   try {
-    const res = await fetch(`${BASE_URL}timeslots`);
+    const res = await fetch(`${BASE_URL}timeslots`, {
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const getConversations = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}conversations`, {
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const getMessagesByConvId = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}conversations/${id}`, {
+      credentials: "include",
+    });
     return await res.json();
   } catch (e) {
     console.error(e);
