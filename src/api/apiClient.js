@@ -90,7 +90,6 @@ export const verifyMe = async () => {
     method: "GET",
     credentials: "include",
   });
-  console.log("verifying...");
   const ct = res.headers.get("content-type") ?? "";
   const payload = ct.includes("application/json")
     ? await res.json()

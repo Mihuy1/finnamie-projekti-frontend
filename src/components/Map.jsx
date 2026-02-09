@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { useAuth } from "../auth/AuthContext";
 
 import { getAllTimeSlots } from "../api/apiClient";
 
@@ -18,16 +19,23 @@ L.Icon.Default.mergeOptions({
 
 function Map({ activityType }) {
   const [timeslots, setTimeslots] = useState([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchData() {
-      const slots = await getAllTimeSlots();
-      if (slots) {
-        setTimeslots(slots);
+      if (user) {
+        try {
+          const slots = await getAllTimeSlots();
+          if (slots) {
+            setTimeslots(slots);
+          }
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
     fetchData();
-  }, []);
+  }, [user]);
 
   const filteredSlots = !activityType
     ? timeslots
