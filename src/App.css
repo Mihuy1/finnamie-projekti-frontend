@@ -277,3 +277,169 @@ body {
   padding: 24px;
   text-align: left;
 }
+
+/* Become host page */
+
+.host-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 80px 20px 100px;
+}
+
+.host-page h1 {
+  font-size: 42px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: rgba(170, 0, 162, 1);
+  text-align: center;
+}
+
+.host-page .subtitle {
+  font-size: 18px;
+  color: rgba(72, 104, 145, 1);
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 32px;
+  font-size: 14px;
+  color: rgba(72, 104, 145, 1);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.host-form {
+  display: grid;
+  gap: 32px;
+}
+
+.host-form h2 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: rgba(0, 47, 108, 1);
+}
+
+.field-description {
+  font-size: 14px;
+  color: rgba(72, 104, 145, 0.8);
+  margin-top: -24px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.address-grid {
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+}
+
+.host-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+  color: rgba(0, 47, 108, 1);
+}
+
+.host-form select,
+.host-form input[type="tel"],
+.host-form input[type="text"],
+.host-form input[type="email"],
+.host-form input[type="date"],
+.host-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 47, 108, 0.2);
+  font-size: 14px;
+  background: white;
+  box-sizing: border-box;
+}
+
+.host-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.checkbox-group label {
+  flex-direction: row;
+  align-items: center;
+  width: auto;
+  cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: -16px;
+}
+
+.tag {
+  background: rgba(170, 0, 162, 0.1);
+  color: rgba(170, 0, 162, 1);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(170, 0, 162, 0.2);
+}
+
+.tag button {
+  background: none;
+  border: none;
+  color: rgba(170, 0, 162, 1);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.host-form button[type="submit"] {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(170, 0, 162, 1);
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.host-form button[type="submit"]:hover {
+  background: rgba(150, 0, 140, 1);
+}
+
+.required::after {
+  content: " *";
+  color: rgba(170, 0, 162, 1);
+  font-weight: bold;
+}
