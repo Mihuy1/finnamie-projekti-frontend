@@ -2,15 +2,26 @@ import { useState, useEffect, useRef } from "react";
 import { socket } from "../socket";
 import { useAuth } from "../auth/AuthContext";
 import { getConversations, getMessagesByConvId } from "../api/apiClient";
+import {
+  handleConnect,
+  handleDisconnect,
+  handleNewMessage,
+} from "../socket-handlers";
 
+//TODO: Refaktoroi
 export const MessageTest = () => {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [conversations, setConversations] = useState([]);
   const [fetchedMessages, setFetchedMessages] = useState([]);
-  const [receiver, setReceiver] = useState("");
+  const [receiver, setReceiver] = useState({
+    first_name: null,
+    last_name: null,
+    id: null,
+  });
   const [convId, setConvId] = useState("");
   const { user } = useAuth();
   const message = useRef();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -27,7 +38,6 @@ export const MessageTest = () => {
   }, [user]);
 
   // init and cleanup
-  // jos frontendi ei lataudu ja heittää error 404, käynnistä backend uudestaan.
   useEffect(() => {
     if (!socket.connected) socket.connect();
     return () => {
@@ -36,22 +46,13 @@ export const MessageTest = () => {
   }, []);
 
   useEffect(() => {
-    const handleNewMessage = (msg) => {
-      //setFetchedMessages((prev) => prev.concat(msg));
-      console.log(msg);
-    };
-
-    const onConnect = () => {
-      setIsConnected(true);
-    };
-
-    const onDisconnect = () => {
-      setIsConnected(false);
-    };
+    const onConnect = handleConnect(setIsConnected);
+    const onDisconnect = handleDisconnect(setIsConnected);
+    const onNewMessage = handleNewMessage(setFetchedMessages);
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
-    socket.on("chat message", handleNewMessage);
+    socket.on("chat message", onNewMessage);
 
     return () => {
       socket.off("connect", onConnect);
@@ -63,17 +64,13 @@ export const MessageTest = () => {
   const send = (e) => {
     e.preventDefault();
     try {
-      const now = new Date().toISOString();
-      setFetchedMessages(
-        fetchedMessages.concat({
-          sent_at: now,
-          conv_id: convId,
-          sender_id: user.id,
-          receiver_id: receiver,
-          content: message.current.value,
-        }),
-      );
-      socket.emit("chat message", message.current.value);
+      const newMessage = {
+        conv_id: convId,
+        sender_id: user.id,
+        receiver_id: receiver.id,
+        content: message.current.value,
+      };
+      socket.emit("chat message", newMessage);
       message.current.value = "";
       message.current.focus();
     } catch (err) {
@@ -96,9 +93,21 @@ export const MessageTest = () => {
     }
   };
 
-  const handleOpenConversation = (id) => {
-    setConvId(id);
-    getMessages(id);
+  const handleOpenConversation = (c) => {
+    const { conv_id, first_name, last_name, user_id } = c;
+    if (conv_id !== convId) {
+      socket.emit("join conversation", conv_id);
+    } else {
+      socket.emit("leave conversation", conv_id);
+    }
+    setConvId(conv_id);
+    getMessages(conv_id);
+    setIsOpen(!isOpen);
+    setReceiver({
+      first_name,
+      last_name,
+      id: user_id,
+    });
   };
 
   const ownStyle = {
@@ -135,24 +144,29 @@ export const MessageTest = () => {
       ></textarea>
       <button onClick={send}>Send</button>
       {conversations &&
-        conversations.map((conv) => {
+        conversations.map((c) => {
           return (
-            <p onClick={() => handleOpenConversation(conv.id)} key={conv.id}>
-              {conv.id}
+            <p onClick={() => handleOpenConversation(c)} key={c.conv_id}>
+              {c.first_name} {c.last_name}
             </p>
           );
         })}
       <ul style={{ listStyleType: "none" }}>
         {fetchedMessages &&
+          isOpen &&
           fetchedMessages.map((msg, index) => {
-            if (!receiver && msg.sender_id !== user.id)
-              setReceiver(msg.sender_id);
             return (
               <li
                 key={index}
-                style={msg.receiver_id === user.id ? ownStyle : resStyle}
+                style={msg.sender_id === user.id ? ownStyle : resStyle}
               >
                 <p>
+                  {msg.sender_id === user.id
+                    ? user.first_name
+                    : receiver.first_name}{" "}
+                  {msg.sender_id === user.id
+                    ? user.last_name
+                    : receiver.last_name}{" "}
                   Sent at:{" "}
                   {new Date(msg.sent_at).toLocaleString("en-GB", {
                     timeZoneName: "shortOffset",
