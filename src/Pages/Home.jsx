@@ -1,16 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
 import Map from "../components/Map";
 import "../App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { useAuth } from "../auth/AuthContext";
 
 function Home() {
   const [date, setDate] = useState([]);
   const [activeDate, setActiveDate] = useState(new Date());
   const [activityType, setActivityType] = useState("");
+  const { user, loading, isAuthed } = useAuth();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("Auth state:", { loading, isAuthed, user });
+    if (user) console.log("Logged in as:", user.first_name, user.last_name);
+  }, [loading, isAuthed, user]);
 
   const handleSearch = () => {
     navigate("/discover");
@@ -42,10 +49,18 @@ function Home() {
       <header className="header">
         <div className="logo">Finnamie</div>
         <nav className="nav">
-          <Link to="/discover">Discover activities</Link>
-          <Link to="/host/register">Become a Host</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
+          {!user ? (
+            <ul>
+              <Link to="/discover">Discover activities</Link>
+              <Link to="/host/register">Become a Host</Link>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
+            </ul>
+          ) : (
+            <p>
+              {user.first_name} {user.last_name}
+            </p>
+          )}
         </nav>
       </header>
 
