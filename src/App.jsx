@@ -16,7 +16,7 @@ function App() {
       <Route path="/host/register" element={<HostRegister />} />
       <Route path="/booking/:id" element={<Booking />} />
 
-      <Route path="/test/messages" element={<MessageTest />} />
+      <Route path="/messages" element={<MessageTest />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
