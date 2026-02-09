@@ -45,7 +45,6 @@ export const postLogin = async (email, password) => {
   const payload = ct.includes("application/json")
     ? await res.json()
     : await res.text();
-
   if (!res.ok)
     throw new Error(
       typeof payload === "string"
@@ -91,7 +90,7 @@ export const verifyMe = async () => {
     method: "GET",
     credentials: "include",
   });
-
+  console.log("verifying...");
   const ct = res.headers.get("content-type") ?? "";
   const payload = ct.includes("application/json")
     ? await res.json()

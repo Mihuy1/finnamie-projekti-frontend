@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postLogin } from "../api/apiClient";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { refresh } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
       await postLogin(email, password);
-
+      await refresh();
       navigate("/", { replace: true });
     } catch (err) {
       alert(`login failed: ${err?.message || "Unkown error"}`);
