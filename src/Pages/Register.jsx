@@ -20,7 +20,13 @@ export default function Register() {
     }
 
     try {
-      await register(firstName, lastName, email, password, "guest");
+      await register({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+        role: "guest",
+      });
       alert("Registration successful!");
     } catch (error) {
       setError(error?.message || "Registration failed.");

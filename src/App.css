@@ -354,6 +354,7 @@ body {
 .host-form input[type="tel"],
 .host-form input[type="text"],
 .host-form input[type="email"],
+.host-form input[type="password"],
 .host-form input[type="date"],
 .host-form textarea {
   width: 100%;

@@ -54,18 +54,67 @@ export const postLogin = async (email, password) => {
   return payload;
 };
 
-export const register = async (
-  first_name,
-  last_name,
-  email,
-  password,
-  role,
-) => {
-  const res = await fetch(`${BASE_URL}auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ first_name, last_name, email, password, role }),
-  });
+export const getActivities = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}activities`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const register = async (params) => {
+  const {
+    first_name,
+    last_name,
+    email,
+    password,
+    role,
+    country,
+    date_of_birth,
+    phone_number,
+    street_address,
+    postal_code,
+    city,
+    description,
+    experience_length,
+    activity_ids,
+  } = params;
+
+  if (role !== "guest" && role !== "host") throw new Error("Invalid role.");
+
+  const body = {
+    first_name,
+    last_name,
+    email,
+    password,
+    role,
+    country,
+    date_of_birth,
+    phone_number,
+    street_address,
+    postal_code,
+    city,
+    description,
+    experience_length,
+    activity_ids,
+  };
+
+  let res;
+
+  try {
+    res = await fetch(`${BASE_URL}auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new Error("Network error. Please try again.");
+  }
 
   const ct = res.headers.get("content-type") ?? "";
   const payload = ct.includes("application/json")
