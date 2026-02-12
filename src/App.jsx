@@ -6,7 +6,7 @@ import HostRegister from "./Pages/HostRegister";
 import HostLogin from "./Pages/HostLogin";
 import Discover from "./Pages/Discover";
 import Booking from "./Pages/Booking";
-import { MessageTest } from "./Pages/MessageTest";
+import { Chatbox } from "./components/Chatbox";
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
       <Route path="/host/register" element={<HostRegister />} />
       <Route path="/booking/:id" element={<Booking />} />
 
-      <Route path="/messages" element={<MessageTest />} />
+      <Route path="/messages" element={<Chatbox />} />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

@@ -9,6 +9,6 @@ export const handleDisconnect = (setIsConnected) => () => {
 export const handleNewMessage = (setFetchedMessages) => (msg) => {
   setFetchedMessages((prev) => {
     if (prev.some((m) => m.id === msg.id)) return prev;
-    return [msg, ...prev];
+    return [...prev, msg];
   });
 };
