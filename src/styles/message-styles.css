@@ -1,0 +1,125 @@
+.message-container {
+  display: flex;
+  flex-direction: column;
+  margin: 0.5rem 0;
+  max-width: 70%;
+}
+
+.message-container.own {
+  padding-right: 0.5rem;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.message-container.other {
+  padding-left: 0.5rem;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.message-time {
+  align-self: flex-end;
+  font-size: 12px !important;
+  color: #969696 !important;
+  margin-bottom: 4px;
+}
+
+.message-bubble {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  color: white;
+  display: inline-block;
+
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.message-container.own .message-bubble {
+  background-color: #51a5ff;
+  border-bottom-right-radius: 4px;
+  align-self: flex-end;
+}
+
+.message-container.other .message-bubble {
+  background-color: #a0ceff;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+}
+
+.message-wrapper {
+  scroll-behavior: smooth;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  scrollbar-width: none;
+}
+
+.conv-list-entry {
+  color: black;
+  margin: 0px;
+  word-wrap: break-word;
+}
+
+.conv-list-entry:hover {
+  background-color: #51a5ff;
+}
+
+.chat-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  height: 56px;
+  min-width: 56px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 9999px;
+  background: #51a5ff;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chatbox {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  width: 420px;
+  max-height: 72vh;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chat-header {
+  height: 44px;
+  background: #51a5ff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-weight: 600;
+}
+
+.chat-close {
+  background: #51a5ff;
+  align-self: flex-end;
+  padding-bottom: 1rem;
+  width: 100%;
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 1;
+}

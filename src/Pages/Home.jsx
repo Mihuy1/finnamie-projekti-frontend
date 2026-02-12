@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useAuth } from "../auth/AuthContext";
+import { Chatbox } from "../components/Chatbox";
 
 function Home() {
   const [date, setDate] = useState([]);
   const [activeDate, setActiveDate] = useState(new Date());
   const [activityType, setActivityType] = useState("");
   const { user, loading, isAuthed } = useAuth();
+  const [openChat, setOpenChat] = useState(false);
 
   const navigate = useNavigate();
 
@@ -65,6 +67,14 @@ function Home() {
       </header>
 
       <section className="booking-section">
+        <button
+          className="chat-launcher"
+          aria-label="Open chat"
+          onClick={() => setOpenChat(true)}
+        >
+          Chat
+        </button>
+        {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}
         <h1>Book your local experience</h1>
         <p>Find trusted local hosts for authentic experiences.</p>
 

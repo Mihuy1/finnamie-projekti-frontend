@@ -2,7 +2,7 @@ const BASE_URL = "http://localhost:3000/api/";
 
 export const getAllTimeSlots = async () => {
   try {
-    const res = await fetch(`${BASE_URL}timeslots`, {
+    const res = await fetch(`${BASE_URL}timeslots/available`, {
       credentials: "include",
     });
     return await res.json();
