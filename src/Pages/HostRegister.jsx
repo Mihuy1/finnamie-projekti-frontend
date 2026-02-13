@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getActivities, register } from "../api/apiClient";
+import isEmail from "validator/lib/isEmail";
 
 export default function HostRegister() {
   const [activities, setActivites] = useState([]);
@@ -13,7 +14,7 @@ export default function HostRegister() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [streetAddress, setStreetAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
@@ -51,8 +52,13 @@ export default function HostRegister() {
 
     setError("");
 
-    if (password !== confirm) {
+    if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+
+    if (!isEmail(email)) {
+      setError("Please enter a valid email!");
       return;
     }
 
@@ -76,6 +82,7 @@ export default function HostRegister() {
         last_name: lastName,
         email,
         password,
+        confirmPassword,
         role: "host",
         country,
         date_of_birth: dateOfBirth,
@@ -153,8 +160,8 @@ export default function HostRegister() {
           <span className="required">Confirm password</span>
           <input
             type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
         </label>
