@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getActivities, register } from "../api/apiClient";
@@ -25,11 +26,15 @@ export default function HostRegister() {
 
   useEffect(() => {
     const fetchActivites = async () => {
-      const data = await getActivities();
-      setActivites(data);
+      try {
+        const data = await getActivities();
+        setActivites(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Haku epäonnistui:", error);
+        setActivites([]);
+      }
     };
-
-    fetchActivites().catch(console.error);
+    fetchActivites();
   }, []);
 
   const handleActivityChange = (e) => {
@@ -114,7 +119,7 @@ export default function HostRegister() {
 
       <form className="host-form" onSubmit={handleSubmit}>
         <h2>
-          <span className="required">Basic information</span>
+          <span>Basic information</span>
         </h2>
 
         <label>
@@ -237,7 +242,8 @@ export default function HostRegister() {
 
         <select onChange={handleActivityChange}>
           <option value="">-- Choose an activity --</option>
-          {activities.map((activity) => (
+
+          {Array.isArray(activities) && activities.map((activity) => (
             <option key={activity.id} value={activity.id}>
               {activity.name}
             </option>

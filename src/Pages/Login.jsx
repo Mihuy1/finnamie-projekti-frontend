@@ -16,34 +16,33 @@ export default function Login() {
       await refresh();
       navigate("/", { replace: true });
     } catch (err) {
-      alert(`login failed: ${err?.message || "Unkown error"}`);
+      alert(`Login failed: ${err?.message || "Unknown error"}`);
     }
   }
 
   return (
     <div className="login_register-page">
+      <Link to="/" className="back-link">← Back to home page </Link>
       <div className="login_register-card">
         <h1>Login</h1>
 
         <form onSubmit={handleSubmit} className="login_register-form">
           <label>
-            Email
+            <span className="required">Email</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder=""
               required
             />
           </label>
 
           <label>
-            Password
+            <span className="required">Password</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder=""
               required
             />
           </label>
@@ -53,15 +52,10 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="login_register-links">
-          Are you a host? <Link to="/host/login">Login here</Link>
-        </p>
-        <p className="login_register-links">
-          No account? <Link to="/register">Register</Link>
-        </p>
-        <p className="login_register-links">
-          <Link to="/">← Back to home</Link>
-        </p>
+        <div className="login_register-links">
+          <p>Are you a host? <Link to="/host/login">Login here</Link></p>
+          <p>No account? <Link to="/register">Register</Link></p>
+        </div>
       </div>
     </div>
   );
