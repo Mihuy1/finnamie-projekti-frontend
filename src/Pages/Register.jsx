@@ -28,68 +28,65 @@ export default function Register() {
         role: "guest",
       });
       alert("Registration successful!");
-    } catch (error) {
-      setError(error?.message || "Registration failed.");
+    } catch (err) {
+      setError(err?.message || "Registration failed.");
     }
   }
 
   return (
     <div className="login_register-page">
+      <Link to="/" className="back-link">← Back to home page </Link>
       <div className="login_register-card">
         <h1>Register</h1>
 
         <form onSubmit={handleSubmit} className="login_register-form">
-          <label>
-            First Name
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder=""
-              required
-            />
-          </label>
+          <div className="address-grid">
+            <label>
+              <span className="required">First Name</span>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              <span className="required">Last Name</span>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </label>
+          </div>
 
           <label>
-            Last Name
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder=""
-              required
-            />
-          </label>
-
-          <label>
-            Email
+            <span className="required">Email</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder=""
               required
             />
           </label>
 
           <label>
-            Password
+            <span className="required">Password</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder=""
               required
             />
           </label>
 
           <label>
-            Confirm password
+            <span className="required">Confirm password</span>
             <input
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              placeholder=""
               required
             />
           </label>
@@ -101,12 +98,9 @@ export default function Register() {
           </button>
         </form>
 
-        <p className="login_register-links">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-        <p className="login_register-links">
-          <Link to="/">Back to home</Link>
-        </p>
+        <div className="login_register-links">
+          <p>Already have an account? <Link to="/login">Login</Link></p>
+        </div>
       </div>
     </div>
   );
