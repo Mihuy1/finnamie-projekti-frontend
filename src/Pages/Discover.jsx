@@ -1,24 +1,15 @@
 import { useEffect, useState } from "react";
-import { getActivities } from "../api/apiClient";
+import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link } from "react-router-dom";
 
 export default function Discover() {
   const [activities, setActivities] = useState([]);
+  const [timeSlots, setTimeSlots] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
   const [openActivity, setOpenActivity] = useState(null);
-
-  const categories = [
-    "All",
-    "Nature & outdoors",
-    "City tours",
-    "Culture",
-    "Wellness",
-    "Food & Drink",
-    "Sports",
-  ];
 
   // koska tietokanta vielä tyhjä
   const placeholders = [
@@ -50,10 +41,22 @@ export default function Discover() {
     const fetchData = async () => {
       try {
         const data = await getActivities();
+
+        const timeslotData = await getAllTimeSlotsWithHost();
+        console.log("timeslotData:", timeslotData);
+
+        for (const timeslot of timeslotData) {
+          for (const timeslotActivity of timeslot.activities)
+            console.log(timeslotActivity);
+        }
+
+        setTimeSlots(timeslotData);
+
         const finalData = data && data.length > 0 ? data : placeholders;
         setActivities(finalData);
-        setFilteredActivities(finalData);
+        setFilteredActivities(timeslotData);
       } catch (error) {
+        console.error(error);
         setActivities(placeholders);
         setFilteredActivities(placeholders);
       } finally {
@@ -67,8 +70,10 @@ export default function Discover() {
     setSelectedCategory(category);
     setFilteredActivities(
       category === "All"
-        ? activities
-        : activities.filter((act) => act.category === category),
+        ? timeSlots
+        : timeSlots.filter((timeslot) =>
+            timeslot.activities.some((activity) => activity.name === category),
+          ),
     );
   };
 
@@ -88,13 +93,20 @@ export default function Discover() {
       </header>
 
       <div className="filter-container">
-        {categories.map((cat) => (
+        <button
+          key="all"
+          className={`filter-btn ${selectedCategory === "All" ? "active" : ""}`}
+          onClick={() => handleFilter("All")}
+        >
+          All
+        </button>
+        {activities.map((cat) => (
           <button
-            key={cat}
-            className={`filter-btn ${selectedCategory === cat ? "active" : ""}`}
-            onClick={() => handleFilter(cat)}
+            key={cat.id}
+            className={`filter-btn ${selectedCategory === cat.name ? "active" : ""}`}
+            onClick={() => handleFilter(cat.name)}
           >
-            {cat}
+            {cat.name}
           </button>
         ))}
       </div>
@@ -153,7 +165,7 @@ export default function Discover() {
 
               <h2>{openActivity.name}</h2>
               <p className="modal-host">
-                Experience hosted by <strong>{openActivity.host}</strong>
+                Experience hosted by <strong>{openActivity.first_name}</strong>
               </p>
               <p className="modal-location">📍 {openActivity.city}</p>
 
