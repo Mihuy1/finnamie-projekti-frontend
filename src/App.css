@@ -877,3 +877,195 @@ body {
   cursor: pointer;
   flex: 1;
 }
+
+/* Discover Page Styles */
+.discover-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.discover-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary, #002f6c);
+  margin-bottom: 30px;
+}
+
+.timeslots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* Timeslot Card Styles */
+.timeslot-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeslot-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.timeslot-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.timeslot-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.timeslot-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 2;
+}
+
+.timeslot-image-wrapper:hover .timeslot-nav-button {
+  opacity: 1;
+}
+
+.timeslot-prev-button {
+  left: 10px;
+}
+
+.timeslot-next-button {
+  right: 10px;
+}
+
+.timeslot-dot-container {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.timeslot-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.timeslot-dot.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+.timeslot-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timeslot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.timeslot-city {
+  font-weight: 700;
+  font-size: 16px;
+  color: #333;
+}
+
+.timeslot-type {
+  font-size: 14px;
+  color: var(--accent, #aa00a2);
+  font-weight: 500;
+}
+
+.timeslot-host {
+  font-size: 14px;
+  color: #666;
+}
+
+.timeslot-description {
+  font-size: 14px;
+  color: #444;
+  margin: 4px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.timeslot-details {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeslot-info-item {
+  font-size: 13px;
+  color: #777;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-available {
+  background: #e6f7ed;
+  color: #1f8b4c;
+}
+
+.status-pending {
+  background: #fff8e6;
+  color: #b7791f;
+}
+
+.status-booked {
+  background: #fdeaea;
+  color: #c53030;
+}
