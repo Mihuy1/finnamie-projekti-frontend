@@ -11,6 +11,18 @@ export const getAllTimeSlots = async () => {
   }
 };
 
+export const getTimeSlotImage = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}media/upload/timeslots/${id}`, {
+      credentials: "include",
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching image for timeslot:", error);
+  }
+};
+
 export const getConversations = async () => {
   try {
     const res = await fetch(`${BASE_URL}conversations`, {
@@ -52,6 +64,19 @@ export const postLogin = async (email, password) => {
         : (payload?.error ?? payload?.message),
     );
   return payload;
+};
+
+export const getPublicUserInfo = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}users/public/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const getActivities = async () => {
