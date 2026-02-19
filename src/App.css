@@ -23,7 +23,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 64px;
+  padding: 10px 30px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -33,14 +33,34 @@ body {
 }
 
 .nav a {
-  margin-left: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 16px;
+  border-radius: 999px;
+
+  background: var(--accent);
+  color: #fff;
   text-decoration: none;
-  color: var(--text-main);
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 13px;
+
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
+.nav a:not(:last-child) {
+  margin-right: 8px;}
+
 .nav a:hover {
-  color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+}
+
+.nav a:active {
+  transform: translateY(0px);
+  opacity: 0.95;
 }
 
 .booking-section {
