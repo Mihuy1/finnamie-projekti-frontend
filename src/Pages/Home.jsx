@@ -13,7 +13,6 @@ function Home() {
   const [activityType, setActivityType] = useState("");
   const { user, loading, isAuthed } = useAuth();
   const [openChat, setOpenChat] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
