@@ -6,6 +6,9 @@ export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -24,6 +27,9 @@ export default function Register() {
         first_name: firstName,
         last_name: lastName,
         email,
+        phone,
+        address,
+        date_of_birth: dateOfBirth,
         password,
         role: "guest",
       });
@@ -35,7 +41,8 @@ export default function Register() {
 
   return (
     <div className="login_register-page">
-      <Link to="/" className="back-link">← Back to home page </Link>
+      <Link to="/" className="back-link">← Back to home page</Link>
+
       <div className="login_register-card">
         <h1>Register</h1>
 
@@ -50,6 +57,7 @@ export default function Register() {
                 required
               />
             </label>
+
             <label>
               <span className="required">Last Name</span>
               <input
@@ -67,6 +75,36 @@ export default function Register() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+
+          <label>
+            <span className="required">Phone number</span>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </label>
+
+          <label>
+            <span className="required">Address</span>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              required
+            />
+          </label>
+
+          <label>
+            <span className="required">Date of Birth</span>
+            <input
+              type="date"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
               required
             />
           </label>
@@ -99,7 +137,9 @@ export default function Register() {
         </form>
 
         <div className="login_register-links">
-          <p>Already have an account? <Link to="/login">Login</Link></p>
+          <p>
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
         </div>
       </div>
     </div>
