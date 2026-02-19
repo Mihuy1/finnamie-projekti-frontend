@@ -973,7 +973,8 @@ body {
 }
 
 .profile-form input,
-.profile-form textarea {
+.profile-form textarea,
+.profile-form select {
   width: 100%;
   box-sizing: border-box;
   padding: 12px 14px;
@@ -983,19 +984,39 @@ body {
   background: white;
 }
 
+.profile-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 12px) calc(50% - 2px);
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
+
 .profile-form textarea {
   resize: vertical;
   min-height: 120px;
 }
 
 .profile-form input:focus,
-.profile-form textarea:focus {
+.profile-form textarea:focus,
+.profile-form select:focus {
   outline: none;
   border-color: rgba(170, 0, 162, 0.45);
 }
 
 .profile-form input:disabled,
-.profile-form textarea:disabled {
+.profile-form textarea:disabled,
+.profile-form select:disabled {
   background: rgba(0, 47, 108, 0.04);
   color: var(--text-muted);
 }

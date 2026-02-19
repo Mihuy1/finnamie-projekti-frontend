@@ -118,7 +118,7 @@ export const Profile = () => {
     }
 
     setStatusMessage("Successfully updated profile!");
-    isEditing(false);
+    setIsEditing(false);
   };
 
   const handleChangePassword = () => {};
@@ -270,12 +270,17 @@ export const Profile = () => {
               </label>
               <label>
                 Experience length
-                <input
+                <select
                   name="experience_length"
+                  className="profile-select"
                   value={profileForm.experience_length}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
-                />
+                >
+                  <option value="Half-day">Half-day</option>
+                  <option value="Full-day">Full-day</option>
+                  <option value="Both">Both</option>
+                </select>
               </label>
               <label className="profile-full-width">
                 Description
@@ -288,11 +293,6 @@ export const Profile = () => {
               </label>
             </>
           )}
-
-          <label className="profile-readonly">
-            Role
-            <input name="role" value={profileForm.role} disabled />
-          </label>
 
           {isEditing && (
             <div className="profile-actions">
