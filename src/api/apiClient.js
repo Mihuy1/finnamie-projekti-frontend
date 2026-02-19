@@ -172,6 +172,37 @@ export const register = async (params) => {
   return payload;
 };
 
+export const getProfile = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}auth/profile`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const updateProfile = async (params) => {
+  try {
+    console.log("params", params);
+    const res = await fetch(`${BASE_URL}auth/update`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 export const verifyMe = async () => {
   const res = await fetch(`${BASE_URL}auth/me`, {
     method: "GET",
