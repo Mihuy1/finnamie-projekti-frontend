@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getActivities, getProfile, updateProfile } from "../api/apiClient";
+import isEmail from "validator/lib/isEmail";
+import toast from "react-hot-toast";
+import Select from "react-select";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -23,34 +26,45 @@ export const Profile = () => {
     new_password: "",
     confirm_new_password: "",
   });
+  const hasFetchedProfile = useRef(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [statusMessage, setStatusMessage] = useState("");
   const [isHost, setIsHost] = useState(false);
-  const [activities, setActivities] = useState([]);
+  const [activitiesForm, setActivitiesForm] = useState([]);
 
   useEffect(() => {
+    if (hasFetchedProfile.current) {
+      return;
+    }
+    hasFetchedProfile.current = true;
+
     const fetchData = async () => {
       setLoading(true);
 
-      const data = await getProfile();
-
-      if (!data) {
-        setError("failed to get profile");
-        setLoading(false);
-        return;
-      }
+      const data = await toast.promise(getProfile(), {
+        pending: "Loading Profile Data",
+        success: "Profile loaded!",
+        error: "Failed to get profile data",
+      });
 
       data.date_of_birth = data.date_of_birth.split("T")[0];
 
       if (data.role === "host") setIsHost(true);
 
-      setActivities(await getActivities());
+      const activitiesData = await getActivities();
+      const hostActivities = data.host_activities || [];
 
-      setProfile(data);
-      setProfileForm(data);
+      setActivitiesForm(activitiesData);
+
+      setProfile({
+        ...data,
+        host_activities: hostActivities,
+      });
+      setProfileForm({
+        ...data,
+        host_activities: hostActivities,
+      });
       setLoading(false);
     };
 
@@ -62,7 +76,10 @@ export const Profile = () => {
   };
 
   const handleCancelEdit = () => {
-    setProfileForm(profile);
+    setProfileForm({
+      ...profile,
+      host_activities: profile.host_activities || [],
+    });
     setIsEditing(false);
   };
 
@@ -103,25 +120,72 @@ export const Profile = () => {
         city: profileForm.city,
         description: profileForm.description,
         experience_length: profileForm.experience_length,
+        activity_ids: (profileForm.host_activities || []).map(
+          (activity) => activity.id,
+        ),
       };
     }
 
-    console.log("user:", user);
-
-    const test = await updateProfile(user);
-
-    console.log(test);
-
-    if (!test) {
-      setError("Failed To Update Profile");
+    if (!isEmail(user.email)) {
+      toast.error("Enter a valid email address");
       return;
     }
 
-    setStatusMessage("Successfully updated profile!");
-    setIsEditing(false);
+    try {
+      await updateProfile(user);
+      setProfile({
+        ...profileForm,
+        host_activities: profileForm.host_activities || [],
+      });
+      toast.success("Profile Updated successfully!");
+      setIsEditing(false);
+    } catch (error) {
+      toast.error(error.message || "Failed to update profile");
+    }
   };
 
-  const handleChangePassword = () => {};
+  const handleChangePassword = async (event) => {
+    event.preventDefault();
+
+    if (!passwordForm.new_password || !passwordForm.confirm_new_password) {
+      toast.error("Password cannot be empty");
+      return;
+    }
+
+    if (passwordForm.new_password !== passwordForm.confirm_new_password) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    const newPasswords = {
+      password: passwordForm.new_password,
+      confirmPassword: passwordForm.confirm_new_password,
+    };
+
+    try {
+      await toast.promise(updateProfile(newPasswords), {
+        pending: "Updating password...",
+        success: "Password updated successfully!",
+        error: (error) => error.message || "Failed to update password",
+      });
+
+      setPasswordForm({
+        new_password: "",
+        confirm_new_password: "",
+      });
+    } catch {
+      console.error("Failed to update password");
+    }
+  };
+
+  const handleActivitiesInputChange = (selectedOptions) => {
+    const nextActivities = selectedOptions || [];
+
+    setProfileForm((prev) => ({
+      ...prev,
+      host_activities: nextActivities,
+    }));
+  };
 
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
   const avatarLetter = (fullName[0] ?? "U").toUpperCase();
@@ -152,8 +216,6 @@ export const Profile = () => {
         </div>
 
         {loading && <p>Loading profile...</p>}
-        {!!error && <p className="profile-error">{error}</p>}
-        {!!statusMessage && <p className="profile-success">{statusMessage}</p>}
 
         <div className="profile-top">
           <div className="profile-avatar">
@@ -170,7 +232,6 @@ export const Profile = () => {
 
           <div className="profile-top-info">
             <h2>{fullName || "Your Profile"}</h2>
-            <p className="profile-role">Role: {profile.role || "Not set"}</p>
           </div>
         </div>
 
@@ -281,6 +342,22 @@ export const Profile = () => {
                   <option value="Full-day">Full-day</option>
                   <option value="Both">Both</option>
                 </select>
+              </label>
+              <label>
+                Activities
+                <Select
+                  isMulti
+                  name="activity_ids"
+                  className="profile-select"
+                  classNamePrefix="select"
+                  value={profileForm.host_activities || []}
+                  onChange={handleActivitiesInputChange}
+                  getOptionLabel={(option) => option.name}
+                  getOptionValue={(option) => option.id}
+                  options={activitiesForm}
+                  placeholder="Select your preffered activities"
+                  isDisabled={!isEditing}
+                />
               </label>
               <label className="profile-full-width">
                 Description

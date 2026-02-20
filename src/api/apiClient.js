@@ -187,20 +187,34 @@ export const getProfile = async () => {
 };
 
 export const updateProfile = async (params) => {
+  let res;
+
   try {
-    console.log("params", params);
-    const res = await fetch(`${BASE_URL}auth/update`, {
+    res = await fetch(`${BASE_URL}auth/update`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
     });
-
-    return await res.json();
-  } catch (error) {
-    console.error(error);
-    return null;
+  } catch {
+    throw new Error("Network error. Please try again.");
   }
+
+  const ct = res.headers.get("content-type") ?? "";
+  const payload = ct.includes("application/json")
+    ? await res.json()
+    : await res.text();
+
+  if (!res.ok) {
+    const message =
+      typeof payload === "string"
+        ? payload
+        : (payload?.error ?? payload?.message);
+
+    throw new Error(message || "Failed to update profile.");
+  }
+
+  return payload;
 };
 
 export const verifyMe = async () => {
