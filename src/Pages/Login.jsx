@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postLogin } from "../api/apiClient";
 import { useAuth } from "../auth/AuthContext";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,17 +13,24 @@ export default function Login() {
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      await postLogin(email, password);
+      await toast.promise(postLogin(email, password), {
+        pending: "Logging in...",
+        success: "Login successful!",
+        error: (err) => `Login failed: ${err?.message || "Unknown error"}`,
+      });
+
       await refresh();
       navigate("/", { replace: true });
     } catch (err) {
-      alert(`Login failed: ${err?.message || "Unknown error"}`);
+      console.error("Login error:", err);
     }
   }
 
   return (
     <div className="login_register-page">
-      <Link to="/" className="back-link">← Back to home page </Link>
+      <Link to="/" className="back-link">
+        ← Back to home page{" "}
+      </Link>
       <div className="login_register-card">
         <h1>Login</h1>
 
@@ -53,8 +61,12 @@ export default function Login() {
         </form>
 
         <div className="login_register-links">
-          <p>Are you a host? <Link to="/host/login">Login here</Link></p>
-          <p>No account? <Link to="/register">Register</Link></p>
+          <p>
+            Are you a host? <Link to="/host/login">Login here</Link>
+          </p>
+          <p>
+            No account? <Link to="/register">Register</Link>
+          </p>
         </div>
       </div>
     </div>

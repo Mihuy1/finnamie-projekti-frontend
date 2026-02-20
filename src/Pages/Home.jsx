@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import Map from "../components/Map";
 import "../App.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useAuth } from "../auth/AuthContext";
@@ -13,16 +13,16 @@ function Home() {
   const [activityType, setActivityType] = useState("");
   const { user, loading, isAuthed } = useAuth();
   const [openChat, setOpenChat] = useState(false);
-
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("Auth state:", { loading, isAuthed, user });
-    if (user) console.log("Logged in as:", user.first_name, user.last_name);
-  }, [loading, isAuthed, user]);
+  const mapSectionRef = useRef(null);
+
+  const scrollToMap = () => {
+    mapSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleSearch = () => {
-    navigate("/discover");
+    scrollToMap();
   };
 
   const nextMonth = () => {
@@ -59,9 +59,12 @@ function Home() {
               <Link to="/register">Register</Link>
             </ul>
           ) : (
-            <p>
-              {user.first_name} {user.last_name}
-            </p>
+            <>
+              <Link to="/discover">Discover activities</Link>
+              <Link to="/profile">
+                {user.first_name} {user.last_name}{" "}
+              </Link>
+            </>
           )}
         </nav>
       </header>
@@ -75,57 +78,26 @@ function Home() {
           Chat
         </button>
         {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}
+
         <h1>Book your local experience</h1>
         <p>Find trusted local hosts for authentic experiences.</p>
 
         <div className="search-box">
           <input type="text" placeholder="Location" />
-          <input type="date" />
+
           <select>
             <option>Activity type</option>
+            <option>Nature</option>
+            <option>Culture</option>
+            <option>Wellness</option>
+          </select>
+
+          <select value={activityType} onChange={handleActivityType}>
+            <option value="">Duration</option>
+            <option value="halfday">Half-Day</option>
+            <option value="fullday">Full-Day</option>
           </select>
           <button onClick={handleSearch}>Search</button>
-        </div>
-      </section>
-
-      <section className="map-and-calendar">
-        <div className="map-container">
-          <Map activityType={activityType} />
-        </div>
-
-        <div className="calendar-container">
-          <h2>Choose your date</h2>
-          <h2>
-            <button onClick={prevMonth}>◀</button>
-            {activeDate.toLocaleString("en-GB", {
-              month: "long",
-              year: "numeric",
-            })}
-          </h2>
-          <button onClick={nextMonth}>▶</button>
-          <Calendar
-            onChange={handleDates}
-            value={date}
-            activeStartDate={activeDate}
-            selectRange
-            onActiveStartDateChange={({ activeStartDate }) =>
-              setActiveDate(activeStartDate)
-            }
-          />
-          <select
-            style={{
-              marginTop: "16px",
-              width: "100%",
-              padding: "12px",
-              borderRadius: "6px",
-            }}
-            onChange={handleActivityType}
-          >
-            <option value="">Activity type</option>
-            <option value="halfday">Half-Day Experience</option>
-            <option value="fullday">Full-Day Experience</option>
-          </select>
-          <button style={{ marginTop: "16px" }}>Book Now</button>
         </div>
       </section>
 
@@ -133,19 +105,56 @@ function Home() {
         <h2>How it works</h2>
         <div className="steps">
           <div className="step">
-            <h3>1. Search</h3>
+            <div className="step-number">1</div>
+            <h3>Search</h3>
             <p>Find a local host, place or activity that fits you.</p>
           </div>
           <div className="step">
-            <h3>2. Book</h3>
+            <div className="step-number">2</div>
+            <h3>Book</h3>
             <p>Choose a time and book securely online.</p>
           </div>
           <div className="step">
-            <h3>3. Experience</h3>
+            <div className="step-number">3</div>
+            <h3>Experience</h3>
             <p>Enjoy Finland like a local.</p>
           </div>
         </div>
       </section>
+
+      <section className="map-and-calendar" ref={mapSectionRef}>
+        <div className="map-container">
+          <Map activityType={activityType} />
+        </div>
+
+        <div className="calendar-container">
+          <h2>Choose your date</h2>
+          <p className="calendar-subtitle">Check availability for your selected dates</p>
+
+          <div className="calendar-nav">
+            <button onClick={prevMonth}>&lsaquo;</button>
+            <span style={{ fontWeight: 700, color: '#002f6c', fontSize: '16px' }}>
+              {activeDate.toLocaleString("en-GB", { month: "long", year: "numeric" })}
+            </span>
+            <button onClick={nextMonth}>&rsaquo;</button>
+          </div>
+
+          <Calendar
+            onChange={handleDates}
+            value={date}
+            activeStartDate={activeDate}
+            selectRange
+            onActiveStartDateChange={({ activeStartDate }) => setActiveDate(activeStartDate)}
+            showNavigation={false}
+          />
+        </div>
+      </section>
+
+      <div className="final-booking-action">
+        <button className="book-now-large">
+          Book Now
+        </button>
+      </div>
 
       <footer className="footer">
         <p>Finnamie</p>
