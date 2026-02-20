@@ -17,7 +17,6 @@ function Home() {
 
   useEffect(() => {
     console.log("Auth state:", { loading, isAuthed, user });
-    if (user) console.log("Logged in as:", user.first_name, user.last_name);
   }, [loading, isAuthed, user]);
 
   const handleSearch = () => {
@@ -58,9 +57,12 @@ function Home() {
               <Link to="/register">Register</Link>
             </ul>
           ) : (
-            <p>
-              {user.first_name} {user.last_name}
-            </p>
+            <>
+              <Link to="/discover">Discover activities</Link>
+              <Link to="/profile">
+                {user.first_name} {user.last_name}{" "}
+              </Link>
+            </>
           )}
         </nav>
       </header>
