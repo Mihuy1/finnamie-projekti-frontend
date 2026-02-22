@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { register } from "../api/apiClient";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -18,12 +19,12 @@ export default function Register() {
     setError("");
 
     if (password !== confirm) {
-      setError("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     }
 
-    try {
-      await register({
+    await toast.promise(
+      register({
         first_name: firstName,
         last_name: lastName,
         email,
@@ -31,17 +32,22 @@ export default function Register() {
         address,
         date_of_birth: dateOfBirth,
         password,
+        confirmPassword: confirm,
         role: "guest",
-      });
-      alert("Registration successful!");
-    } catch (err) {
-      setError(err?.message || "Registration failed.");
-    }
+      }),
+      {
+        pending: "Registering account...",
+        success: "Account created successfully!",
+        error: (err) => err?.message || "Registration failed.",
+      },
+    );
   }
 
   return (
     <div className="login_register-page">
-      <Link to="/" className="back-link">← Back to home page</Link>
+      <Link to="/" className="back-link">
+        ← Back to home page
+      </Link>
 
       <div className="login_register-card">
         <h1>Register</h1>
