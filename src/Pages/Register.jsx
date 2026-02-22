@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/apiClient";
 import toast from "react-hot-toast";
 
@@ -13,6 +13,8 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -41,6 +43,10 @@ export default function Register() {
         error: (err) => err?.message || "Registration failed.",
       },
     );
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 1000);
   }
 
   return (
