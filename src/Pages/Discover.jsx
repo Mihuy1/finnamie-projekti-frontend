@@ -72,8 +72,8 @@ export default function Discover() {
       category === "All"
         ? timeSlots
         : timeSlots.filter((timeslot) =>
-            timeslot.activities.some((activity) => activity.name === category),
-          ),
+          timeslot.activities.some((activity) => activity.name === category),
+        ),
     );
   };
 
