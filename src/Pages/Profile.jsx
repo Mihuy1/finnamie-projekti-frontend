@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { getActivities, getProfile, updateProfile } from "../api/apiClient";
+import {
+  getActivities,
+  getProfile,
+  updateProfile,
+  uploadUserImage,
+} from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import Select from "react-select";
@@ -32,6 +37,7 @@ export const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [activitiesForm, setActivitiesForm] = useState([]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (hasFetchedProfile.current) {
@@ -187,6 +193,32 @@ export const Profile = () => {
     }));
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+      toast.error("No file selected");
+      return;
+    }
+
+    const data = await toast.promise(uploadUserImage(file), {
+      pending: "Uploading image...",
+      success: "Image uploaded successfully!",
+      error: "Failed to upload image",
+    });
+
+    // TODO: Probably need to add a delay here because the image isn't immediately available.
+    if (data)
+      setProfile((prev) => ({
+        ...prev,
+        image_url: data.image_url,
+      }));
+  };
+
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
   const avatarLetter = (fullName[0] ?? "U").toUpperCase();
 
@@ -222,13 +254,27 @@ export const Profile = () => {
             {profile.image_url ? (
               <img
                 className="avatar-img"
-                src={profile.image_url}
+                src={`http://localhost:3000${profile.image_url}`}
                 alt="Profile avatar"
+                onClick={handleImageClick}
               />
             ) : (
-              <div className="profile-avatar-fallback">{avatarLetter}</div>
+              <div
+                onClick={handleImageClick}
+                className="profile-avatar-fallback"
+              >
+                {avatarLetter}
+              </div>
             )}
           </div>
+
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
 
           <div className="profile-top-info">
             <h2>{fullName || "Your Profile"}</h2>

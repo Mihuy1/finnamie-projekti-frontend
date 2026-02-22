@@ -103,6 +103,39 @@ export const getActivities = async () => {
   }
 };
 
+export const uploadUserImage = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  let res;
+
+  try {
+    res = await fetch(`${BASE_URL}media/upload/users`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+  } catch {
+    throw new Error("Network error. Please try again.");
+  }
+
+  const ct = res.headers.get("content-type") ?? "";
+  const payload = ct.includes("application/json")
+    ? await res.json()
+    : await res.text();
+
+  if (!res.ok) {
+    const message =
+      typeof payload === "string"
+        ? payload
+        : (payload?.error ?? payload?.message);
+
+    throw new Error(message || "Upload failed");
+  }
+
+  return payload;
+};
+
 export const register = async (params) => {
   const {
     first_name,
