@@ -205,18 +205,37 @@ export const Profile = () => {
       return;
     }
 
-    const data = await toast.promise(uploadUserImage(file), {
+    const uploadResult = await toast.promise(uploadUserImage(file), {
       pending: "Uploading image...",
       success: "Image uploaded successfully!",
       error: "Failed to upload image",
     });
 
-    // TODO: Probably need to add a delay here because the image isn't immediately available.
-    if (data)
+    const uploadedImageUrl = uploadResult?.image_url;
+    if (uploadedImageUrl) {
       setProfile((prev) => ({
         ...prev,
-        image_url: data.image_url,
+        image_url: uploadedImageUrl,
       }));
+      setProfileForm((prev) => ({
+        ...prev,
+        image_url: uploadedImageUrl,
+      }));
+    }
+
+    const updatedProfile = await getProfile();
+    if (updatedProfile) {
+      setProfile((prev) => ({
+        ...prev,
+        ...updatedProfile,
+      }));
+      setProfileForm((prev) => ({
+        ...prev,
+        ...updatedProfile,
+      }));
+    }
+
+    event.target.value = "";
   };
 
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
