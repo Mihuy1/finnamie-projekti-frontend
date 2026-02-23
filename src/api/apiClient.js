@@ -22,6 +22,18 @@ export const getAllTimeSlotsWithHost = async () => {
   }
 };
 
+export const getTimeSlotsByHostId = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}timeslots/host/${id}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const getTimeSlotImage = async (id) => {
   try {
     const res = await fetch(`${BASE_URL}media/upload/timeslots/${id}`, {

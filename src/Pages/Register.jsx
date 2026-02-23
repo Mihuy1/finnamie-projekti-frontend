@@ -7,8 +7,8 @@ export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  // const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -30,8 +30,8 @@ export default function Register() {
         first_name: firstName,
         last_name: lastName,
         email,
-        phone,
-        address,
+        // phone,
+        country,
         date_of_birth: dateOfBirth,
         password,
         confirmPassword: confirm,
@@ -91,7 +91,7 @@ export default function Register() {
             />
           </label>
 
-          <label>
+          {/* <label>
             <span className="required">Phone number</span>
             <input
               type="tel"
@@ -99,14 +99,14 @@ export default function Register() {
               onChange={(e) => setPhone(e.target.value)}
               required
             />
-          </label>
+          </label> */}
 
           <label>
-            <span className="required">Address</span>
+            <span className="required">Country</span>
             <input
               type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
               required
             />
           </label>

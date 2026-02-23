@@ -1322,6 +1322,120 @@ body {
   margin: 0;
 }
 
+.profile-timeslots {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-timeslot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-timeslot-card {
+  border: 1px solid rgba(0, 47, 108, 0.14);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.profile-timeslot-card.is-expanded {
+  border-color: rgba(170, 0, 162, 0.34);
+  box-shadow: 0 6px 16px rgba(0, 47, 108, 0.08);
+}
+
+.profile-timeslot-summary {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-timeslot-summary:hover {
+  background: rgba(0, 47, 108, 0.03);
+}
+
+.profile-timeslot-summary-main h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.profile-timeslot-summary-main p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.profile-timeslot-summary-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.profile-timeslot-pill {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: rgba(0, 47, 108, 0.08);
+}
+
+.profile-timeslot-chevron {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profile-timeslot-details {
+  border-top: 1px solid rgba(0, 47, 108, 0.12);
+  padding: 14px 16px 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.profile-timeslot-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.profile-timeslot-detail-grid strong,
+.profile-timeslot-description strong {
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.profile-timeslot-detail-grid p,
+.profile-timeslot-description p {
+  margin: 4px 0 0;
+  color: #34495e;
+  font-size: 14px;
+}
+
+.profile-timeslot-map {
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 47, 108, 0.12);
+}
+
+.profile-timeslot-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
 @media (max-width: 768px) {
   .profile-card {
     padding: 24px;
@@ -1342,6 +1456,19 @@ body {
   }
 
   .profile-password-form {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-timeslot-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-timeslot-summary-meta {
+    justify-content: flex-start;
+  }
+
+  .profile-timeslot-detail-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -2,12 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import {
   getActivities,
   getProfile,
+  getTimeSlotsByHostId,
   updateProfile,
   uploadUserImage,
 } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import Select from "react-select";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { TimeSlot } from "../components/Timeslot";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -24,6 +32,13 @@ const EMPTY_PROFILE = {
   role: "",
 };
 
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
 export const Profile = () => {
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [profileForm, setProfileForm] = useState(EMPTY_PROFILE);
@@ -38,6 +53,8 @@ export const Profile = () => {
   const [isHost, setIsHost] = useState(false);
   const [activitiesForm, setActivitiesForm] = useState([]);
   const fileInputRef = useRef(null);
+
+  const [timeSlots, setTimeSlots] = useState([]);
 
   useEffect(() => {
     if (hasFetchedProfile.current) {
@@ -54,9 +71,12 @@ export const Profile = () => {
         error: "Failed to get profile data",
       });
 
-      data.date_of_birth = data.date_of_birth.split("T")[0];
-
-      if (data.role === "host") setIsHost(true);
+      if (data.role === "host") {
+        setIsHost(true);
+        const hostTimeslots = await getTimeSlotsByHostId(data.id);
+        console.log("Fetched timeslots:", hostTimeslots);
+        setTimeSlots(hostTimeslots);
+      }
 
       const activitiesData = await getActivities();
       const hostActivities = data.host_activities || [];
@@ -475,6 +495,16 @@ export const Profile = () => {
             </button>
           </div>
         </form>
+        <hr className="profile-divider" />
+
+        <h2 className="profile-section-title">Your Activities</h2>
+        {isHost && timeSlots.length === 0 && (
+          <p>You have no timeslots. Create some to get started!</p>
+        )}
+
+        {isHost &&
+          timeSlots.length > 0 &&
+          timeSlots.map((slots) => <TimeSlot key={slots.id} slot={slots} />)}
       </div>
     </section>
   );

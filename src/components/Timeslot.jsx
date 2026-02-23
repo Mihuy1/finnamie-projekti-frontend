@@ -1,143 +1,104 @@
-import { useEffect, useState } from "react";
-import { getPublicUserInfo, getTimeSlotImage } from "../api/apiClient";
-import "../styles/timeslot-styles.css";
+import { useState } from "react";
+import Select from "react-select";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-export const TimeSlot = ({
-  id,
-  host_id,
-  type,
-  start_time,
-  end_time,
-  res_status,
-  description,
-  city,
-  latitude_deg,
-  longitude_deg,
-  activity_type,
-}) => {
-  const [fullName, setFullName] = useState([]);
-  const [images, setImages] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
-  useEffect(() => {
-    const fetchFullName = async () => {
-      const name = await getPublicUserInfo(host_id);
+export const TimeSlot = ({ slot }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-      if (name) setFullName(name);
-    };
-
-    const getImages = async () => {
-      const fetchedImages = await getTimeSlotImage(id);
-
-      if (Array.isArray(fetchedImages)) setImages(fetchedImages);
-    };
-
-    fetchFullName();
-    getImages();
-  }, [host_id, id]);
-
-  const mainImageUrl =
-    images.length > 0
-      ? `http://localhost:3000${images[currentImageIndex].url}`
-      : "https://placehold.co/150";
-
-  console.log(`timeslot id: ${id} mainImageUrl ${mainImageUrl}`);
-
-  const nextImage = () => {
-    if (images.length > 0) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }
-  };
-
-  const prevImage = () => {
-    if (images.length > 0) {
-      setCurrentImageIndex(
-        (prev) => (prev - 1 + images.length) % images.length,
-      );
-    }
-  };
-
-  const goToImage = (index) => {
-    setCurrentImageIndex(index);
-  };
-
-  const getStatusClass = (status) => {
-    switch (status?.toLowerCase()) {
-      case "available":
-        return "status-available";
-      case "pending":
-        return "status-pending";
-      case "booked":
-        return "status-booked";
-      default:
-        return "";
-    }
+  const toggleSlotDetails = () => {
+    setIsExpanded(!isExpanded);
   };
 
   return (
-    <div className="timeslot-card">
-      <div className="timeslot-image-wrapper">
-        <img
-          src={mainImageUrl}
-          alt={`Timeslot in ${city}`}
-          className="timeslot-image"
-          onClick={nextImage}
-        />
-
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={prevImage}
-              className="timeslot-nav-button timeslot-prev-button"
-              aria-label="Previous image"
-            >
-              ←
-            </button>
-
-            <button
-              onClick={nextImage}
-              className="timeslot-nav-button timeslot-next-button"
-              aria-label="Next image"
-            >
-              →
-            </button>
-
-            <div className="timeslot-dot-container">
-              {images.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToImage(index)}
-                  className={`timeslot-dot ${index === currentImageIndex ? "active" : ""}`}
-                />
-              ))}
+    <div className="profile-timeslots">
+      <div className="profile-timeslot-list">
+        <article
+          key={slot.id}
+          className={`profile-timeslot-card ${isExpanded ? "is-expanded" : ""}`}
+        >
+          <button
+            type="button"
+            className="profile-timeslot-summary"
+            onClick={() => toggleSlotDetails(slot.id)}
+            aria-expanded={isExpanded}
+          >
+            <div className="profile-timeslot-summary-main">
+              <h3>{slot.city || "Unknown city"}</h3>
+              <p>{slot.start_time}</p>
             </div>
-          </>
-        )}
-      </div>
 
-      <div className="timeslot-content">
-        <header className="timeslot-header">
-          <span className="timeslot-city">{city}</span>
-          <span className="timeslot-type">{activity_type || type}</span>
-        </header>
+            <div className="profile-timeslot-summary-meta">
+              <span className="profile-timeslot-pill">{slot.type || "-"}</span>
+              <span className="profile-timeslot-pill">
+                {slot.res_status || "Unknown"}
+              </span>
+              <span className="profile-timeslot-chevron">
+                {isExpanded ? "Hide details" : "View details"}
+              </span>
+            </div>
+          </button>
 
-        <span className="timeslot-host">
-          Hosted by {fullName.first_name} {fullName.last_name}
-        </span>
+          {isExpanded && (
+            <div className="profile-timeslot-details">
+              <div className="profile-timeslot-detail-grid">
+                <div>
+                  <strong>Start</strong>
+                  <p>{slot.start_time}</p>
+                </div>
+                <div>
+                  <strong>End</strong>
+                  <p>{slot.end_time}</p>
+                </div>
+                <div>
+                  <strong>Activity</strong>
+                  <p>{slot.type || "-"}</p>
+                </div>
+                <div>
+                  <strong>Status</strong>
+                  <p>{slot.res_status || "Unknown"}</p>
+                </div>
+              </div>
 
-        <p className="timeslot-description">{description}</p>
+              {slot.description && (
+                <div className="profile-timeslot-description">
+                  <strong>Description</strong>
+                  <p>{slot.description}</p>
+                </div>
+              )}
 
-        <div className="timeslot-details">
-          <div className="timeslot-info-item">
-            <span>📅 {new Date(start_time).toLocaleDateString()}</span>
-            <span>🕒 {new Date(start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-          <div className="timeslot-info-item">
-            <span className={`status-badge ${getStatusClass(res_status)}`}>
-              {res_status}
-            </span>
-          </div>
-        </div>
+              <div className="profile-timeslot-map">
+                <MapContainer
+                  center={[slot.latitude_deg, slot.longitude_deg]}
+                  zoom={11}
+                  scrollWheelZoom={false}
+                >
+                  <TileLayer
+                    attribution="&copy; OpenStreetMap contributors"
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker position={[slot.latitude_deg, slot.longitude_deg]}>
+                    <Popup>
+                      <p>City: {slot.city}</p>
+                      <p>Type: {slot.type || "-"}</p>
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+              </div>
+            </div>
+          )}
+        </article>
       </div>
     </div>
   );
