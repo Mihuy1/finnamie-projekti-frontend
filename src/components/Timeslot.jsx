@@ -1,11 +1,12 @@
 import { useState } from "react";
-import Select from "react-select";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { EditTimeSlot } from "./EditTimeSlot";
+import { updateTimeSlot } from "../api/apiClient";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -16,11 +17,30 @@ L.Icon.Default.mergeOptions({
 
 export const TimeSlot = ({ slot }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const toggleSlotDetails = () => {
     setIsExpanded(!isExpanded);
   };
 
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+  };
+
+  if (isEditing) {
+    return (
+      <EditTimeSlot
+        slot={slot}
+        onCancel={toggleEditMode}
+        onSave={async (updatedData) => {
+          // Handle save logic here, e.g., call an API to update the timeslot
+          console.log("Saving updated timeslot data:", updatedData);
+          await updateTimeSlot(slot.id, updatedData);
+          toggleEditMode();
+        }}
+      />
+    );
+  }
   return (
     <div className="profile-timeslots">
       <div className="profile-timeslot-list">
@@ -53,6 +73,13 @@ export const TimeSlot = ({ slot }) => {
           {isExpanded && (
             <div className="profile-timeslot-details">
               <div className="profile-timeslot-detail-grid">
+                <button
+                  type="button"
+                  className="profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
+                  onClick={toggleEditMode}
+                >
+                  {isEditing ? "Cancel Edit" : "Edit Timeslot"}
+                </button>
                 <div>
                   <strong>Start</strong>
                   <p>{slot.start_time}</p>

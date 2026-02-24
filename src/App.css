@@ -1436,6 +1436,67 @@ body {
   border-radius: 0;
 }
 
+.profile-timeslot-edit-form {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-timeslot-edit-title {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.profile-timeslot-edit-fields {
+  gap: 14px;
+}
+
+.profile-timeslot-edit-profile-form {
+  margin-bottom: 6px;
+}
+
+.profile-timeslot-search-wrapper {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.profile-timeslot-search-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.timeslot-address-select__control {
+  min-height: 44px;
+  border-radius: 10px !important;
+  border-color: rgba(0, 47, 108, 0.2) !important;
+  box-shadow: none !important;
+}
+
+.timeslot-address-select__control:hover,
+.timeslot-address-select__control--is-focused {
+  border-color: rgba(170, 0, 162, 0.45) !important;
+}
+
+.profile-timeslot-map.profile-timeslot-map-edit {
+  margin-top: 4px;
+}
+
+.profile-timeslot-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.profile-timeslot-edit-trigger {
+  justify-self: start;
+  width: fit-content;
+  margin-bottom: 4px;
+}
+
 @media (max-width: 768px) {
   .profile-card {
     padding: 24px;
@@ -1470,5 +1531,13 @@ body {
 
   .profile-timeslot-detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-timeslot-edit-actions {
+    justify-content: stretch;
+  }
+
+  .profile-timeslot-edit-actions .profile-btn {
+    width: 100%;
   }
 }

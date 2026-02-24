@@ -1,4 +1,5 @@
 const BASE_URL = "http://localhost:3000/api/";
+const GEOAPIFY_KEY = "b37952a659224430b7545612f420ab9c";
 
 export const getAllTimeSlots = async () => {
   try {
@@ -43,6 +44,35 @@ export const getTimeSlotImage = async (id) => {
     return await res.json();
   } catch (error) {
     console.error("Error fetching image for timeslot:", error);
+  }
+};
+
+export const updateTimeSlot = async (id, data) => {
+  try {
+    const res = await fetch(`${BASE_URL}timeslots/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const ct = res.headers.get("content-type") ?? "";
+    const payload = ct.includes("application/json")
+      ? await res.json()
+      : await res.text();
+
+    if (!res.ok) {
+      const message =
+        typeof payload === "string"
+          ? payload
+          : (payload?.error ?? payload?.message);
+
+      throw new Error(message || "Failed to update timeslot.");
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Error updating timeslot:", error);
   }
 };
 
@@ -275,4 +305,27 @@ export const verifyMe = async () => {
   if (!res.ok) return null;
 
   return payload;
+};
+
+export const loadOptions = async (inputValue) => {
+  if (!inputValue || inputValue.length < 3) return [];
+
+  try {
+    const res = await fetch(
+      `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(inputValue)}&apiKey=${GEOAPIFY_KEY}`,
+    );
+    if (!res.ok) throw new Error(`Geoapify error: ${res.status}`);
+    const data = await res.json();
+    return (data.features || []).map((f) => ({
+      label: f.properties.formatted,
+      value: {
+        lat: f.properties.lat,
+        lon: f.properties.lon,
+        addr: f.properties.formatted,
+      },
+    }));
+  } catch (e) {
+    console.error("Autocomplete failed:", e);
+    return [];
+  }
 };
