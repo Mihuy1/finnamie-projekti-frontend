@@ -74,7 +74,7 @@ export const Profile = () => {
       if (data.role === "host") {
         setIsHost(true);
         const hostTimeslots = await getTimeSlotsByHostId(data.id);
-        console.log("Fetched timeslots:", hostTimeslots);
+        console.log("Host timeslots:", hostTimeslots);
         setTimeSlots(hostTimeslots);
       }
 
@@ -504,7 +504,13 @@ export const Profile = () => {
 
         {isHost &&
           timeSlots.length > 0 &&
-          timeSlots.map((slots) => <TimeSlot key={slots.id} slot={slots} />)}
+          timeSlots.map((slots) => (
+            <TimeSlot
+              key={slots.id}
+              slot={slots}
+              activities={profileForm.host_activities || []}
+            />
+          ))}
       </div>
     </section>
   );

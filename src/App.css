@@ -1492,7 +1492,7 @@ body {
 }
 
 .profile-timeslot-edit-trigger {
-  justify-self: start;
+  justify-self: end;
   width: fit-content;
   margin-bottom: 4px;
 }

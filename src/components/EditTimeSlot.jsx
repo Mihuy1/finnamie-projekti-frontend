@@ -2,6 +2,7 @@ import { useState } from "react";
 import AsyncSelect from "react-select/async";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { loadOptions } from "../api/apiClient";
+import Select from "react-select";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -9,13 +10,16 @@ const ChangeView = ({ center }) => {
   return null;
 };
 
-export const EditTimeSlot = ({ slot, onCancel, onSave }) => {
+export const EditTimeSlot = ({ slot, activities, onCancel, onSave }) => {
   const [formData, setFormData] = useState({
     ...slot,
     address: slot.address || "",
   });
 
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
+
+  console.log("formData:", formData);
+  console.log("activities:", activities);
 
   const handleAddressChange = (selected) => {
     if (selected) {
@@ -79,10 +83,26 @@ export const EditTimeSlot = ({ slot, onCancel, onSave }) => {
                 setFormData({ ...formData, type: e.target.value })
               }
             >
-              <option value="Half-day">Half-day</option>
-              <option value="Full-day">Full-day</option>
-              <option value="Both">Both</option>
+              <option value="halfday">Half day</option>
+              <option value="fullday">Full day</option>
             </select>
+          </label>
+
+          <label>
+            Activities
+            <Select
+              isMulti
+              name="activities"
+              options={activities}
+              getOptionLabel={(option) => option.name}
+              getOptionValue={(option) => option.id}
+              className="profile-select"
+              classNamePrefix="select"
+              value={formData.activities}
+              onChange={(selected) =>
+                setFormData({ ...formData, activities: selected })
+              }
+            ></Select>
           </label>
 
           <label className="profile-full-width">
