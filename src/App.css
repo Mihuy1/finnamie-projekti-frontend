@@ -1411,12 +1411,26 @@ body {
 }
 
 .profile-timeslot-detail-grid strong,
+.profile-timeslot-activities strong,
 .profile-timeslot-description strong {
   color: var(--text-primary);
   font-size: 13px;
 }
 
+.profile-timeslot-activities {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-timeslot-activities ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .profile-timeslot-detail-grid p,
+.profile-timeslot-activities,
 .profile-timeslot-description p {
   margin: 4px 0 0;
   color: #34495e;

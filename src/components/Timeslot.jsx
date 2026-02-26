@@ -29,30 +29,6 @@ export const TimeSlot = ({ slot, activities }) => {
   const toggleEditMode = () => {
     setIsEditing(!isEditing);
   };
-
-  // if (isEditing) {
-  //   return (
-  //     <EditTimeSlot
-  //       slot={slot}
-  //       activities={activities}
-  //       onCancel={toggleEditMode}
-  //       onSave={async (updatedData) => {
-  //         updatedData.activity_ids = updatedData.activities.map((a) => a.id);
-  //         delete updatedData.activities;
-
-  //         await toast.promise(updateTimeSlot(slot.id, updatedData), {
-  //           pending: "Updating timeslot...",
-  //           success: "Timeslot updated successfully!",
-  //           error: "Failed to update timeslot.",
-  //         });
-
-  //         setSlotData(updatedData);
-
-  //         toggleEditMode();
-  //       }}
-  //     />
-  //   );
-  // }
   return (
     <div className="profile-timeslots">
       {!isEditing && (
@@ -103,6 +79,18 @@ export const TimeSlot = ({ slot, activities }) => {
                   <div>
                     <strong>Status</strong>
                     <p>{slotData.res_status || "Unknown"}</p>
+                  </div>
+                  <div className="profile-timeslot-activities">
+                    <strong>Activities</strong>
+                    {slotData.activities && slotData.activities.length > 0 ? (
+                      <ul>
+                        {slotData.activities.map((activity) => (
+                          <li key={activity.id}>{activity.name}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No activities associated with this timeslot.</p>
+                    )}
                   </div>
                 </div>
 
