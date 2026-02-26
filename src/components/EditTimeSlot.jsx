@@ -105,6 +105,21 @@ export const EditTimeSlot = ({ slot, activities, onCancel, onSave }) => {
         </label>
 
         <label>
+          Reservation Status
+          <select
+            name="res_status"
+            className="profile-select"
+            value={formData.res_status || ""}
+            onChange={handleInputChange}
+          >
+            <option value="">Select status...</option>
+            <option value="available">Available</option>
+            <option value="reserved">Reserved</option>
+            <option value="pending">Pending</option>
+          </select>
+        </label>
+
+        <label>
           Activities
           <Select
             isMulti
