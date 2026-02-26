@@ -9,12 +9,9 @@ import {
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import Select from "react-select";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import configureLeaflet from "../utils/leaflet-config";
+import { formatDateForInput } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 
 const EMPTY_PROFILE = {
@@ -28,16 +25,11 @@ const EMPTY_PROFILE = {
   country: "",
   date_of_birth: "",
   description: "",
-  experience_length: "",
+  experience_length: "Both",
   role: "",
 };
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
+configureLeaflet();
 
 export const Profile = () => {
   const [profile, setProfile] = useState(EMPTY_PROFILE);
@@ -57,41 +49,45 @@ export const Profile = () => {
   const [timeSlots, setTimeSlots] = useState([]);
 
   useEffect(() => {
-    if (hasFetchedProfile.current) {
-      return;
-    }
+    if (hasFetchedProfile.current) return;
     hasFetchedProfile.current = true;
 
     const fetchData = async () => {
       setLoading(true);
 
-      const data = await toast.promise(getProfile(), {
-        pending: "Loading Profile Data",
-        success: "Profile loaded!",
-        error: "Failed to get profile data",
-      });
+      try {
+        const data = await toast.promise(getProfile(), {
+          pending: "Loading Profile Data",
+          success: "Profile loaded!",
+          error: "Failed to get profile data",
+        });
 
-      if (data.role === "host") {
-        setIsHost(true);
-        const hostTimeslots = await getTimeSlotsByHostId(data.id);
-        console.log("Host timeslots:", hostTimeslots);
-        setTimeSlots(hostTimeslots);
+        if (!data) throw new Error("No data received");
+
+        if (data.role === "host") {
+          setIsHost(true);
+          const hostTimeslots = await getTimeSlotsByHostId(data.id);
+          setTimeSlots(hostTimeslots || []);
+        }
+
+        const activitiesData = await getActivities();
+        const hostActivities = data.host_activities || [];
+
+        setActivitiesForm(activitiesData || []);
+
+        const initialData = {
+          ...data,
+          date_of_birth: formatDateForInput(data.date_of_birth),
+          host_activities: hostActivities,
+        };
+
+        setProfile(initialData);
+        setProfileForm(initialData);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
       }
-
-      const activitiesData = await getActivities();
-      const hostActivities = data.host_activities || [];
-
-      setActivitiesForm(activitiesData);
-
-      setProfile({
-        ...data,
-        host_activities: hostActivities,
-      });
-      setProfileForm({
-        ...data,
-        host_activities: hostActivities,
-      });
-      setLoading(false);
     };
 
     fetchData();
@@ -129,7 +125,13 @@ export const Profile = () => {
 
   const handleSaveProfile = async (event) => {
     event.preventDefault();
-    let user = {
+
+    if (!isEmail(profileForm.email)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+
+    let userUpdate = {
       first_name: profileForm.first_name,
       last_name: profileForm.last_name,
       email: profileForm.email,
@@ -138,8 +140,8 @@ export const Profile = () => {
     };
 
     if (isHost) {
-      user = {
-        ...user,
+      userUpdate = {
+        ...userUpdate,
         phone_number: profileForm.phone_number,
         street_address: profileForm.street_address,
         postal_code: profileForm.postal_code,
@@ -152,21 +154,19 @@ export const Profile = () => {
       };
     }
 
-    if (!isEmail(user.email)) {
-      toast.error("Enter a valid email address");
-      return;
-    }
-
     try {
-      await updateProfile(user);
+      await toast.promise(updateProfile(userUpdate), {
+        pending: "Updating profile...",
+        success: "Profile updated successfully!",
+        error: (error) => error.message || "Failed to update profile",
+      });
+
       setProfile({
         ...profileForm,
-        host_activities: profileForm.host_activities || [],
       });
-      toast.success("Profile Updated successfully!");
       setIsEditing(false);
     } catch (error) {
-      toast.error(error.message || "Failed to update profile");
+      console.error(error);
     }
   };
 
@@ -199,17 +199,15 @@ export const Profile = () => {
         new_password: "",
         confirm_new_password: "",
       });
-    } catch {
-      console.error("Failed to update password");
+    } catch (error) {
+      console.error("Failed to update password", error);
     }
   };
 
   const handleActivitiesInputChange = (selectedOptions) => {
-    const nextActivities = selectedOptions || [];
-
     setProfileForm((prev) => ({
       ...prev,
-      host_activities: nextActivities,
+      host_activities: selectedOptions || [],
     }));
   };
 
@@ -220,42 +218,42 @@ export const Profile = () => {
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
 
-    if (!file) {
-      toast.error("No file selected");
-      return;
+    if (!file) return;
+
+    try {
+      const uploadResult = await toast.promise(uploadUserImage(file), {
+        pending: "Uploading image...",
+        success: "Image uploaded successfully!",
+        error: "Failed to upload image",
+      });
+
+      const uploadedImageUrl = uploadResult?.url;
+      if (uploadedImageUrl) {
+        setProfile((prev) => ({
+          ...prev,
+          image_url: uploadedImageUrl,
+        }));
+        setProfileForm((prev) => ({
+          ...prev,
+          image_url: uploadedImageUrl,
+        }));
+      }
+
+      // Sync with full profile data to be safe
+      const updatedProfile = await getProfile();
+      if (updatedProfile) {
+        const formatted = {
+          ...updatedProfile,
+          date_of_birth: formatDateForInput(updatedProfile.date_of_birth),
+        };
+        setProfile(formatted);
+        setProfileForm(formatted);
+      }
+    } catch (error) {
+      console.error("Image upload error:", error);
+    } finally {
+      event.target.value = "";
     }
-
-    const uploadResult = await toast.promise(uploadUserImage(file), {
-      pending: "Uploading image...",
-      success: "Image uploaded successfully!",
-      error: "Failed to upload image",
-    });
-
-    const uploadedImageUrl = uploadResult?.image_url;
-    if (uploadedImageUrl) {
-      setProfile((prev) => ({
-        ...prev,
-        image_url: uploadedImageUrl,
-      }));
-      setProfileForm((prev) => ({
-        ...prev,
-        image_url: uploadedImageUrl,
-      }));
-    }
-
-    const updatedProfile = await getProfile();
-    if (updatedProfile) {
-      setProfile((prev) => ({
-        ...prev,
-        ...updatedProfile,
-      }));
-      setProfileForm((prev) => ({
-        ...prev,
-        ...updatedProfile,
-      }));
-    }
-
-    event.target.value = "";
   };
 
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
@@ -317,6 +315,11 @@ export const Profile = () => {
 
           <div className="profile-top-info">
             <h2>{fullName || "Your Profile"}</h2>
+            {profile.role && (
+              <p className="profile-role">
+                {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+              </p>
+            )}
           </div>
         </div>
 
@@ -328,6 +331,7 @@ export const Profile = () => {
               value={profileForm.first_name}
               onChange={handleProfileInputChange}
               disabled={!isEditing}
+              placeholder="First Name"
             />
           </label>
 
@@ -338,6 +342,7 @@ export const Profile = () => {
               value={profileForm.last_name}
               onChange={handleProfileInputChange}
               disabled={!isEditing}
+              placeholder="Last Name"
             />
           </label>
 
@@ -349,6 +354,7 @@ export const Profile = () => {
               value={profileForm.email}
               onChange={handleProfileInputChange}
               disabled={!isEditing}
+              placeholder="Email Address"
             />
           </label>
 
@@ -359,6 +365,7 @@ export const Profile = () => {
               value={profileForm.country}
               onChange={handleProfileInputChange}
               disabled={!isEditing}
+              placeholder="Country"
             />
           </label>
 
@@ -379,9 +386,10 @@ export const Profile = () => {
                 Phone number
                 <input
                   name="phone_number"
-                  value={profileForm.phone_number}
+                  value={profileForm.phone_number || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
+                  placeholder="Phone Number"
                 />
               </label>
 
@@ -389,9 +397,10 @@ export const Profile = () => {
                 Street address
                 <input
                   name="street_address"
-                  value={profileForm.street_address}
+                  value={profileForm.street_address || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
+                  placeholder="Street Address"
                 />
               </label>
 
@@ -399,9 +408,10 @@ export const Profile = () => {
                 Postal code
                 <input
                   name="postal_code"
-                  value={profileForm.postal_code}
+                  value={profileForm.postal_code || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
+                  placeholder="Postal Code"
                 />
               </label>
 
@@ -409,17 +419,19 @@ export const Profile = () => {
                 City
                 <input
                   name="city"
-                  value={profileForm.city}
+                  value={profileForm.city || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
+                  placeholder="City"
                 />
               </label>
+
               <label>
                 Experience length
                 <select
                   name="experience_length"
                   className="profile-select"
-                  value={profileForm.experience_length}
+                  value={profileForm.experience_length || "Both"}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
                 >
@@ -428,6 +440,7 @@ export const Profile = () => {
                   <option value="Both">Both</option>
                 </select>
               </label>
+
               <label>
                 Activities
                 <Select
@@ -440,17 +453,19 @@ export const Profile = () => {
                   getOptionLabel={(option) => option.name}
                   getOptionValue={(option) => option.id}
                   options={activitiesForm}
-                  placeholder="Select your preffered activities"
+                  placeholder="Select your preferred activities"
                   isDisabled={!isEditing}
                 />
               </label>
+
               <label className="profile-full-width">
                 Description
                 <textarea
                   name="description"
-                  value={profileForm.description ? profileForm.description : ""}
+                  value={profileForm.description || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
+                  placeholder="Tell something about yourself..."
                 />
               </label>
             </>
@@ -476,6 +491,7 @@ export const Profile = () => {
               name="new_password"
               value={passwordForm.new_password}
               onChange={handlePasswordInputChange}
+              placeholder="Enter new password"
             />
           </label>
 
@@ -486,6 +502,7 @@ export const Profile = () => {
               name="confirm_new_password"
               value={passwordForm.confirm_new_password}
               onChange={handlePasswordInputChange}
+              placeholder="Confirm new password"
             />
           </label>
 
@@ -495,22 +512,27 @@ export const Profile = () => {
             </button>
           </div>
         </form>
-        <hr className="profile-divider" />
 
-        <h2 className="profile-section-title">Your Activities</h2>
-        {isHost && timeSlots.length === 0 && (
-          <p>You have no timeslots. Create some to get started!</p>
+        {isHost && (
+          <>
+            <hr className="profile-divider" />
+            <h2 className="profile-section-title">Your Timeslots</h2>
+
+            {timeSlots.length === 0 ? (
+              <p>You have no timeslots. Create some to get started!</p>
+            ) : (
+              <div className="profile-timeslot-list">
+                {timeSlots.map((slot) => (
+                  <TimeSlot
+                    key={slot.id}
+                    slot={slot}
+                    activities={activitiesForm}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
-
-        {isHost &&
-          timeSlots.length > 0 &&
-          timeSlots.map((slots) => (
-            <TimeSlot
-              key={slots.id}
-              slot={slots}
-              activities={profileForm.host_activities || []}
-            />
-          ))}
       </div>
     </section>
   );

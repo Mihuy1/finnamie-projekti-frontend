@@ -1385,11 +1385,17 @@ body {
 
 .profile-timeslot-pill {
   border-radius: 999px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 12px;
+  font-weight: 600;
   color: var(--text-primary);
   background: rgba(0, 47, 108, 0.08);
+  text-transform: capitalize;
 }
+
+.profile-timeslot-pill.status-available { background: #e6f7ed; color: #1f8b4c; border: 1px solid #c3e6cb; }
+.profile-timeslot-pill.status-pending { background: #fff8e6; color: #b7791f; border: 1px solid #ffeeba; }
+.profile-timeslot-pill.status-booked { background: #fdeaea; color: #c53030; border: 1px solid #f5c6cb; }
 
 .profile-timeslot-chevron {
   color: var(--accent);
