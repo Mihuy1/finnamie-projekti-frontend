@@ -90,11 +90,9 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 47, 108, 0.2),
-    rgba(0, 0, 0, 0.3)
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 47, 108, 0.2),
+      rgba(0, 0, 0, 0.3));
   z-index: 1;
 }
 
@@ -415,6 +413,161 @@ body {
   font-size: 14px;
   color: var(--text-muted);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* MOBIILI HOME PAGE */
+
+@media screen and (max-width: 768px) {
+
+  .header {
+    flex-direction: column;
+    padding: 15px 10px;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .nav {
+    width: auto;
+    min-width: 200px;
+  }
+
+  .nav ul,
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+  }
+
+  .nav a {
+    margin-right: 0 !important;
+    padding: 6px 16px;
+    font-size: 12px;
+    text-align: center;
+    width: auto;
+    min-width: 160px;
+    box-sizing: border-box;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .booking-section {
+    min-height: auto !important;
+    padding: 40px 10px 60px !important;
+  }
+
+  .booking-section h1 {
+    font-size: 28px;
+    line-height: 1.2;
+    padding: 0 15px;
+  }
+
+  .booking-section p {
+    font-size: 16px;
+    margin-bottom: 25px;
+    padding: 0 15px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    width: calc(100% - 60px);
+    max-width: 300px;
+    margin: 20px auto 0;
+    padding: 15px;
+    gap: 0;
+    border-radius: 20px;
+    box-sizing: border-box;
+    background: white;
+  }
+
+  .search-box input,
+  .search-box select {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    padding: 10px 5px !important;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 14px;
+    border-radius: 0;
+  }
+
+  .search-box button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 30px;
+    font-size: 14px;
+  }
+
+  .info-section {
+    padding: 50px 20px;
+  }
+
+  .info-section h2 {
+    font-size: 26px;
+    margin-bottom: 40px;
+  }
+
+  .steps {
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .step {
+    max-width: 100%;
+  }
+
+  .map-and-calendar {
+    grid-template-columns: 1fr;
+    padding: 30px 15px;
+    gap: 30px;
+  }
+
+  .map-container,
+  .calendar-container {
+    height: 400px;
+    width: 100%;
+  }
+
+  .calendar-container {
+    padding: 20px 15px;
+  }
+
+  .calendar-subtitle {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
+
+  .react-calendar__tile {
+    height: 40px;
+    font-size: 13px;
+  }
+
+  .book-now-large {
+    width: calc(100% - 40px);
+    max-width: 300px;
+    padding: 15px 30px;
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 340px) {
+  .booking-section h1 {
+    font-size: 24px;
+  }
+
+  .nav a {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
 }
 
 /* Login and Register page styles */
@@ -1393,9 +1546,23 @@ body {
   text-transform: capitalize;
 }
 
-.profile-timeslot-pill.status-available { background: #e6f7ed; color: #1f8b4c; border: 1px solid #c3e6cb; }
-.profile-timeslot-pill.status-pending { background: #fff8e6; color: #b7791f; border: 1px solid #ffeeba; }
-.profile-timeslot-pill.status-booked { background: #fdeaea; color: #c53030; border: 1px solid #f5c6cb; }
+.profile-timeslot-pill.status-available {
+  background: #e6f7ed;
+  color: #1f8b4c;
+  border: 1px solid #c3e6cb;
+}
+
+.profile-timeslot-pill.status-pending {
+  background: #fff8e6;
+  color: #b7791f;
+  border: 1px solid #ffeeba;
+}
+
+.profile-timeslot-pill.status-booked {
+  background: #fdeaea;
+  color: #c53030;
+  border: 1px solid #f5c6cb;
+}
 
 .profile-timeslot-chevron {
   color: var(--accent);
