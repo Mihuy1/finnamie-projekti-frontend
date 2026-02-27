@@ -68,13 +68,21 @@ export default function Discover() {
 
   const handleFilter = (category) => {
     setSelectedCategory(category);
-    setFilteredActivities(
-      category === "All"
-        ? timeSlots
-        : timeSlots.filter((timeslot) =>
-          timeslot.activities.some((activity) => activity.name === category),
-        ),
-    );
+
+    if (category === "All") {
+      setFilteredActivities(timeSlots.length > 0 ? timeSlots : placeholders);
+    } else {
+      const source = timeSlots.length > 0 ? timeSlots : placeholders;
+
+      const filtered = source.filter((item) => {
+        if (item.activities) {
+          return item.activities.some((act) => act.category === category);
+        }
+        return item.category === category;
+      });
+
+      setFilteredActivities(filtered);
+    }
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -100,15 +108,17 @@ export default function Discover() {
         >
           All
         </button>
-        {activities.map((cat) => (
-          <button
-            key={cat.id}
-            className={`filter-btn ${selectedCategory === cat.name ? "active" : ""}`}
-            onClick={() => handleFilter(cat.name)}
-          >
-            {cat.name}
-          </button>
-        ))}
+        {[...new Set(activities.map((act) => act.category))]
+          .sort()
+          .map((categoryName) => (
+            <button
+              key={categoryName}
+              className={`filter-btn ${selectedCategory === categoryName ? "active" : ""}`}
+              onClick={() => handleFilter(categoryName)}
+            >
+              {categoryName}
+            </button>
+          ))}
       </div>
 
       <div className="activity-grid">
@@ -150,7 +160,6 @@ export default function Discover() {
             </button>
 
             <div className="modal-image">
-              {/* TÄMÄ UUSI KOHTA: Kesto kuvan päällä */}
               <span className="modal-duration-badge">
                 {openActivity.experience_length}
               </span>
