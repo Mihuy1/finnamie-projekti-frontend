@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
-import {
-  getActivities,
-  getAllTimeSlotsWithHost,
-  getTimeSlotImage,
-} from "../api/apiClient";
+import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link } from "react-router-dom";
 import { Carousel } from "../components/Carousel";
 
 export default function Discover() {
   const [activities, setActivities] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
-  const [timeSlotImages, setTimeSlotImages] = useState({});
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
@@ -18,7 +13,7 @@ export default function Discover() {
   const [openActivity, setOpenActivity] = useState(null);
 
   const API_BASE_URL = "http://localhost:3000";
-  const FALLBACK_IMAGE = "https://via.placeholder.com/400x300?text=No+Image";
+  const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
   const resolveImage = (path) => {
     if (!path) return FALLBACK_IMAGE;
@@ -60,16 +55,18 @@ export default function Discover() {
 
         const timeslotData = await getAllTimeSlotsWithHost();
 
-        for (const timeslot of timeslotData) {
-          const imageData = await getTimeSlotImage(timeslot.id);
+        console.log("Fetched timeslots:", timeslotData);
 
-          if (imageData) {
-            setTimeSlotImages((prev) => ({
-              ...prev,
-              [timeslot.id]: imageData,
-            }));
-          }
-        }
+        // for (const timeslot of timeslotData) {
+        //   const imageData = await getTimeSlotImage(timeslot.id);
+
+        //   if (imageData) {
+        //     setTimeSlotImages((prev) => ({
+        //       ...prev,
+        //       [timeslot.id]: imageData,
+        //     }));
+        //   }
+        // }
 
         setTimeSlots(timeslotData);
         const finalData = data && data.length > 0 ? data : placeholders;
@@ -150,7 +147,8 @@ export default function Discover() {
           >
             <div className="card-image">
               <img
-                src={resolveImage(timeSlotImages[activity.id]?.[0]?.url)}
+                // src={resolveImage(timeSlotImages[activity.id]?.[0]?.url)}
+                src={resolveImage(activity.images[0]?.url)}
                 alt={activity.name}
               />
               <span className="duration-badge">
@@ -181,9 +179,9 @@ export default function Discover() {
                 {openActivity.experience_length}
               </span>
 
-              {timeSlotImages && (
+              {openActivity.images && (
                 <Carousel
-                  images={timeSlotImages[openActivity.id]?.map((img) =>
+                  images={openActivity.images.map((img) =>
                     resolveImage(img.url),
                   )}
                 />

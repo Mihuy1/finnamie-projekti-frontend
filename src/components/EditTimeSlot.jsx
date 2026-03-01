@@ -4,6 +4,7 @@ import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { loadOptions } from "../api/apiClient";
 import Select from "react-select";
 import { formatDateTimeForInput } from "../utils/date-utils";
+import { Carousel } from "./Carousel";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -11,7 +12,13 @@ const ChangeView = ({ center }) => {
   return null;
 };
 
-export const EditTimeSlot = ({ slot, activities, onCancel, onSave }) => {
+export const EditTimeSlot = ({
+  slot,
+  activities,
+  images,
+  onCancel,
+  onSave,
+}) => {
   const initialFormData = useMemo(
     () => ({
       ...slot,
@@ -25,6 +32,17 @@ export const EditTimeSlot = ({ slot, activities, onCancel, onSave }) => {
 
   const [formData, setFormData] = useState(initialFormData);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
+
+  const API_BASE_URL = "http://localhost:3000";
+  const FALLBACK_IMAGE = "https://placehold.co/600x400";
+
+  const resolveImage = (path) => {
+    console.log("Resolving image path:", path);
+    if (!path) return FALLBACK_IMAGE;
+    if (path.startsWith("http://")) return path;
+    if (path.startsWith("/")) return API_BASE_URL + path;
+    return API_BASE_URL + "/" + path;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -50,154 +68,181 @@ export const EditTimeSlot = ({ slot, activities, onCancel, onSave }) => {
   };
 
   return (
-    <div className="profile-timeslot-edit-form">
-      <h3 className="profile-timeslot-edit-title">Edit Timeslot</h3>
-
-      <form
-        onSubmit={handleSubmit}
-        className="profile-form profile-timeslot-edit-profile-form"
+    <div className="modal-overlay" onClick={onCancel}>
+      <div
+        className="modal-content profile-timeslot-edit-modal-content"
+        onClick={(e) => e.stopPropagation()}
       >
-        <label>
-          City
-          <input
-            type="text"
-            name="city"
-            value={formData.city || ""}
-            onChange={handleInputChange}
-            required
-            placeholder="e.g. Helsinki"
-          />
-        </label>
+        <button className="close-modal" onClick={onCancel}>
+          x
+        </button>
+        <div className="profile-timeslot-edit-form">
+          <h3 className="profile-timeslot-edit-title">Edit Timeslot</h3>
 
-        <label>
-          Start Time
-          <input
-            type="datetime-local"
-            name="start_time"
-            value={formatDateTimeForInput(formData.start_time)}
-            onChange={handleInputChange}
-            required
-          />
-        </label>
-
-        <label>
-          End Time
-          <input
-            type="datetime-local"
-            name="end_time"
-            value={formatDateTimeForInput(formData.end_time)}
-            onChange={handleInputChange}
-            required
-          />
-        </label>
-
-        <label>
-          Activity Type
-          <select
-            name="type"
-            className="profile-select"
-            value={formData.type || "halfday"}
-            onChange={handleInputChange}
+          <form
+            onSubmit={handleSubmit}
+            className="profile-form profile-timeslot-edit-profile-form"
+            preventDefault
           >
-            <option value="halfday">Half Day</option>
-            <option value="fullday">Full Day</option>
-          </select>
-        </label>
+            <div className="modal-body-timeslot">
+              <label>
+                City
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city || ""}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g. Helsinki"
+                />
+              </label>
 
-        <label>
-          Reservation Status
-          <select
-            name="res_status"
-            className="profile-select"
-            value={formData.res_status || ""}
-            onChange={handleInputChange}
-          >
-            <option value="">Select status...</option>
-            <option value="available">Available</option>
-            <option value="reserved">Reserved</option>
-            <option value="pending">Pending</option>
-          </select>
-        </label>
+              <label>
+                Start Time
+                <input
+                  type="datetime-local"
+                  name="start_time"
+                  value={formatDateTimeForInput(formData.start_time)}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
 
-        <label>
-          Activities
-          <Select
-            isMulti
-            name="activities"
-            options={activities}
-            getOptionLabel={(option) => option.name}
-            getOptionValue={(option) => option.id}
-            className="profile-select"
-            classNamePrefix="select"
-            value={formData.activities}
-            onChange={(selected) =>
-              setFormData((prev) => ({ ...prev, activities: selected || [] }))
-            }
-            placeholder="Select activities..."
-          />
-        </label>
+              <label>
+                End Time
+                <input
+                  type="datetime-local"
+                  name="end_time"
+                  value={formatDateTimeForInput(formData.end_time)}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
 
-        <label className="profile-full-width">
-          Description
-          <textarea
-            name="description"
-            value={formData.description || ""}
-            onChange={handleInputChange}
-            required
-            placeholder="Describe what's included in this timeslot..."
-          />
-        </label>
+              <label>
+                Activity Type
+                <select
+                  name="type"
+                  className="profile-select"
+                  value={formData.type || "halfday"}
+                  onChange={handleInputChange}
+                >
+                  <option value="halfday">Half Day</option>
+                  <option value="fullday">Full Day</option>
+                </select>
+              </label>
 
-        <div className="profile-full-width profile-timeslot-search-wrapper">
-          <label className="profile-timeslot-search-label">
-            Location Search (Search for an address to update map)
-          </label>
-          <AsyncSelect
-            classNamePrefix="timeslot-address-select"
-            cacheOptions
-            loadOptions={loadOptions}
-            onChange={handleAddressChange}
-            placeholder="Type to search address..."
-            defaultInputValue={formData.address}
-            noOptionsMessage={({ inputValue }) =>
-              inputValue.length < 3
-                ? "Type at least 3 characters"
-                : "No results found"
-            }
-            loadingMessage={() => "Searching..."}
-            menuPortalTarget={document.body}
-            styles={{
-              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-              menu: (base) => ({ ...base, zIndex: 9999 }),
-            }}
-          />
+              <label>
+                Reservation Status
+                <select
+                  name="res_status"
+                  className="profile-select"
+                  value={formData.res_status || ""}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select status...</option>
+                  <option value="available">Available</option>
+                  <option value="reserved">Reserved</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </label>
+
+              <label>
+                Activities
+                <Select
+                  isMulti
+                  name="activities"
+                  options={activities}
+                  getOptionLabel={(option) => option.name}
+                  getOptionValue={(option) => option.id}
+                  className="profile-select"
+                  classNamePrefix="select"
+                  value={formData.activities}
+                  onChange={(selected) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      activities: selected || [],
+                    }))
+                  }
+                  placeholder="Select activities..."
+                />
+              </label>
+
+              <label className="profile-full-width">
+                Description
+                <textarea
+                  name="description"
+                  value={formData.description || ""}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Describe what's included in this timeslot..."
+                />
+              </label>
+
+              <label className="profile-full-width modal-image">
+                Timeslot Images
+                <div className="profile-full-width modal-image">
+                  <Carousel images={images.map((img) => resolveImage(img))} />
+                </div>
+              </label>
+
+              <div className="profile-full-width profile-timeslot-search-wrapper">
+                <label className="profile-timeslot-search-label">
+                  Location Search (Search for an address to update map)
+                </label>
+
+                <AsyncSelect
+                  classNamePrefix="timeslot-address-select"
+                  cacheOptions
+                  loadOptions={loadOptions}
+                  onChange={handleAddressChange}
+                  placeholder="Type to search address..."
+                  defaultInputValue={formData.address}
+                  noOptionsMessage={({ inputValue }) =>
+                    inputValue.length < 3
+                      ? "Type at least 3 characters"
+                      : "No results found"
+                  }
+                  loadingMessage={() => "Searching..."}
+                  menuPortalTarget={document.body}
+                  styles={{
+                    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                    menu: (base) => ({ ...base, zIndex: 9999 }),
+                  }}
+                />
+              </div>
+
+              <div className="profile-full-width profile-timeslot-map profile-timeslot-map-edit">
+                <MapContainer
+                  center={coords}
+                  zoom={14}
+                  style={{ height: "100%", width: "100%" }}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <ChangeView center={coords} />
+                  <Marker position={coords} />
+                </MapContainer>
+              </div>
+
+              <div className="profile-full-width profile-timeslot-edit-actions">
+                <button
+                  type="submit"
+                  className="profile-btn profile-btn-primary"
+                >
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  className="profile-btn profile-btn-secondary"
+                  onClick={onCancel}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
-
-        <div className="profile-full-width profile-timeslot-map profile-timeslot-map-edit">
-          <MapContainer
-            center={coords}
-            zoom={14}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            <ChangeView center={coords} />
-            <Marker position={coords} />
-          </MapContainer>
-        </div>
-
-        <div className="profile-full-width profile-timeslot-edit-actions">
-          <button type="submit" className="profile-btn profile-btn-primary">
-            Save Changes
-          </button>
-          <button
-            type="button"
-            className="profile-btn profile-btn-secondary"
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

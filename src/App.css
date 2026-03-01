@@ -90,9 +90,11 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 47, 108, 0.2),
-      rgba(0, 0, 0, 0.3));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 47, 108, 0.2),
+    rgba(0, 0, 0, 0.3)
+  );
   z-index: 1;
 }
 
@@ -418,7 +420,6 @@ body {
 /* MOBIILI HOME PAGE */
 
 @media screen and (max-width: 768px) {
-
   .header {
     flex-direction: column;
     padding: 15px 10px;
@@ -1151,6 +1152,13 @@ body {
   width: 100%;
   height: 400px;
   position: relative;
+  overflow: hidden;
+}
+
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .modal-duration-badge {
@@ -1626,11 +1634,15 @@ body {
 .profile-timeslot-edit-form {
   display: grid;
   gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28px;
 }
 
 .profile-timeslot-edit-title {
   margin: 0;
   color: var(--text-primary);
+  text-align: center;
 }
 
 .profile-timeslot-edit-fields {
@@ -1639,6 +1651,27 @@ body {
 
 .profile-timeslot-edit-profile-form {
   margin-bottom: 6px;
+  grid-template-columns: 1fr;
+}
+
+.profile-timeslot-edit-modal-content {
+  max-width: 920px;
+}
+
+.modal-body-timeslot {
+  width: min(100%, 780px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.modal-body-timeslot label {
+  width: 100%;
+}
+
+.modal-body-timeslot .profile-timeslot-edit-actions {
+  justify-content: center;
 }
 
 .profile-timeslot-search-wrapper {
@@ -1725,6 +1758,15 @@ body {
   }
 
   .profile-timeslot-edit-actions .profile-btn {
+    width: 100%;
+  }
+
+  .profile-timeslot-edit-form {
+    padding: 22px 16px;
+  }
+
+  .modal-body-timeslot {
+    grid-template-columns: 1fr;
     width: 100%;
   }
 }

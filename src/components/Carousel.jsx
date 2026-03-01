@@ -12,10 +12,14 @@ export const Carousel = ({ images }) => {
     if (currentIndex !== 0) setCurrentIndex((prev) => prev - 1);
   };
 
+  console.log("Carousel images:", images);
+  console.log("Image count:", imageCount);
+
   return (
     <>
-      <div className="carousel">
+      <div className="carousel" style={{ position: "relative" }}>
         <button
+          type="button"
           className="carousel-button-back"
           disabled={currentIndex === 0}
           onClick={goPrev}
@@ -32,8 +36,14 @@ export const Carousel = ({ images }) => {
           src={images[currentIndex]}
           alt={"image"}
           className="carousel-image"
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+          }}
         />
         <button
+          type="button"
           className="carousel-button-next"
           disabled={currentIndex === imageCount - 1}
           onClick={goNext}
