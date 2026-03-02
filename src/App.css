@@ -421,6 +421,115 @@ body {
   border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+/* Carousel styles */
+
+.carousel-button-back,
+.carousel-button-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-button-back:hover,
+.carousel-button-next:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+/* MultiImageUpload  */
+
+.multi-image-upload {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1 / -1;
+}
+
+.dropzone-box {
+  border: 2px dashed rgba(170, 0, 162, 0.35);
+  border-radius: 12px;
+  min-height: 140px;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(170, 0, 162, 0.04);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dropzone-box:hover {
+  border-color: rgba(170, 0, 162, 0.6);
+  background: rgba(170, 0, 162, 0.08);
+}
+
+.dropzone-box.is-drag-active {
+  border-color: rgba(170, 0, 162, 1);
+  background: rgba(170, 0, 162, 0.12);
+  transform: scale(1.01);
+}
+
+.dropzone-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.dropzone-subtitle {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+.preview-item {
+  position: relative;
+  height: 100px;
+}
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.preview-remove-btn {
+  /* Position the button at the top-right corner of the image */
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+}
+
 /* MOBIILI HOME PAGE */
 
 @media screen and (max-width: 768px) {

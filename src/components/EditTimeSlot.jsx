@@ -5,6 +5,7 @@ import { loadOptions } from "../api/apiClient";
 import Select from "react-select";
 import { formatDateTimeForInput } from "../utils/date-utils";
 import { Carousel } from "./Carousel";
+import { MultiImageUpload } from "./MultiImageUpload";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -83,6 +84,7 @@ export const EditTimeSlot = ({
             onSubmit={handleSubmit}
             className="profile-form profile-timeslot-edit-profile-form"
             preventDefault
+            stopPropagation
           >
             <div className="modal-body-timeslot">
               <label>
@@ -179,6 +181,8 @@ export const EditTimeSlot = ({
                 />
               </label>
 
+              <MultiImageUpload />
+              {/* 
               {images.length > 0 && (
                 <label className="profile-full-width profile-timeslot-edit-images">
                   Timeslot Images
@@ -190,7 +194,7 @@ export const EditTimeSlot = ({
                     />
                   </div>
                 </label>
-              )}
+              )} */}
 
               <div className="profile-full-width profile-timeslot-search-wrapper">
                 <label className="profile-timeslot-search-label">
