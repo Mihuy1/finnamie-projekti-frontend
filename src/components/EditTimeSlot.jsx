@@ -179,12 +179,18 @@ export const EditTimeSlot = ({
                 />
               </label>
 
-              <label className="profile-full-width modal-image">
-                Timeslot Images
-                <div className="profile-full-width modal-image">
-                  <Carousel images={images.map((img) => resolveImage(img))} />
-                </div>
-              </label>
+              {images.length > 0 && (
+                <label className="profile-full-width profile-timeslot-edit-images">
+                  Timeslot Images
+                  <div className="profile-full-width profile-timeslot-edit-images-carousel">
+                    <Carousel
+                      images={images.map((img) => resolveImage(img))}
+                      imageFit="contain"
+                      imageHeight="auto"
+                    />
+                  </div>
+                </label>
+              )}
 
               <div className="profile-full-width profile-timeslot-search-wrapper">
                 <label className="profile-timeslot-search-label">

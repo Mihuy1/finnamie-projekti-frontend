@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-export const Carousel = ({ images }) => {
+export const Carousel = ({
+  images,
+  imageFit = "cover",
+  imageHeight = "100%",
+}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const imageCount = images.length;
 
@@ -11,9 +15,6 @@ export const Carousel = ({ images }) => {
   const goPrev = () => {
     if (currentIndex !== 0) setCurrentIndex((prev) => prev - 1);
   };
-
-  console.log("Carousel images:", images);
-  console.log("Image count:", imageCount);
 
   return (
     <>
@@ -38,7 +39,8 @@ export const Carousel = ({ images }) => {
           className="carousel-image"
           style={{
             width: "100%",
-            height: "100%",
+            height: imageHeight,
+            objectFit: imageFit,
             display: "block",
           }}
         />
