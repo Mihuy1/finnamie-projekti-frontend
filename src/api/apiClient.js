@@ -29,6 +29,7 @@ export const getTimeSlotsByHostId = async (id) => {
       method: "GET",
       credentials: "include",
     });
+
     return await res.json();
   } catch (error) {
     console.error(error);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link } from "react-router-dom";
+import { Carousel } from "../components/Carousel";
 
 export default function Discover() {
   const [activities, setActivities] = useState([]);
@@ -10,6 +11,16 @@ export default function Discover() {
   const [loading, setLoading] = useState(true);
 
   const [openActivity, setOpenActivity] = useState(null);
+
+  const API_BASE_URL = "http://localhost:3000";
+  const FALLBACK_IMAGE = "https://placehold.co/600x400";
+
+  const resolveImage = (path) => {
+    if (!path) return FALLBACK_IMAGE;
+    if (path.startsWith("http://")) return path;
+    if (path.startsWith("/")) return API_BASE_URL + path;
+    return API_BASE_URL + "/" + path;
+  };
 
   // koska tietokanta vielä tyhjä
   const placeholders = [
@@ -43,15 +54,21 @@ export default function Discover() {
         const data = await getActivities();
 
         const timeslotData = await getAllTimeSlotsWithHost();
-        console.log("timeslotData:", timeslotData);
 
-        for (const timeslot of timeslotData) {
-          for (const timeslotActivity of timeslot.activities)
-            console.log(timeslotActivity);
-        }
+        console.log("Fetched timeslots:", timeslotData);
+
+        // for (const timeslot of timeslotData) {
+        //   const imageData = await getTimeSlotImage(timeslot.id);
+
+        //   if (imageData) {
+        //     setTimeSlotImages((prev) => ({
+        //       ...prev,
+        //       [timeslot.id]: imageData,
+        //     }));
+        //   }
+        // }
 
         setTimeSlots(timeslotData);
-
         const finalData = data && data.length > 0 ? data : placeholders;
         setActivities(finalData);
         setFilteredActivities(timeslotData);
@@ -130,10 +147,8 @@ export default function Discover() {
           >
             <div className="card-image">
               <img
-                src={
-                  activity.image_url ||
-                  "https://images.unsplash.com/photo-1516132217015-773f487235eb"
-                }
+                // src={resolveImage(timeSlotImages[activity.id]?.[0]?.url)}
+                src={resolveImage(activity.images[0]?.url)}
                 alt={activity.name}
               />
               <span className="duration-badge">
@@ -164,7 +179,13 @@ export default function Discover() {
                 {openActivity.experience_length}
               </span>
 
-              <img src={openActivity.image_url} alt={openActivity.name} />
+              {openActivity.images && (
+                <Carousel
+                  images={openActivity.images.map((img) =>
+                    resolveImage(img.url),
+                  )}
+                />
+              )}
             </div>
 
             <div className="modal-body">

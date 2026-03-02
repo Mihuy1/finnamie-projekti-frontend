@@ -264,6 +264,9 @@ export const Profile = () => {
       <div className="profile-card">
         <div className="profile-header">
           <h1>Profile</h1>
+          <a class="back-link" href="/" data-discover="true">
+            ← Back to Homepage
+          </a>
 
           {!isEditing ? (
             <button
