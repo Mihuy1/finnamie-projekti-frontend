@@ -90,11 +90,9 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 47, 108, 0.2),
-    rgba(0, 0, 0, 0.3)
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 47, 108, 0.2),
+      rgba(0, 0, 0, 0.3));
   z-index: 1;
 }
 
@@ -347,7 +345,6 @@ body {
   z-index: 1;
 }
 
-/* Only the Home page map needs to be taller than its container */
 .map-container .leaflet-container {
   height: 150% !important;
 }
@@ -561,6 +558,63 @@ body {
     max-width: 300px;
     padding: 15px 30px;
     font-size: 18px;
+  }
+
+  .chat-launcher {
+    position: fixed;
+    bottom: 100px;
+    right: 40px;
+    width: 55px;
+    height: 55px;
+    background-color: var(--accent, #aa00a2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .chatbox-wrapper,
+  .chatbox-container {
+    position: fixed;
+    bottom: 165px;
+    right: 40px;
+    width: calc(100% - 80px);
+    max-width: 300px;
+    z-index: 10000;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .chat-launcher {
+    position: fixed !important;
+    bottom: 55px !important;
+    right: 40px !important;
+    width: 55px !important;
+    height: 55px !important;
+    left: auto !important;
+    top: auto !important;
+    display: flex !important;
+    z-index: 9999 !important;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 1700px) {
+  .chat-launcher {
+    bottom: 80px !important;
+    right: 60px !important;
+  }
+
+  .chatbox {
+    bottom: 150px !important;
+    right: 60px !important;
+    width: 380px !important;
   }
 }
 
