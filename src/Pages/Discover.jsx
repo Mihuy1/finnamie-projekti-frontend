@@ -55,19 +55,6 @@ export default function Discover() {
 
         const timeslotData = await getAllTimeSlotsWithHost();
 
-        console.log("Fetched timeslots:", timeslotData);
-
-        // for (const timeslot of timeslotData) {
-        //   const imageData = await getTimeSlotImage(timeslot.id);
-
-        //   if (imageData) {
-        //     setTimeSlotImages((prev) => ({
-        //       ...prev,
-        //       [timeslot.id]: imageData,
-        //     }));
-        //   }
-        // }
-
         setTimeSlots(timeslotData);
         const finalData = data && data.length > 0 ? data : placeholders;
         setActivities(finalData);
@@ -83,6 +70,9 @@ export default function Discover() {
     fetchData();
   }, []);
 
+  console.log("activities:", activities);
+  console.log("timeSlots:", timeSlots);
+
   const handleFilter = (category) => {
     setSelectedCategory(category);
 
@@ -93,7 +83,7 @@ export default function Discover() {
 
       const filtered = source.filter((item) => {
         if (item.activities) {
-          return item.activities.some((act) => act.category === category);
+          return item.activities.some((act) => act.name === category);
         }
         return item.category === category;
       });
@@ -125,7 +115,7 @@ export default function Discover() {
         >
           All
         </button>
-        {[...new Set(activities.map((act) => act.category))]
+        {[...new Set(activities.map((act) => act.name))]
           .sort()
           .map((categoryName) => (
             <button
@@ -147,7 +137,6 @@ export default function Discover() {
           >
             <div className="card-image">
               <img
-                // src={resolveImage(timeSlotImages[activity.id]?.[0]?.url)}
                 src={resolveImage(activity.images[0]?.url)}
                 alt={activity.name}
               />
