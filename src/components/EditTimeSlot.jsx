@@ -181,7 +181,9 @@ export const EditTimeSlot = ({
                 />
               </label>
 
-              <MultiImageUpload />
+              <MultiImageUpload
+                preselectedImages={images.map((img) => resolveImage(img))}
+              />
               {/* 
               {images.length > 0 && (
                 <label className="profile-full-width profile-timeslot-edit-images">
