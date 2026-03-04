@@ -41,7 +41,6 @@ export const Profile = () => {
   const hasFetchedProfile = useRef(false);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [activitiesForm, setActivitiesForm] = useState([]);
   const fileInputRef = useRef(null);
@@ -53,8 +52,6 @@ export const Profile = () => {
     hasFetchedProfile.current = true;
 
     const fetchData = async () => {
-      setLoading(true);
-
       try {
         const data = await toast.promise(getProfile(), {
           pending: "Loading Profile Data",
@@ -85,8 +82,6 @@ export const Profile = () => {
         setProfileForm(initialData);
       } catch (error) {
         console.error("Error fetching profile:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -286,8 +281,6 @@ export const Profile = () => {
             </button>
           )}
         </div>
-
-        {loading && <p>Loading profile...</p>}
 
         <div className="profile-top">
           <div className="profile-avatar">

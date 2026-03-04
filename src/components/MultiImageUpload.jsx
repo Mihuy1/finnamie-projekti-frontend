@@ -8,7 +8,12 @@ const mapPreselectedToFiles = (preselectedImages = []) =>
     isObjectUrl: false,
   }));
 
-export const MultiImageUpload = ({ preselectedImages = [] }) => {
+export const MultiImageUpload = ({
+  slotId,
+  preselectedImages = [],
+  onChange,
+  setToRemoveImages,
+}) => {
   const [files, setFiles] = useState([]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -30,6 +35,10 @@ export const MultiImageUpload = ({ preselectedImages = [] }) => {
   useEffect(() => {
     setFiles(mapPreselectedToFiles(preselectedImages));
   }, [preselectedImages]);
+
+  useEffect(() => {
+    onChange?.(files);
+  }, [files, onChange]);
 
   useEffect(() => {
     return () =>
@@ -61,15 +70,28 @@ export const MultiImageUpload = ({ preselectedImages = [] }) => {
             <button
               type="button"
               className="preview-remove-btn"
-              onClick={() =>
-                setFiles((prev) => prev.filter((_, i) => i !== index))
-              }
+              onClick={() => {
+                setFiles((prev) => prev.filter((_, i) => i !== index));
+                if (!file.isObjectUrl) {
+                  setToRemoveImages((prev) => [
+                    ...prev,
+                    { url: file.preview, slotId },
+                  ]);
+                }
+              }}
             >
               ×
             </button>
           </div>
         ))}
       </div>
+      <button
+        type="button"
+        className="clear-all-btn profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
+        onClick={() => setFiles([])}
+      >
+        Clear All
+      </button>
     </section>
   );
 };
