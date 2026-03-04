@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
-import { getTimeSlotImage, updateTimeSlot } from "../api/apiClient";
+import {
+  deleteTimeSlotImageByIdAndUrl,
+  getTimeSlotImage,
+  updateTimeSlot,
+  uploadTimeSlotImage,
+} from "../api/apiClient";
 import toast from "react-hot-toast";
 import configureLeaflet from "../utils/leaflet-config";
 import { formatDateTimeDisplay } from "../utils/date-utils";
@@ -20,7 +25,6 @@ export const TimeSlot = ({ slot, activities }) => {
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
   const resolveImage = (path) => {
-    console.log("Resolving image path:", path);
     if (!path) return FALLBACK_IMAGE;
     if (path.startsWith("http://")) return path;
     if (path.startsWith("/")) return API_BASE_URL + path;
@@ -57,7 +61,7 @@ export const TimeSlot = ({ slot, activities }) => {
     setIsEditing(!isEditing);
   };
 
-  const handleSave = async (updatedData) => {
+  const handleSave = async (updatedData, images, toRemoveImages) => {
     try {
       const dataToSend = {
         ...updatedData,
@@ -67,15 +71,37 @@ export const TimeSlot = ({ slot, activities }) => {
       // Clean up for API
       delete dataToSend.activities;
 
-      const result = await toast.promise(updateTimeSlot(slot.id, dataToSend), {
-        pending: "Updating timeslot...",
-        success: "Timeslot updated successfully!",
-        error: (err) => err.message || "Failed to update timeslot.",
-      });
+      const result = await updateTimeSlot(slot.id, dataToSend);
+
+      if (!result) return;
+
+      if (toRemoveImages.length > 0) {
+        for (const img of toRemoveImages) {
+          img.url = img.url.replace(API_BASE_URL, "");
+          const res = await deleteTimeSlotImageByIdAndUrl(slot.id, img.url);
+
+          if (!res) return;
+        }
+      }
+
+      const newFiles = (images || []).filter((f) => f instanceof File);
+
+      if (newFiles.length > 0) {
+        const upload = await uploadTimeSlotImage(slot.id, newFiles);
+        if (!upload) return;
+      }
 
       if (result) {
+        toast.success("Timeslot updated successfully!");
         setSlotData(updatedData);
         toggleEditMode();
+
+        // Refresh images after update
+        const res = await getTimeSlotImage(slot.id);
+
+        if (res) {
+          setImages(res.map((img) => img.url));
+        }
       }
     } catch (error) {
       console.error("Error saving timeslot:", error);
@@ -147,17 +173,17 @@ export const TimeSlot = ({ slot, activities }) => {
                 </div>
               </div>
 
-              {images && images.length > 0 && (
-                <div className="profile-timeslot-images">
-                  <strong>Timeslot Images</strong>
-                  <Carousel images={images.map((img) => resolveImage(img))} />
-                </div>
-              )}
-
               {slotData.description && (
                 <div className="profile-timeslot-description">
                   <strong>Description</strong>
                   <p>{slotData.description}</p>
+                </div>
+              )}
+
+              {images && images.length > 0 && (
+                <div className="profile-timeslot-images">
+                  <strong>Timeslot Images</strong>
+                  <Carousel images={images.map((img) => resolveImage(img))} />
                 </div>
               )}
 

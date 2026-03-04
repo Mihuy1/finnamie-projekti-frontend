@@ -4,7 +4,6 @@ import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { loadOptions } from "../api/apiClient";
 import Select from "react-select";
 import { formatDateTimeForInput } from "../utils/date-utils";
-import { Carousel } from "./Carousel";
 import { MultiImageUpload } from "./MultiImageUpload";
 
 const ChangeView = ({ center }) => {
@@ -32,18 +31,24 @@ export const EditTimeSlot = ({
   );
 
   const [formData, setFormData] = useState(initialFormData);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
 
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
-  const resolveImage = (path) => {
-    console.log("Resolving image path:", path);
-    if (!path) return FALLBACK_IMAGE;
-    if (path.startsWith("http://")) return path;
-    if (path.startsWith("/")) return API_BASE_URL + path;
-    return API_BASE_URL + "/" + path;
-  };
+  const preselectedImageUrls = useMemo(
+    () =>
+      (images || []).map((path) => {
+        if (!path) return FALLBACK_IMAGE;
+        if (path.startsWith("http://") || path.startsWith("https://"))
+          return path;
+        if (path.startsWith("/")) return API_BASE_URL + path;
+        return API_BASE_URL + "/" + path;
+      }),
+    [images],
+  );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,7 +70,7 @@ export const EditTimeSlot = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    onSave(formData, selectedImages, toRemoveImages);
   };
 
   return (
@@ -83,8 +88,6 @@ export const EditTimeSlot = ({
           <form
             onSubmit={handleSubmit}
             className="profile-form profile-timeslot-edit-profile-form"
-            preventDefault
-            stopPropagation
           >
             <div className="modal-body-timeslot">
               <label>
@@ -182,21 +185,11 @@ export const EditTimeSlot = ({
               </label>
 
               <MultiImageUpload
-                preselectedImages={images.map((img) => resolveImage(img))}
+                slotId={slot.id}
+                preselectedImages={preselectedImageUrls}
+                setToRemoveImages={setToRemoveImages}
+                onChange={setSelectedImages}
               />
-              {/* 
-              {images.length > 0 && (
-                <label className="profile-full-width profile-timeslot-edit-images">
-                  Timeslot Images
-                  <div className="profile-full-width profile-timeslot-edit-images-carousel">
-                    <Carousel
-                      images={images.map((img) => resolveImage(img))}
-                      imageFit="contain"
-                      imageHeight="auto"
-                    />
-                  </div>
-                </label>
-              )} */}
 
               <div className="profile-full-width profile-timeslot-search-wrapper">
                 <label className="profile-timeslot-search-label">
