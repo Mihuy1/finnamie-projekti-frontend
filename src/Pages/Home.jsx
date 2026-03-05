@@ -1,7 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Map from "../components/Map";
 import "../App.css";
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useAuth } from "../auth/AuthContext";
@@ -11,9 +11,8 @@ function Home() {
   const [date, setDate] = useState([]);
   const [activeDate, setActiveDate] = useState(new Date());
   const [activityType, setActivityType] = useState("");
-  const { user, loading, isAuthed } = useAuth();
+  const { user } = useAuth();
   const [openChat, setOpenChat] = useState(false);
-  const navigate = useNavigate();
 
   const mapSectionRef = useRef(null);
 

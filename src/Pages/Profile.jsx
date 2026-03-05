@@ -34,6 +34,7 @@ configureLeaflet();
 
 export const Profile = () => {
   const { user, loading } = useAuth();
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [profileForm, setProfileForm] = useState(EMPTY_PROFILE);
   const [passwordForm, setPasswordForm] = useState({
@@ -524,12 +525,43 @@ export const Profile = () => {
             ) : (
               <div className="profile-timeslot-list">
                 {timeSlots.map((slot) => (
-                  <TimeSlot
+                  <article
+                    className="profile-timeslot-card"
                     key={slot.id}
-                    slot={slot}
-                    activities={activitiesForm}
-                  />
+                    onClick={() => setSelectedSlot(slot)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="profile-timeslot-summary">
+                      <div className="profile-timeslot-summary-main">
+                        <h3>{slot.city || "Unknown City"}</h3>
+                        <p>{slot.start_time}</p>
+                      </div>
+
+                      <div className="profile-timeslot-summary-meta">
+                        <span className="profile-timeslot-pill">
+                          {slot.type === "halfday" ? "Half Day" : "Full Day"}
+                        </span>
+                        <span
+                          className={`profile-timeslot-pill status-${(slot.res_status || "unknown").toLowerCase()}`}
+                        >
+                          {slot.res_status || "Unknown"}
+                        </span>
+                        <span className="profile-timeslot-chevron">
+                          View details
+                        </span>
+                      </div>
+                    </div>
+                  </article>
                 ))}
+
+                {selectedSlot && (
+                  <TimeSlot
+                    slot={selectedSlot}
+                    activities={activitiesForm}
+                    canEdit={true}
+                    onClose={() => setSelectedSlot(null)}
+                  />
+                )}
               </div>
             )}
           </>

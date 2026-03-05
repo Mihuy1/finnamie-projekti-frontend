@@ -12,11 +12,12 @@ import toast from "react-hot-toast";
 import configureLeaflet from "../utils/leaflet-config";
 import { formatDateTimeDisplay } from "../utils/date-utils";
 import { Carousel } from "./Carousel";
+import { Link } from "react-router-dom";
 
 configureLeaflet();
 
-export const TimeSlot = ({ slot, activities, canEdit }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
   const [images, setImages] = useState([]);
@@ -53,12 +54,9 @@ export const TimeSlot = ({ slot, activities, canEdit }) => {
     fetchImages();
   }, [slot.id]);
 
-  const toggleSlotDetails = () => {
-    setIsExpanded(!isExpanded);
-  };
-
-  const toggleEditMode = () => {
-    setIsEditing(!isEditing);
+  const handleClose = () => {
+    setIsModalOpen(false);
+    onClose?.();
   };
 
   const handleSave = async (updatedData, images, toRemoveImages) => {
@@ -94,7 +92,7 @@ export const TimeSlot = ({ slot, activities, canEdit }) => {
       if (result) {
         toast.success("Timeslot updated successfully!");
         setSlotData(updatedData);
-        toggleEditMode();
+        setIsEditing(false);
 
         // Refresh images after update
         const res = await getTimeSlotImage(slot.id);
@@ -108,40 +106,52 @@ export const TimeSlot = ({ slot, activities, canEdit }) => {
     }
   };
 
+  if (isEditing) {
+    return (
+      <div className="profile-timeslots">
+        <EditTimeSlot
+          slot={slotData}
+          activities={activities}
+          images={images}
+          onCancel={() => setIsEditing(false)}
+          onSave={handleSave}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="profile-timeslots">
-      {!isEditing ? (
-        <article
-          className={`profile-timeslot-card ${isExpanded ? "is-expanded" : ""}`}
-        >
-          <button
-            type="button"
-            className="profile-timeslot-summary"
-            onClick={toggleSlotDetails}
-            aria-expanded={isExpanded}
-          >
-            <div className="profile-timeslot-summary-main">
-              <h3>{slotData.city || "Unknown City"}</h3>
-              <p>{formatDateTimeDisplay(slotData.start_time)}</p>
-            </div>
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => handleClose()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-modal" onClick={() => handleClose()}>
+              ×
+            </button>
 
-            <div className="profile-timeslot-summary-meta">
-              <span className="profile-timeslot-pill">
-                {slotData.type === "halfday" ? "Half Day" : "Full Day"}
-              </span>
-              <span
-                className={`profile-timeslot-pill status-${(slotData.res_status || "unknown").toLowerCase()}`}
-              >
-                {slotData.res_status || "Unknown"}
-              </span>
-              <span className="profile-timeslot-chevron">
-                {isExpanded ? "Hide details" : "View details"}
-              </span>
-            </div>
-          </button>
+            {images && images.length > 0 && (
+              <div className="modal-image">
+                <span className="modal-duration-badge">
+                  {slotData.type === "halfday" ? "Half Day" : "Full Day"}
+                </span>
+                <Carousel images={images.map((img) => resolveImage(img))} />
+              </div>
+            )}
 
-          {isExpanded && (
-            <div className="profile-timeslot-details">
+            <div className="modal-body">
+              <div className="modal-meta">
+                <span className="profile-timeslot-pill">
+                  {slotData.type === "halfday" ? "Half Day" : "Full Day"}
+                </span>
+                <span
+                  className={`profile-timeslot-pill status-${(slotData.res_status || "unknown").toLowerCase()}`}
+                >
+                  {slotData.res_status || "Unknown"}
+                </span>
+              </div>
+
+              <h2>{slotData.city || "Unknown City"}</h2>
+
               <div className="profile-timeslot-detail-grid">
                 <div>
                   <strong>Start</strong>
@@ -151,42 +161,35 @@ export const TimeSlot = ({ slot, activities, canEdit }) => {
                   <strong>End</strong>
                   <p>{formatDateTimeDisplay(slotData.end_time)}</p>
                 </div>
-                <div>
-                  <strong>Type</strong>
-                  <p>{slotData.type === "halfday" ? "Half Day" : "Full Day"}</p>
-                </div>
-                <div>
-                  <strong>Status</strong>
-                  <p>{slotData.res_status || "Unknown"}</p>
-                </div>
-                <div className="profile-timeslot-activities">
-                  <strong>Included Activities</strong>
-                  {slotData.activities && slotData.activities.length > 0 ? (
+              </div>
+
+              {slotData.activities && slotData.activities.length > 0 && (
+                <>
+                  <hr />
+                  <div className="profile-timeslot-activities">
+                    <strong>Included Activities</strong>
                     <ul>
                       {slotData.activities.map((activity) => (
                         <li key={activity.id}>{activity.name}</li>
                       ))}
                     </ul>
-                  ) : (
-                    <p>No specific activities selected.</p>
-                  )}
-                </div>
-              </div>
+                  </div>
+                </>
+              )}
 
               {slotData.description && (
-                <div className="profile-timeslot-description">
-                  <strong>Description</strong>
-                  <p>{slotData.description}</p>
-                </div>
+                <>
+                  <hr />
+                  <h3>Description</h3>
+                  <p className="modal-description">{slotData.description}</p>
+                </>
               )}
 
-              {images && images.length > 0 && (
-                <div className="profile-timeslot-images">
-                  <strong>Timeslot Images</strong>
-                  <Carousel images={images.map((img) => resolveImage(img))} />
-                </div>
+              <hr />
+              <h3>Location</h3>
+              {slotData.address && (
+                <p className="modal-description">{slotData.address}</p>
               )}
-
               <div className="profile-timeslot-map">
                 <MapContainer
                   center={[slotData.latitude_deg, slotData.longitude_deg]}
@@ -210,28 +213,32 @@ export const TimeSlot = ({ slot, activities, canEdit }) => {
                 </MapContainer>
               </div>
 
-              <div className="profile-timeslot-edit-actions">
-                {canEdit && (
+              {canEdit ? (
+                <div className="modal-actions">
                   <button
                     type="button"
-                    className="profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
-                    onClick={toggleEditMode}
+                    className="profile-btn profile-btn-secondary"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setIsEditing(true);
+                    }}
                   >
                     Edit Timeslot
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="modal-actions">
+                  <Link to="/" className="book-now-btn">
+                    Book this activity
+                  </Link>
+                  <button className="close-btn" onClick={() => handleClose()}>
+                    Go back
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </article>
-      ) : (
-        <EditTimeSlot
-          slot={slotData}
-          activities={activities}
-          images={images}
-          onCancel={toggleEditMode}
-          onSave={handleSave}
-        />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link } from "react-router-dom";
 import { Carousel } from "../components/Carousel";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { TimeSlot } from "../components/Timeslot";
 
 export default function Discover() {
   const [activities, setActivities] = useState([]);
@@ -10,7 +12,7 @@ export default function Discover() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  const [openActivity, setOpenActivity] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
@@ -69,9 +71,6 @@ export default function Discover() {
     };
     fetchData();
   }, []);
-
-  console.log("activities:", activities);
-  console.log("timeSlots:", timeSlots);
 
   const handleFilter = (category) => {
     setSelectedCategory(category);
@@ -133,7 +132,7 @@ export default function Discover() {
           <div
             key={activity.id}
             className="activity-card"
-            onClick={() => setOpenActivity(activity)}
+            onClick={() => setSelectedSlot(activity)}
           >
             <div className="card-image">
               <img
@@ -153,62 +152,13 @@ export default function Discover() {
         ))}
       </div>
 
-      {openActivity && (
-        <div className="modal-overlay" onClick={() => setOpenActivity(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="close-modal"
-              onClick={() => setOpenActivity(null)}
-            >
-              ×
-            </button>
-
-            <div className="modal-image">
-              <span className="modal-duration-badge">
-                {openActivity.experience_length}
-              </span>
-
-              {openActivity.images && (
-                <Carousel
-                  images={openActivity.images.map((img) =>
-                    resolveImage(img.url),
-                  )}
-                />
-              )}
-            </div>
-
-            <div className="modal-body">
-              <div className="modal-meta">
-                <span className="category-badge">{openActivity.category}</span>
-              </div>
-
-              <h2>{openActivity.name}</h2>
-              <p className="modal-host">
-                Experience hosted by <strong>{openActivity.first_name}</strong>
-              </p>
-              <p className="modal-location">📍 {openActivity.city}</p>
-
-              <hr />
-
-              <h3>About the experience</h3>
-              <p className="modal-description">
-                {openActivity.description || "No description available yet."}
-              </p>
-
-              <div className="modal-actions">
-                <Link to="/" className="book-now-btn">
-                  Book this activity
-                </Link>
-                <button
-                  className="close-btn"
-                  onClick={() => setOpenActivity(null)}
-                >
-                  Go back
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {selectedSlot && (
+        <TimeSlot
+          slot={selectedSlot}
+          activities={activities}
+          canEdit={false}
+          onClose={() => setSelectedSlot(null)}
+        />
       )}
     </section>
   );
