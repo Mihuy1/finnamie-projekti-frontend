@@ -3,6 +3,7 @@ import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link } from "react-router-dom";
 import { Carousel } from "../components/Carousel";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { TimeSlot } from "../components/Timeslot";
 
 export default function Discover() {
   const [activities, setActivities] = useState([]);
@@ -12,6 +13,7 @@ export default function Discover() {
   const [loading, setLoading] = useState(true);
 
   const [openActivity, setOpenActivity] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
@@ -131,7 +133,7 @@ export default function Discover() {
           <div
             key={activity.id}
             className="activity-card"
-            onClick={() => setOpenActivity(activity)}
+            onClick={() => setSelectedSlot(activity)}
           >
             <div className="card-image">
               <img
@@ -151,7 +153,16 @@ export default function Discover() {
         ))}
       </div>
 
-      {openActivity && (
+      {selectedSlot && (
+        <TimeSlot
+          slot={selectedSlot}
+          activities={activities}
+          canEdit={false}
+          onClose={() => setSelectedSlot(null)}
+        />
+      )}
+
+      {/* {openActivity && (
         <div className="modal-overlay" onClick={() => setOpenActivity(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button
@@ -242,7 +253,7 @@ export default function Discover() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </section>
   );
 }

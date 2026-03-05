@@ -7,6 +7,7 @@ export const PublicProfile = () => {
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -118,13 +119,43 @@ export const PublicProfile = () => {
               <h3 className="profile-selection-title">Available Time Slots</h3>
               <div className="profile-timeslot-list">
                 {timeSlots.map((slot) => (
-                  <TimeSlot
+                  <article
+                    className="profile-timeslot-card"
                     key={slot.id}
-                    slot={slot}
-                    activities={profile?.host_activities}
-                    canEdit={false}
-                  />
+                    onClick={() => setSelectedSlot(slot)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="profile-timeslot-summary">
+                      <div className="profile-timeslot-summary-main">
+                        <h3>{slot.city || "Unknown City"}</h3>
+                        <p>{slot.start_time}</p>
+                      </div>
+
+                      <div className="profile-timeslot-summary-meta">
+                        <span className="profile-timeslot-pill">
+                          {slot.type === "halfday" ? "Half Day" : "Full Day"}
+                        </span>
+                        <span
+                          className={`profile-timeslot-pill status-${(slot.res_status || "unknown").toLowerCase()}`}
+                        >
+                          {slot.res_status || "Unknown"}
+                        </span>
+                        <span className="profile-timeslot-chevron">
+                          View details
+                        </span>
+                      </div>
+                    </div>
+                  </article>
                 ))}
+
+                {selectedSlot && (
+                  <TimeSlot
+                    slot={selectedSlot}
+                    activities={profile.host_activities || []}
+                    canEdit={false}
+                    onClose={() => setSelectedSlot(null)}
+                  />
+                )}
               </div>
             </>
           )}
