@@ -88,7 +88,15 @@ export const MultiImageUpload = ({
       <button
         type="button"
         className="clear-all-btn profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
-        onClick={() => setFiles([])}
+        onClick={() => {
+          setToRemoveImages((prev) => [
+            ...prev,
+            ...files
+              .filter((f) => !f.isObjectUrl)
+              .map((f) => ({ url: f.preview, slotId })),
+          ]);
+          setFiles([]);
+        }}
       >
         Clear All
       </button>

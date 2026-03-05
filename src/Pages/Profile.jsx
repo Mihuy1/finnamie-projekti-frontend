@@ -528,6 +528,7 @@ export const Profile = () => {
                     key={slot.id}
                     slot={slot}
                     activities={activitiesForm}
+                    canEdit={true}
                   />
                 ))}
               </div>
