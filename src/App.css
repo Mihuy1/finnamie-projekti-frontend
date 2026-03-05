@@ -1273,9 +1273,10 @@ body {
 }
 
 .modal-image {
-  margin-top: 1rem;
   width: 100%;
-  height: 450px;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 500px;
   position: relative;
   overflow: hidden;
 }
@@ -1288,9 +1289,9 @@ body {
 .modal-image .carousel-image {
   height: 100% !important;
   width: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center;
   display: block;
-  background-color: #f8f9fa;
 }
 
 .modal-image img {
@@ -1644,16 +1645,18 @@ body {
 
 .profile-timeslot-images .carousel {
   width: 100%;
-  height: 450px;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 500px;
   border-radius: 12px;
   overflow: hidden;
-  background: #f8f9fa;
 }
 
 .profile-timeslot-images .carousel-image {
   width: 100%;
   height: 100% !important;
-  object-fit: contain !important;
+  object-fit: cover !important;
+  object-position: center;
   display: block;
 }
 
