@@ -12,7 +12,6 @@ export default function Discover() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  const [openActivity, setOpenActivity] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const API_BASE_URL = "http://localhost:3000";
@@ -161,99 +160,6 @@ export default function Discover() {
           onClose={() => setSelectedSlot(null)}
         />
       )}
-
-      {/* {openActivity && (
-        <div className="modal-overlay" onClick={() => setOpenActivity(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="close-modal"
-              onClick={() => setOpenActivity(null)}
-            >
-              ×
-            </button>
-
-            <div className="modal-image">
-              <span className="modal-duration-badge">
-                {openActivity.experience_length}
-              </span>
-
-              {openActivity.images && (
-                <Carousel
-                  images={openActivity.images.map((img) =>
-                    resolveImage(img.url),
-                  )}
-                />
-              )}
-            </div>
-
-            <div className="modal-body">
-              <div className="modal-meta">
-                <span className="category-badge">{openActivity.category}</span>
-              </div>
-
-              <h2>{openActivity.name}</h2>
-              <p className="modal-host">
-                Experience hosted by <strong>{openActivity.first_name}</strong>
-              </p>
-              <p className="modal-location">📍 {openActivity.city}</p>
-
-              <hr />
-
-              <h3>About the experience</h3>
-              <p className="modal-description">
-                {openActivity.description || "No description available yet."}
-              </p>
-
-              <hr />
-
-              <h3>Location</h3>
-
-              <p className="modal-description"> {openActivity.address} </p>
-
-              <div className="profile-timeslot-map">
-                <MapContainer
-                  center={[
-                    openActivity.latitude_deg,
-                    openActivity.longitude_deg,
-                  ]}
-                  zoom={13}
-                  scrollWheelZoom={false}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <Marker
-                    position={[
-                      openActivity.latitude_deg,
-                      openActivity.longitude_deg,
-                    ]}
-                  >
-                    <Popup>
-                      <strong>{openActivity.city}</strong>
-                      <br />
-                      {openActivity.address}
-                    </Popup>
-                  </Marker>
-                </MapContainer>
-              </div>
-
-              <div className="modal-actions">
-                <Link to="/" className="book-now-btn">
-                  Book this activity
-                </Link>
-                <button
-                  className="close-btn"
-                  onClick={() => setOpenActivity(null)}
-                >
-                  Go back
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )} */}
     </section>
   );
 }
