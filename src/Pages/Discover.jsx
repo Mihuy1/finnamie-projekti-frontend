@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link } from "react-router-dom";
 import { Carousel } from "../components/Carousel";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 export default function Discover() {
   const [activities, setActivities] = useState([]);
@@ -69,9 +70,6 @@ export default function Discover() {
     };
     fetchData();
   }, []);
-
-  console.log("activities:", activities);
-  console.log("timeSlots:", timeSlots);
 
   const handleFilter = (category) => {
     setSelectedCategory(category);
@@ -194,6 +192,41 @@ export default function Discover() {
               <p className="modal-description">
                 {openActivity.description || "No description available yet."}
               </p>
+
+              <hr />
+
+              <h3>Location</h3>
+
+              <p className="modal-description"> {openActivity.address} </p>
+
+              <div className="profile-timeslot-map">
+                <MapContainer
+                  center={[
+                    openActivity.latitude_deg,
+                    openActivity.longitude_deg,
+                  ]}
+                  zoom={13}
+                  scrollWheelZoom={false}
+                  style={{ height: "100%", width: "100%" }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker
+                    position={[
+                      openActivity.latitude_deg,
+                      openActivity.longitude_deg,
+                    ]}
+                  >
+                    <Popup>
+                      <strong>{openActivity.city}</strong>
+                      <br />
+                      {openActivity.address}
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+              </div>
 
               <div className="modal-actions">
                 <Link to="/" className="book-now-btn">
