@@ -423,6 +423,9 @@ body {
 .carousel {
   margin-top: 1rem;
   margin-bottom: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .carousel-button-back,
@@ -887,6 +890,9 @@ body {
   font-size: 14px;
   font-weight: 500;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .back-link:hover {
@@ -1322,9 +1328,24 @@ body {
 
 .modal-image {
   width: 100%;
-  height: 400px;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 500px;
   position: relative;
   overflow: hidden;
+}
+
+.modal-image .carousel {
+  height: 100%;
+  margin: 0;
+}
+
+.modal-image .carousel-image {
+  height: 100% !important;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .modal-image img {
@@ -1357,12 +1378,6 @@ body {
   font-weight: 600;
   letter-spacing: 1px;
   margin-bottom: 8px;
-}
-
-.modal-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .modal-body {
@@ -1422,6 +1437,12 @@ body {
   display: flex;
   justify-content: center;
   padding: 60px 20px;
+}
+
+.profile-page p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 .profile-card {
@@ -1678,16 +1699,18 @@ body {
 
 .profile-timeslot-images .carousel {
   width: 100%;
-  height: clamp(220px, 42vw, 420px);
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 500px;
   border-radius: 12px;
   overflow: hidden;
-  background: rgba(0, 47, 108, 0.04);
 }
 
 .profile-timeslot-images .carousel-image {
   width: 100%;
   height: 100% !important;
   object-fit: cover !important;
+  object-position: center;
   display: block;
 }
 

@@ -15,7 +15,7 @@ import { Carousel } from "./Carousel";
 
 configureLeaflet();
 
-export const TimeSlot = ({ slot, activities }) => {
+export const TimeSlot = ({ slot, activities, canEdit }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
@@ -211,13 +211,15 @@ export const TimeSlot = ({ slot, activities }) => {
               </div>
 
               <div className="profile-timeslot-edit-actions">
-                <button
-                  type="button"
-                  className="profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
-                  onClick={toggleEditMode}
-                >
-                  Edit Timeslot
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    className="profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
+                    onClick={toggleEditMode}
+                  >
+                    Edit Timeslot
+                  </button>
+                )}
               </div>
             </div>
           )}

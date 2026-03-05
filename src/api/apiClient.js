@@ -393,6 +393,7 @@ export const verifyMe = async () => {
   const res = await fetch(`${BASE_URL}auth/me`, {
     method: "GET",
     credentials: "include",
+    cache: "no-store",
   });
   const ct = res.headers.get("content-type") ?? "";
   const payload = ct.includes("application/json")
