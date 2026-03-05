@@ -129,12 +129,19 @@ function Home() {
 
         <div className="calendar-container">
           <h2>Choose your date</h2>
-          <p className="calendar-subtitle">Check availability for your selected dates</p>
+          <p className="calendar-subtitle">
+            Check availability for your selected dates
+          </p>
 
           <div className="calendar-nav">
             <button onClick={prevMonth}>&lsaquo;</button>
-            <span style={{ fontWeight: 700, color: '#002f6c', fontSize: '16px' }}>
-              {activeDate.toLocaleString("en-GB", { month: "long", year: "numeric" })}
+            <span
+              style={{ fontWeight: 700, color: "#002f6c", fontSize: "16px" }}
+            >
+              {activeDate.toLocaleString("en-GB", {
+                month: "long",
+                year: "numeric",
+              })}
             </span>
             <button onClick={nextMonth}>&rsaquo;</button>
           </div>
@@ -144,16 +151,16 @@ function Home() {
             value={date}
             activeStartDate={activeDate}
             selectRange
-            onActiveStartDateChange={({ activeStartDate }) => setActiveDate(activeStartDate)}
+            onActiveStartDateChange={({ activeStartDate }) =>
+              setActiveDate(activeStartDate)
+            }
             showNavigation={false}
           />
         </div>
       </section>
 
       <div className="final-booking-action">
-        <button className="book-now-large">
-          Book Now
-        </button>
+        <button className="book-now-large">Book Now</button>
       </div>
 
       <footer className="footer">

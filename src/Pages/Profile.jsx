@@ -13,6 +13,7 @@ import "leaflet/dist/leaflet.css";
 import configureLeaflet from "../utils/leaflet-config";
 import { formatDateForInput } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
+import { useAuth } from "../auth/AuthContext";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -32,6 +33,7 @@ const EMPTY_PROFILE = {
 configureLeaflet();
 
 export const Profile = () => {
+  const { user, loading } = useAuth();
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [profileForm, setProfileForm] = useState(EMPTY_PROFILE);
   const [passwordForm, setPasswordForm] = useState({
@@ -48,6 +50,9 @@ export const Profile = () => {
   const [timeSlots, setTimeSlots] = useState([]);
 
   useEffect(() => {
+    if (loading) return;
+    if (!user) return;
+
     if (hasFetchedProfile.current) return;
     hasFetchedProfile.current = true;
 
@@ -63,7 +68,7 @@ export const Profile = () => {
 
         if (data.role === "host") {
           setIsHost(true);
-          const hostTimeslots = await getTimeSlotsByHostId(data.id);
+          const hostTimeslots = await getTimeSlotsByHostId(user.id);
           setTimeSlots(hostTimeslots || []);
         }
 
@@ -86,7 +91,7 @@ export const Profile = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user, loading]);
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -257,11 +262,11 @@ export const Profile = () => {
   return (
     <section className="profile-page">
       <div className="profile-card">
+        <a className="back-link" href="/" data-discover="true">
+          ← Back to Homepage
+        </a>
         <div className="profile-header">
           <h1>Profile</h1>
-          <a class="back-link" href="/" data-discover="true">
-            ← Back to Homepage
-          </a>
 
           {!isEditing ? (
             <button

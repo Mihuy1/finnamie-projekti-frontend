@@ -2,7 +2,7 @@ import { useState } from "react";
 
 export const Carousel = ({
   images,
-  imageFit = "cover",
+  imageFit = "contain",
   imageHeight = "100%",
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
