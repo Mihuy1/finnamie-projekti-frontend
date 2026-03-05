@@ -73,7 +73,7 @@
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 1000;
+  z-index: 9999;
   height: 56px;
   min-width: 56px;
   padding: 0 16px;
@@ -83,13 +83,14 @@
   color: #fff;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .chatbox {
   position: fixed;
   right: 24px;
-  bottom: 24px;
-  z-index: 1000;
+  bottom: 90px;
+  z-index: 10000;
   width: 420px;
   max-height: 72vh;
   min-height: 420px;
@@ -98,6 +99,7 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
@@ -114,12 +116,10 @@
 
 .chat-close {
   background: #51a5ff;
-  align-self: flex-end;
-  padding-bottom: 1rem;
+  padding: 10px;
   width: 100%;
   border: none;
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
-  line-height: 1;
 }
