@@ -30,6 +30,8 @@ body {
 .logo {
   font-size: 22px;
   font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
 }
 
 .nav a {
@@ -196,6 +198,12 @@ body {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+}
+
+.calendar-container--narrow {
+  max-width: 520px;
+  height: 100%;
+  margin: 0 auto;
 }
 
 .calendar-subtitle {
@@ -1237,6 +1245,7 @@ body {
   justify-content: center;
   gap: 12px;
   margin-bottom: 48px;
+  margin-top: 48px;
 }
 
 .filter-btn {

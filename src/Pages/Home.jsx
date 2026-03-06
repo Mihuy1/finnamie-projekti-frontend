@@ -47,27 +47,6 @@ function Home() {
 
   return (
     <div className="app">
-      <header className="header">
-        <div className="logo">Finnamie</div>
-        <nav className="nav">
-          {!user ? (
-            <ul>
-              <Link to="/discover">Discover activities</Link>
-              <Link to="/host/register">Become a Host</Link>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </ul>
-          ) : (
-            <>
-              <Link to="/discover">Discover activities</Link>
-              <Link to="/profile">
-                {user.first_name} {user.last_name}{" "}
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
-
       <section className="booking-section">
         <button
           className="chat-launcher"

@@ -100,6 +100,8 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
         if (res) {
           setImages(res.map((img) => img.url));
         }
+
+        handleClose();
       }
     } catch (error) {
       console.error("Error saving timeslot:", error);
@@ -113,7 +115,7 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
           slot={slotData}
           activities={activities}
           images={images}
-          onCancel={() => setIsEditing(false)}
+          onCancel={() => handleClose()}
           onSave={handleSave}
         />
       </div>
@@ -232,7 +234,7 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
                     Book this activity
                   </Link>
                   <button className="close-btn" onClick={() => handleClose()}>
-                    Go back
+                    Close
                   </button>
                 </div>
               )}
