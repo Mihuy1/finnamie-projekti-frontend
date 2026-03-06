@@ -133,9 +133,9 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
 
             {images && images.length > 0 && (
               <div className="modal-image">
-                <span className="modal-duration-badge">
-                  {slotData.type === "halfday" ? "Half Day" : "Full Day"}
-                </span>
+                {/*<span className="modal-duration-badge">*/}
+                {/*  {slotData.type === "halfday" ? "Half Day" : "Full Day"}*/}
+                {/*</span>*/}
                 <Carousel images={images.map((img) => resolveImage(img))} />
               </div>
             )}

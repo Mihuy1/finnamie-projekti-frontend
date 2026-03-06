@@ -1094,6 +1094,7 @@ body {
 .card-image {
   position: relative;
   height: 200px;
+  margin-bottom: 16px;
 }
 
 .card-image img {
@@ -1216,6 +1217,12 @@ body {
   color: #888;
   display: block;
   margin-bottom: 4px;
+}
+
+.host-tag {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 8px;
 }
 
 .card-footer {
@@ -1786,6 +1793,10 @@ body {
   color: var(--text-primary);
   background: rgba(0, 47, 108, 0.08);
   text-transform: capitalize;
+}
+
+.profile-timeslot-pill.discover {
+  margin-left: 16px;
 }
 
 .profile-timeslot-pill.status-available {

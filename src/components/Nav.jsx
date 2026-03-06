@@ -20,7 +20,7 @@ export const Nav = () => {
           <>
             <Link to="/discover">Discover activities</Link>
             <Link to="/profile">
-              {user.first_name} {user.last_name}{" "}
+              {user.first_name} {user.last_name}
             </Link>
           </>
         )}
