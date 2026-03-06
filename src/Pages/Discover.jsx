@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link } from "react-router-dom";
-import { Carousel } from "../components/Carousel";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { TimeSlot } from "../components/Timeslot";
+import Calendar from "react-calendar";
 
 export default function Discover() {
   const [activities, setActivities] = useState([]);
@@ -11,6 +10,8 @@ export default function Discover() {
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [date, setDate] = useState(null);
+  const [activeDate, setActiveDate] = useState(new Date());
 
   const [selectedSlot, setSelectedSlot] = useState(null);
 
@@ -91,6 +92,35 @@ export default function Discover() {
     }
   };
 
+  const handleDates = (value) => {
+    if (!value) {
+      setDate([]);
+      return;
+    }
+    const values = Array.isArray(value) ? value : [value];
+    setDate(values);
+
+    const targetStart = values[0];
+    const targetEnd = values[1] || values[0];
+
+    const filtered = timeSlots.filter((slot) => {
+      const slotStart = new Date(slot.start_time);
+      const slotEnd = new Date(slot.end_time);
+
+      return slotStart <= targetEnd && slotEnd >= targetStart;
+    });
+
+    setFilteredActivities(filtered);
+  };
+
+  const nextMonth = () => {
+    setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  };
+
+  const prevMonth = () => {
+    setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
 
   return (
@@ -105,6 +135,35 @@ export default function Discover() {
         <h1>Discover Finland</h1>
         <p>Explore authentic experiences hosted by locals.</p>
       </header>
+
+      <div className="calendar-container calendar-container--narrow">
+        <h2>Choose your date</h2>
+        <p className="calendar-subtitle">
+          Check availability for your selected dates
+        </p>
+
+        <div className="calendar-nav">
+          <button onClick={prevMonth}>&lsaquo;</button>
+          <span style={{ fontWeight: 700, color: "#002f6c", fontSize: "16px" }}>
+            {activeDate.toLocaleString("en-GB", {
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
+          <button onClick={nextMonth}>&rsaquo;</button>
+        </div>
+
+        <Calendar
+          onChange={handleDates}
+          value={date}
+          activeStartDate={activeDate}
+          selectRange
+          onActiveStartDateChange={({ activeStartDate }) =>
+            setActiveDate(activeStartDate)
+          }
+          showNavigation={false}
+        />
+      </div>
 
       <div className="filter-container">
         <button

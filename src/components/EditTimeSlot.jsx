@@ -236,13 +236,6 @@ export const EditTimeSlot = ({
                 >
                   Save Changes
                 </button>
-                <button
-                  type="button"
-                  className="profile-btn profile-btn-secondary"
-                  onClick={onCancel}
-                >
-                  Cancel
-                </button>
               </div>
             </div>
           </form>

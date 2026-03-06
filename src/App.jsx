@@ -8,20 +8,23 @@ import Discover from "./Pages/Discover";
 import Booking from "./Pages/Booking";
 import { Profile } from "./Pages/Profile";
 import { PublicProfile } from "./Pages/PublicProfile";
+import { Layout } from "./components/Layout";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/discover" element={<Discover />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/profile/:id" element={<PublicProfile />} />
-      <Route path="/host/register" element={<HostRegister />} />
-      <Route path="/booking/:id" element={<Booking />} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/discover" element={<Discover />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:id" element={<PublicProfile />} />
+        <Route path="/host/register" element={<HostRegister />} />
+        <Route path="/booking/:id" element={<Booking />} />
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/host/login" element={<HostLogin />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/host/login" element={<HostLogin />} />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
