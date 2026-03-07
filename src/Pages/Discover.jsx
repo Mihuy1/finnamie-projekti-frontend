@@ -62,6 +62,7 @@ export default function Discover() {
         const finalData = data && data.length > 0 ? data : placeholders;
         setActivities(finalData);
         setFilteredActivities(timeslotData);
+        console.log("timeslots with host:", timeslotData);
       } catch (error) {
         console.error(error);
         setActivities(placeholders);
@@ -202,7 +203,13 @@ export default function Discover() {
                 {activity.experience_length}
               </span>
             </div>
+            <span className="profile-timeslot-pill discover">
+              {activity.type === "halfday" ? "Half Day" : "Full Day"}
+            </span>
             <div className="card-content">
+              <span className="host-tag">
+                {activity.first_name} {activity.last_name}
+              </span>
               <span className="location-tag">📍 {activity.city}</span>
               <h3>{activity.name}</h3>
               <p className="category-text">{activity.category}</p>
