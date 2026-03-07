@@ -1,8 +1,9 @@
-
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getActivities, register } from "../api/apiClient";
+import { Link, useNavigate } from "react-router-dom";
+import { getActivities, postLogin, register } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
+import toast from "react-hot-toast";
+import { useAuth } from "../auth/AuthContext";
 
 export default function HostRegister() {
   const [activities, setActivites] = useState([]);
@@ -23,6 +24,27 @@ export default function HostRegister() {
   const [country, setCountry] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [description, setDescription] = useState("");
+  const [loadingCountries, setLoadingCountries] = useState(true);
+  const [countries, setCountries] = useState([]);
+  const { refresh } = useAuth();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("https://restcountries.com/v3.1/all?fields=name")
+      .then((res) => res.json())
+      .then((data) => {
+        const sortedCountries = data
+          .map((c) => c.name.common)
+          .sort((a, b) => a.localeCompare(b));
+        setCountries(sortedCountries);
+        setLoadingCountries(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching countries:", err);
+        setLoadingCountries(false);
+      });
+  }, []);
 
   useEffect(() => {
     const fetchActivites = async () => {
@@ -81,8 +103,8 @@ export default function HostRegister() {
             ? "Full-day"
             : undefined;
 
-    try {
-      await register({
+    const res = await toast.promise(
+      register({
         first_name: firstName,
         last_name: lastName,
         email,
@@ -98,11 +120,22 @@ export default function HostRegister() {
         description: description || undefined,
         experience_length,
         activity_ids: selectedActivities,
-      });
+      }),
+      {
+        pending: "Registration pending...",
+        success: "Registration successful!",
+        error: (err) => err?.message || "Registration failed.",
+      },
+    );
 
-      alert("Registration successful!");
-    } catch (error) {
-      setError(error?.message || "Registration failed.");
+    if (res?.userId) {
+      await postLogin(email, password);
+
+      await refresh();
+
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1000);
     }
   }
 
@@ -212,7 +245,7 @@ export default function HostRegister() {
               required
             />
           </label>
-          <label>
+          {/* <label>
             <span className="required">Country</span>
             <input
               type="text"
@@ -220,6 +253,27 @@ export default function HostRegister() {
               onChange={(e) => setCountry(e.target.value)}
               required
             />
+          </label> */}
+          <label>
+            <span className="required">Country</span>
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              required
+              disabled={loadingCountries}
+              className="country-select"
+            >
+              <option value="" disabled>
+                {loadingCountries
+                  ? "Loading countries..."
+                  : "Select your country"}
+              </option>
+              {countries.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 
@@ -243,11 +297,12 @@ export default function HostRegister() {
         <select onChange={handleActivityChange}>
           <option value="">-- Choose an activity --</option>
 
-          {Array.isArray(activities) && activities.map((activity) => (
-            <option key={activity.id} value={activity.id}>
-              {activity.name}
-            </option>
-          ))}
+          {Array.isArray(activities) &&
+            activities.map((activity) => (
+              <option key={activity.id} value={activity.id}>
+                {activity.name}
+              </option>
+            ))}
         </select>
 
         {selectedActivities.length > 0 && (

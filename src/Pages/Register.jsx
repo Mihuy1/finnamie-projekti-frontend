@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../api/apiClient";
+import { postLogin, register } from "../api/apiClient";
 import toast from "react-hot-toast";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -15,6 +16,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [countries, setCountries] = useState([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
+  const { refresh } = useAuth();
 
   const navigate = useNavigate();
 
@@ -43,7 +45,7 @@ export default function Register() {
       return;
     }
 
-    await toast.promise(
+    const res = await toast.promise(
       register({
         first_name: firstName,
         last_name: lastName,
@@ -62,9 +64,17 @@ export default function Register() {
       },
     );
 
-    setTimeout(() => {
-      navigate("/profile");
-    }, 1000);
+    console.log("res:", res);
+
+    if (res?.userId) {
+      await postLogin(email, password);
+
+      await refresh();
+
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1000);
+    }
   }
 
   return (
@@ -109,16 +119,6 @@ export default function Register() {
             />
           </label>
 
-          {/* <label>
-            <span className="required">Phone number</span>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-            />
-          </label> */}
-
           <label>
             <span className="required">Country</span>
             <select
@@ -129,7 +129,9 @@ export default function Register() {
               className="country-select"
             >
               <option value="" disabled>
-                {loadingCountries ? "Loading countries..." : "Select your country"}
+                {loadingCountries
+                  ? "Loading countries..."
+                  : "Select your country"}
               </option>
               {countries.map((c) => (
                 <option key={c} value={c}>
