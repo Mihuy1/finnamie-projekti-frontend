@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/apiClient";
 import toast from "react-hot-toast";
@@ -13,8 +13,26 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
+  const [countries, setCountries] = useState([]);
+  const [loadingCountries, setLoadingCountries] = useState(true);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("https://restcountries.com/v3.1/all?fields=name")
+      .then((res) => res.json())
+      .then((data) => {
+        const sortedCountries = data
+          .map((c) => c.name.common)
+          .sort((a, b) => a.localeCompare(b));
+        setCountries(sortedCountries);
+        setLoadingCountries(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching countries:", err);
+        setLoadingCountries(false);
+      });
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -45,7 +63,7 @@ export default function Register() {
     );
 
     setTimeout(() => {
-      navigate("/login");
+      navigate("/profile");
     }, 1000);
   }
 
@@ -103,12 +121,22 @@ export default function Register() {
 
           <label>
             <span className="required">Country</span>
-            <input
-              type="text"
+            <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               required
-            />
+              disabled={loadingCountries}
+              className="country-select"
+            >
+              <option value="" disabled>
+                {loadingCountries ? "Loading countries..." : "Select your country"}
+              </option>
+              {countries.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
