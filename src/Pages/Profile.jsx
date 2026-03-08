@@ -94,6 +94,15 @@ export const Profile = () => {
     fetchData();
   }, [user, loading]);
 
+  useEffect(() => {
+    if (selectedSlot) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [selectedSlot]);
+
   const handleEditProfile = () => {
     setIsEditing(true);
   };
