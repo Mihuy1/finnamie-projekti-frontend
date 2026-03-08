@@ -20,6 +20,7 @@ export default function Register() {
 
   const navigate = useNavigate();
 
+  // REST Countries API:sta haetaan maat
   useEffect(() => {
     fetch("https://restcountries.com/v3.1/all?fields=name")
       .then((res) => res.json())
