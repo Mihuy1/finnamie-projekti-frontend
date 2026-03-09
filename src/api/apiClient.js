@@ -227,6 +227,28 @@ export const postLogin = async (email, password) => {
   return payload;
 };
 
+export const logout = async () => {
+  const res = await fetch(`${BASE_URL}auth/logout`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const ct = res.headers.get("content-type") ?? "";
+    const payload = ct.includes("application/json")
+      ? await res.json()
+      : await res.text();
+    const message =
+      typeof payload === "string"
+        ? payload
+        : (payload?.error ?? payload?.message);
+
+    throw new Error(message || "Failed to log out.");
+  }
+
+  return true;
+};
+
 export const getPublicUserInfo = async (id) => {
   try {
     const res = await fetch(`${BASE_URL}users/public/${id}`, {

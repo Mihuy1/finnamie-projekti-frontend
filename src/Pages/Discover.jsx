@@ -21,6 +21,7 @@ export default function Discover() {
   const resolveImage = (path) => {
     if (!path) return FALLBACK_IMAGE;
     if (path.startsWith("http://")) return path;
+    if (path.startsWith("https://")) return path;
     if (path.startsWith("/")) return API_BASE_URL + path;
     return API_BASE_URL + "/" + path;
   };
@@ -76,13 +77,13 @@ export default function Discover() {
 
   useEffect(() => {
     if (selectedSlot) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = '0px';
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = "0px";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [selectedSlot]);
 
