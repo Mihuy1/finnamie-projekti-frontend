@@ -49,7 +49,7 @@
 
 .message-wrapper {
   scroll-behavior: smooth;
-  max-height: 400px;
+  max-height: 450px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -70,26 +70,20 @@
 }
 
 .chat-launcher {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 9999;
-  height: 56px;
   min-width: 56px;
-  padding: 0 16px;
+  padding: 8px;
   border: none;
-  border-radius: 9999px;
+  border-radius: 4px;
   background: #51a5ff;
   color: #fff;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .chatbox {
   position: fixed;
   right: 24px;
-  bottom: 90px;
+  bottom: 24px;
   z-index: 10000;
   width: 420px;
   max-height: 72vh;
@@ -99,7 +93,6 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 

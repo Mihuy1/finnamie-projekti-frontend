@@ -10,7 +10,8 @@ export const Nav = () => {
     try {
       await logout();
       localStorage.removeItem("token");
-
+      // jos logouttaa, kun on profiilisivulla niin profiili jää auki
+      // onko haluttu toiminnallisuus?
       window.location.reload();
     } catch (error) {
       console.error("Logout error:", error);

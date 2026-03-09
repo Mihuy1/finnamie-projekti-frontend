@@ -37,13 +37,21 @@ export const MessageInput = ({ conv_id, receiver_id, isOpen }) => {
     }
   };
   return (
-    <div style={{ display: "flex", margin: "auto" }}>
+    <div
+      style={{
+        display: "flex",
+        margin: "auto",
+        position: "absolute",
+        bottom: "8px",
+      }}
+    >
       <textarea
         onKeyDown={handleEnter}
         disabled={!isOpen}
         ref={message}
         placeholder={"Type a message.."}
         style={{
+          margin: "4px",
           height: "32px",
           width: "256px",
           resize: "none",
@@ -55,9 +63,9 @@ export const MessageInput = ({ conv_id, receiver_id, isOpen }) => {
         onClick={send}
         style={{
           cursor: "pointer",
-          fontSize: "32px",
-          marginTop: "0",
-          marginLeft: "8px",
+          fontSize: "28px",
+          marginTop: "4px",
+          marginLeft: "4px",
           marginBottom: "4px",
           color: "#51a5ff",
         }}

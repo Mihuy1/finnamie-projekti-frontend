@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPublicUserInfo, getTimeSlotsByHostId } from "../api/apiClient";
 import { TimeSlot } from "../components/Timeslot";
+import { Chatbox } from "../components/Chatbox";
 
 export const PublicProfile = () => {
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [openChat, setOpenChat] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -86,6 +88,23 @@ export const PublicProfile = () => {
                 <p className="profile-role">
                   {profile.role === "host" ? "Host" : "Guest"}
                 </p>
+                <button
+                  className="chat-launcher"
+                  aria-label="Open chat"
+                  onClick={() => setOpenChat(true)}
+                >
+                  Send a message
+                </button>
+                {openChat && (
+                  <Chatbox
+                    closeChat={() => setOpenChat(false)}
+                    newReceiver={{
+                      first_name: profile?.first_name,
+                      last_name: profile?.last_name,
+                      user_id: id,
+                    }}
+                  />
+                )}
                 <p>
                   {[profile?.city, profile?.country].filter(Boolean).join(", ")}
                 </p>

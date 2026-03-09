@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { getConversations } from "../api/apiClient";
+import { getConversations, startConversation } from "../api/apiClient";
 import { CListItem } from "./CListItem";
 
-export const ConversationList = ({ handleOpen, convId }) => {
+// TODO:
+//  - avaa oikean keskustelun, kun avaa keskustelut vastaanottajan profiilista.
+//  - merkki keskusteluun, jos keskustelussa lukemattomia viestejä (?)
+export const ConversationList = ({ handleOpen, convId, messageReceiver }) => {
   const [conversations, setConversations] = useState([]);
   const { user } = useAuth();
 
@@ -12,14 +15,29 @@ export const ConversationList = ({ handleOpen, convId }) => {
       const getConvs = async () => {
         try {
           const data = await getConversations();
-          setConversations(data);
+          if (messageReceiver) {
+            const userIds = data.map((receiver) => receiver.user_id);
+            if (!userIds.includes(messageReceiver.user_id)) {
+              console.log("new conversation");
+              const newConvId = await startConversation(
+                messageReceiver.user_id,
+              );
+              const newConv = {
+                ...messageReceiver,
+                conv_id: newConvId,
+              };
+              setConversations([newConv, ...data]);
+            }
+          } else {
+            setConversations(data);
+          }
         } catch (err) {
           console.log(err);
         }
       };
       getConvs();
     }
-  }, [user]);
+  }, [user, messageReceiver]);
   return (
     <div
       style={{

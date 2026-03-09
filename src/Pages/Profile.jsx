@@ -14,6 +14,7 @@ import configureLeaflet from "../utils/leaflet-config";
 import { formatDateForInput } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
+import { Chatbox } from "../components/Chatbox";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -49,6 +50,7 @@ export const Profile = () => {
   const fileInputRef = useRef(null);
 
   const [timeSlots, setTimeSlots] = useState([]);
+  const [openChat, setOpenChat] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -96,11 +98,13 @@ export const Profile = () => {
 
   useEffect(() => {
     if (selectedSlot) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
-    return () => { document.body.style.overflow = 'unset'; };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [selectedSlot]);
 
   const handleEditProfile = () => {
@@ -331,6 +335,14 @@ export const Profile = () => {
                 {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
               </p>
             )}
+            <button
+              className="chat-launcher"
+              aria-label="Open chat"
+              onClick={() => setOpenChat(true)}
+            >
+              Conversations
+            </button>
+            {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}
           </div>
         </div>
 

@@ -7,8 +7,7 @@ import "../styles/message-styles.css";
 
 //TODO:
 // -Refaktoroi tyylit yhteen css filuun.
-// -Tapaus, jossa käyttäjällä ei ole aikaisempia keskusteluja.
-export const Chatbox = ({ closeChat }) => {
+export const Chatbox = ({ closeChat, newReceiver = null }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [receiver, setReceiver] = useState({
     first_name: null,
@@ -49,7 +48,7 @@ export const Chatbox = ({ closeChat }) => {
   return (
     <>
       {
-        <div className="chatbox" style={{}}>
+        <div className="chatbox">
           <div className="chat-header">
             <div className="chat-title">
               {receiver?.first_name
@@ -77,6 +76,7 @@ export const Chatbox = ({ closeChat }) => {
             <ConversationList
               handleOpen={handleOpenConversation}
               convId={convId}
+              messageReceiver={newReceiver}
             />
             <div
               style={{

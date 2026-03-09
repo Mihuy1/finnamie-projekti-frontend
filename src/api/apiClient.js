@@ -383,7 +383,6 @@ export const getProfile = async () => {
       method: "GET",
       credentials: "include",
     });
-
     return await res.json();
   } catch (error) {
     console.error(error);
@@ -459,4 +458,17 @@ export const loadOptions = async (inputValue) => {
     console.error("Autocomplete failed:", e);
     return [];
   }
+};
+
+export const startConversation = async (receiverId) => {
+  console.log(receiverId);
+  const res = await fetch(`${BASE_URL}conversations/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ receiver: receiverId }),
+    credentials: "include",
+  });
+  return await res.json();
 };
