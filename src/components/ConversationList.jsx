@@ -15,6 +15,7 @@ export const ConversationList = ({ handleOpen, convId, messageReceiver }) => {
       const getConvs = async () => {
         try {
           const data = await getConversations();
+          setConversations(data);
           if (messageReceiver) {
             const userIds = data.map((receiver) => receiver.user_id);
             if (!userIds.includes(messageReceiver.user_id)) {
@@ -28,8 +29,6 @@ export const ConversationList = ({ handleOpen, convId, messageReceiver }) => {
               };
               setConversations([newConv, ...data]);
             }
-          } else {
-            setConversations(data);
           }
         } catch (err) {
           console.log(err);
