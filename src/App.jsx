@@ -9,14 +9,27 @@ import Booking from "./Pages/Booking";
 import { Profile } from "./Pages/Profile";
 import { PublicProfile } from "./Pages/PublicProfile";
 import { Layout } from "./components/Layout";
+import { Admin } from "./Pages/Admin";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
+
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin" element={<Admin />} />
+        </Route>
+
+        <Route
+          element={<ProtectedRoute allowedRoles={["guest", "host", "admin"]} />}
+        >
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
         <Route path="/discover" element={<Discover />} />
-        <Route path="/profile" element={<Profile />} />
+
         <Route path="/profile/:id" element={<PublicProfile />} />
         <Route path="/host/register" element={<HostRegister />} />
         <Route path="/booking/:id" element={<Booking />} />

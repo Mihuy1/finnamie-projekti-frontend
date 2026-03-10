@@ -35,10 +35,12 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
   // Sync internal state if props change
   useEffect(() => {
     setSlotData(slot);
+    if (slot.images) setImages(slot?.images.url);
   }, [slot]);
 
   // fetch images for this timeslot
   useEffect(() => {
+    if (images.length > 0) return;
     const fetchImages = async () => {
       try {
         const res = await getTimeSlotImage(slot.id);
