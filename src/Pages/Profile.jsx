@@ -52,6 +52,8 @@ export const Profile = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [openChat, setOpenChat] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_BASE_URL;
+
   useEffect(() => {
     if (loading) return;
     if (!user) return;
@@ -306,7 +308,7 @@ export const Profile = () => {
             {profile.image_url ? (
               <img
                 className="avatar-img"
-                src={`http://localhost:3000${profile.image_url}`}
+                src={`${API_BASE_URL}${profile.image_url}`}
                 alt="Profile avatar"
                 onClick={handleImageClick}
               />

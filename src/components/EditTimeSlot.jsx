@@ -35,17 +35,19 @@ export const EditTimeSlot = ({
   const [toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
 
-  const API_BASE_URL = "http://localhost:3000";
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
   const preselectedImageUrls = useMemo(
     () =>
       (images || []).map((path) => {
+        console.log(path);
         if (!path) return FALLBACK_IMAGE;
         if (path.startsWith("http://") || path.startsWith("https://"))
           return path;
-        if (path.startsWith("/")) return API_BASE_URL + path;
-        return API_BASE_URL + "/" + path;
+        if (path.startsWith("/")) return BASE_URL + path;
+        return BASE_URL + "/" + path;
       }),
     [images],
   );

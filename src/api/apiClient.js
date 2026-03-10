@@ -1,4 +1,5 @@
-const BASE_URL = "http://localhost:3000/api/";
+const BASE_URL = import.meta.env.VITE_API_URL + "/";
+
 const GEOAPIFY_KEY = "b37952a659224430b7545612f420ab9c";
 
 export const getAllTimeSlots = async () => {
@@ -61,6 +62,8 @@ export const getTimeSlotImage = async (id) => {
 
 export const deleteTimeSlotImageByIdAndUrl = async (timeslot_id, image_url) => {
   try {
+    console.log("image_url:", image_url);
+    console.log("timeslot_id:", timeslot_id);
     const res = await fetch(
       `${BASE_URL}media/upload/timeslots/${timeslot_id}`,
       {
@@ -118,7 +121,6 @@ export const deleteTimeSlotImage = async (timeslot_id) => {
 };
 
 export const uploadTimeSlotImage = async (timeslot_id, files) => {
-  console.log("file:", files);
   const formData = new FormData();
 
   for (const file of files) {

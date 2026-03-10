@@ -20,25 +20,33 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState(
+    slot.images?.map((img) => img.url) || [],
+  );
 
-  const API_BASE_URL = "http://localhost:3000";
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
   const resolveImage = (path) => {
     if (!path) return FALLBACK_IMAGE;
     if (path.startsWith("http://")) return path;
-    if (path.startsWith("/")) return API_BASE_URL + path;
-    return API_BASE_URL + "/" + path;
+    if (path.startsWith("/")) return BASE_URL + path;
+    return BASE_URL + "/" + path;
   };
 
   // Sync internal state if props change
   useEffect(() => {
     setSlotData(slot);
+    if (slot.images && slot.images.length > 0) {
+      setImages(slot.images.map((img) => img.url));
+    }
   }, [slot]);
 
-  // fetch images for this timeslot
+  // fetch images for this timeslot ONLY if we don't already have them
   useEffect(() => {
+    if (images.length > 0) return;
+
     const fetchImages = async () => {
       try {
         const res = await getTimeSlotImage(slot.id);
@@ -75,8 +83,11 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
 
       if (toRemoveImages.length > 0) {
         for (const img of toRemoveImages) {
-          img.url = img.url.replace(API_BASE_URL, "");
-          const res = await deleteTimeSlotImageByIdAndUrl(slot.id, img.url);
+          // Extract the path starting from /uploads
+          const relativeUrl = img.url.substring(img.url.indexOf("/uploads"));
+          console.log("image url to remove:", relativeUrl);
+
+          const res = await deleteTimeSlotImageByIdAndUrl(slot.id, relativeUrl);
 
           if (!res) return;
         }

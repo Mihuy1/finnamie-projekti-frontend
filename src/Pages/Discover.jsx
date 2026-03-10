@@ -15,7 +15,7 @@ export default function Discover() {
 
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  const API_BASE_URL = "http://localhost:3000";
+  const API_BASE_URL = import.meta.env.VITE_BASE_URL;
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
   const resolveImage = (path) => {
