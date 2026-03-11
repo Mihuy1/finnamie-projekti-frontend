@@ -10,6 +10,7 @@ import { Profile } from "./Pages/Profile";
 import { PublicProfile } from "./Pages/PublicProfile";
 import { Layout } from "./components/Layout";
 import { Admin } from "./Pages/Admin";
+import { CreateNewTimeslot } from "./components/CreateNewTimeslot";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {

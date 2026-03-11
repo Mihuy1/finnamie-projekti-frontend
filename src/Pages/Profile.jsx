@@ -15,6 +15,7 @@ import { formatDateForInput } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
 import { Chatbox } from "../components/Chatbox";
+import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -51,6 +52,8 @@ export const Profile = () => {
 
   const [timeSlots, setTimeSlots] = useState([]);
   const [openChat, setOpenChat] = useState(false);
+
+  const [showNewTimeslot, setShowNewTimeslot] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -268,6 +271,25 @@ export const Profile = () => {
     } finally {
       event.target.value = "";
     }
+  };
+
+  const handleOnUpdate = (updatedTimeslot) => {
+    setTimeSlots((prev) =>
+      prev.map((timeslot) =>
+        timeslot.id === updatedTimeslot.id ? updatedTimeslot : timeslot,
+      ),
+    );
+  };
+
+  const handleNewTimeslot = (timeslot) => {
+    setShowNewTimeslot(false);
+    console.log("timeslot:", timeslot);
+
+    setTimeSlots((prev) => [...prev, timeslot]);
+  };
+
+  const handleCloseNewTimeslot = () => {
+    setShowNewTimeslot(false);
   };
 
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
@@ -575,12 +597,31 @@ export const Profile = () => {
                   </article>
                 ))}
 
+                <div className="create-timeslot-div">
+                  <button
+                    onClick={() => setShowNewTimeslot(true)}
+                    className="create-new-timeslot-btn"
+                  >
+                    Create new timeslot
+                  </button>
+                </div>
+
+                {showNewTimeslot && (
+                  <CreateNewTimeslot
+                    onSave={handleNewTimeslot}
+                    onClose={handleCloseNewTimeslot}
+                  />
+                )}
+
                 {selectedSlot && (
                   <TimeSlot
                     slot={selectedSlot}
                     activities={activitiesForm}
                     canEdit={true}
                     onClose={() => setSelectedSlot(null)}
+                    onUpdate={(updatedTimeslot) =>
+                      handleOnUpdate(updatedTimeslot)
+                    }
                   />
                 )}
               </div>

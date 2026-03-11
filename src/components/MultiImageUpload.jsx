@@ -14,7 +14,9 @@ export const MultiImageUpload = ({
   onChange,
   setToRemoveImages,
 }) => {
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState(() =>
+    mapPreselectedToFiles(preselectedImages),
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [] },
@@ -32,9 +34,9 @@ export const MultiImageUpload = ({
     },
   });
 
-  useEffect(() => {
-    setFiles(mapPreselectedToFiles(preselectedImages));
-  }, [preselectedImages]);
+  // useEffect(() => {
+  //   setFiles(mapPreselectedToFiles(preselectedImages));
+  // }, [preselectedImages]);
 
   useEffect(() => {
     onChange?.(files);

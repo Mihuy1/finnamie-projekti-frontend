@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 
 configureLeaflet();
 
-export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
+export const TimeSlot = ({ slot, activities, canEdit, onClose, onUpdate }) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
@@ -31,12 +31,6 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
     if (path.startsWith("/")) return API_BASE_URL + path;
     return API_BASE_URL + "/" + path;
   };
-
-  // Sync internal state if props change
-  useEffect(() => {
-    setSlotData(slot);
-    if (slot.images) setImages(slot?.images.url);
-  }, [slot]);
 
   // fetch images for this timeslot
   useEffect(() => {
@@ -94,6 +88,7 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose }) => {
       if (result) {
         toast.success("Timeslot updated successfully!");
         setSlotData(updatedData);
+        onUpdate?.(updatedData);
         setIsEditing(false);
 
         // Refresh images after update

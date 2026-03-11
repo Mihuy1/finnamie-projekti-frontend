@@ -12,6 +12,24 @@ export const getAllTimeSlots = async () => {
   }
 };
 
+export const createTimeslot = async (timeslot) => {
+  if (!timeslot) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}timeslots`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(timeslot),
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 export const getTimeslotById = async (id) => {
   try {
     const res = await fetch(`${BASE_URL}timeslots/${id}`, {
