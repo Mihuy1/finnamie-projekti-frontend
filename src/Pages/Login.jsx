@@ -62,9 +62,6 @@ export default function Login() {
 
         <div className="login_register-links">
           <p>
-            Are you a host? <Link to="/host/login">Login here</Link>
-          </p>
-          <p>
             No account? <Link to="/register">Register</Link>
           </p>
         </div>
