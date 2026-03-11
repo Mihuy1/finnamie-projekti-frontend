@@ -59,11 +59,6 @@ function Home() {
             <option>Wellness</option>
           </select>
 
-          <select value={activityType} onChange={handleActivityType}>
-            <option value="">Duration</option>
-            <option value="halfday">Half-Day</option>
-            <option value="fullday">Full-Day</option>
-          </select>
           <button onClick={handleSearch}>Search</button>
         </div>
       </section>
