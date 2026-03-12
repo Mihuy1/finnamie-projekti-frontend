@@ -72,7 +72,6 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
 
   const handleClose = () => {
     setIsModalOpen(false);
-    console.log("called?");
     onClose?.();
   };
 

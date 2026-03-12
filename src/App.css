@@ -1445,6 +1445,15 @@ body {
     position: relative;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.3s ease-out;
+
+    /* hide scrollbar */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
 
 @keyframes slideUp {
@@ -2252,6 +2261,18 @@ body {
     border-radius: 999px;
     text-align: center;
     font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.delete-timeslot-btn {
+    background: rgba(252, 23, 23);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 999px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
 }
 

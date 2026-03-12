@@ -3,6 +3,7 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
 import {
+  deleteTimeslot,
   deleteTimeSlotImageByIdAndUrl,
   getTimeSlotImage,
   updateTimeSlot,
@@ -16,7 +17,14 @@ import { Link } from "react-router-dom";
 
 configureLeaflet();
 
-export const TimeSlot = ({ slot, activities, canEdit, onClose, onUpdate }) => {
+export const TimeSlot = ({
+  slot,
+  activities,
+  canEdit,
+  onClose,
+  onUpdate,
+  onDelete,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
@@ -53,6 +61,19 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose, onUpdate }) => {
   const handleClose = () => {
     setIsModalOpen(false);
     onClose?.();
+  };
+
+  const handleDelete = async (timeslotId) => {
+    const res = await deleteTimeslot(timeslotId);
+
+    console.log("res:", res);
+
+    if (!res.error) toast.success("Timeslot deleted successfully!");
+
+    setIsModalOpen(false);
+    setIsEditing(false);
+
+    onDelete?.(timeslotId);
   };
 
   const handleSave = async (updatedData, images, toRemoveImages) => {
@@ -223,6 +244,12 @@ export const TimeSlot = ({ slot, activities, canEdit, onClose, onUpdate }) => {
                     }}
                   >
                     Edit Timeslot
+                  </button>
+                  <button
+                    className="delete-timeslot-btn"
+                    onClick={() => handleDelete(slot.id)}
+                  >
+                    Delete
                   </button>
                 </div>
               ) : (

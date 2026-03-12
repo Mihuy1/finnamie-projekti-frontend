@@ -30,6 +30,22 @@ export const createTimeslot = async (timeslot) => {
   }
 };
 
+export const deleteTimeslot = async (timeslotId) => {
+  try {
+    const res = await fetch(`${BASE_URL}timeslots/${timeslotId}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 export const getTimeslotById = async (id) => {
   try {
     const res = await fetch(`${BASE_URL}timeslots/${id}`, {

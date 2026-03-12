@@ -55,6 +55,26 @@ export const Profile = () => {
 
   const [showNewTimeslot, setShowNewTimeslot] = useState(false);
 
+  const [countries, setCountries] = useState([]);
+
+  const [loadingCountries, setLoadingCountries] = useState(true);
+
+  useEffect(() => {
+    fetch("https://restcountries.com/v3.1/all?fields=name")
+      .then((res) => res.json())
+      .then((data) => {
+        const sortedCountries = data
+          .map((c) => c.name.common)
+          .sort((a, b) => a.localeCompare(b));
+        setCountries(sortedCountries);
+        setLoadingCountries(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching countries:", err);
+        setLoadingCountries(false);
+      });
+  }, []);
+
   useEffect(() => {
     if (loading) return;
     if (!user) return;
@@ -405,12 +425,36 @@ export const Profile = () => {
 
           <label>
             Country
-            <input
+            <select
               name="country"
               value={profileForm.country}
               onChange={handleProfileInputChange}
               disabled={!isEditing}
-              placeholder="Country"
+            >
+              {loadingCountries ? (
+                <option value="" disabled>
+                  Loading countries...
+                </option>
+              ) : (
+                <>
+                  {countries.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
+          </label>
+
+          <label>
+            City
+            <input
+              name="city"
+              value={profileForm.city || ""}
+              onChange={handleProfileInputChange}
+              disabled={!isEditing}
+              placeholder="City"
             />
           </label>
 
@@ -457,17 +501,6 @@ export const Profile = () => {
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
                   placeholder="Postal Code"
-                />
-              </label>
-
-              <label>
-                City
-                <input
-                  name="city"
-                  value={profileForm.city || ""}
-                  onChange={handleProfileInputChange}
-                  disabled={!isEditing}
-                  placeholder="City"
                 />
               </label>
 
@@ -621,6 +654,11 @@ export const Profile = () => {
                     onClose={() => setSelectedSlot(null)}
                     onUpdate={(updatedTimeslot) =>
                       handleOnUpdate(updatedTimeslot)
+                    }
+                    onDelete={(deleteId) =>
+                      setTimeSlots((prev) =>
+                        prev.filter((timeslot) => timeslot.id !== deleteId),
+                      )
                     }
                   />
                 )}
