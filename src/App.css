@@ -434,7 +434,7 @@ body {
     margin-top: 1rem;
     margin-bottom: 1rem;
     background: #f8f9fa;
-    border-radius: 12px;
+    /*border-radius: 12px;*/
     overflow: hidden;
 }
 
@@ -2266,7 +2266,7 @@ body {
 }
 
 .delete-timeslot-btn {
-    background: rgba(252, 23, 23);
+    background: rgba(204, 9, 9);
     color: white;
     padding: 14px 28px;
     border-radius: 999px;

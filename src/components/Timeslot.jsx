@@ -112,12 +112,11 @@ export const TimeSlot = ({
         onUpdate?.(updatedData);
         setIsEditing(false);
 
-        // Refresh images after update
-        const res = await getTimeSlotImage(slot.id);
+        // const res = await getTimeSlotImage(slot.id);
 
-        if (res) {
-          setImages(res.map((img) => img.url));
-        }
+        // if (res) {
+        //   setImages(res.map((img) => img.url));
+        // }
 
         handleClose();
       }
@@ -151,9 +150,6 @@ export const TimeSlot = ({
 
             {images && images.length > 0 && (
               <div className="modal-image">
-                {/*<span className="modal-duration-badge">*/}
-                {/*  {slotData.type === "halfday" ? "Half Day" : "Full Day"}*/}
-                {/*</span>*/}
                 <Carousel images={images.map((img) => resolveImage(img))} />
               </div>
             )}
