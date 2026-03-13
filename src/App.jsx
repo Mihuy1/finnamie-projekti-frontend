@@ -12,6 +12,7 @@ import { Layout } from "./components/Layout";
 import { Admin } from "./Pages/Admin";
 import { CreateNewTimeslot } from "./components/CreateNewTimeslot";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import BookActivity from "./Pages/BookActivity";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/host/login" element={<HostLogin />} />
       </Route>
+      <Route path="/book-activity" element={<BookActivity />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

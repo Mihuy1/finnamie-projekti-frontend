@@ -1,18 +1,46 @@
 import { Link } from "react-router-dom";
 import Map from "../components/Map";
 import "../App.css";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { getActivities } from "../api/apiClient";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useAuth } from "../auth/AuthContext";
+import { municipalities } from "../data/municipalities";
 
 function Home() {
   const [date, setDate] = useState([]);
   const [activeDate, setActiveDate] = useState(new Date());
   const [activityType, setActivityType] = useState("");
   const { user } = useAuth();
+  const [activities, setActivites] = useState([]);
+  const [selectedActivities, setSelectedActivities] = useState([]);
 
   const mapSectionRef = useRef(null);
+
+  useEffect(() => {
+    const fetchActivites = async () => {
+      try {
+        const data = await getActivities();
+        setActivites(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Haku epäonnistui:", error);
+        setActivites([]);
+      }
+    };
+    fetchActivites();
+  }, []);
+
+  const handleActivityChange = (e) => {
+    const rawVal = e.target.value;
+    if (!rawVal) return;
+    const activityId = Number(rawVal);
+    if (Number.isNaN(activityId)) return;
+    if (!selectedActivities.includes(activityId)) {
+      setSelectedActivities([...selectedActivities, activityId]);
+    }
+    e.target.value = "";
+  };
 
   const scrollToMap = () => {
     mapSectionRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,14 +78,29 @@ function Home() {
         <p>Find trusted local hosts for authentic experiences.</p>
 
         <div className="search-box">
-          <input type="text" placeholder="Location" />
+          <input
+            type="text"
+            list="municipalities-list"
+            placeholder="Location"
+            className="location-input"
+          />
+          <datalist id="municipalities-list">
+            {municipalities.map((m) => (
+              <option key={m} value={m} />
+            ))}
+          </datalist>
 
-          <select>
-            <option>Activity type</option>
-            <option>Nature</option>
-            <option>Culture</option>
-            <option>Wellness</option>
+          <select onChange={handleActivityChange}>
+            <option value="">Choose an activity</option>
+
+            {Array.isArray(activities) &&
+              activities.map((activity) => (
+                <option key={activity.id} value={activity.id}>
+                  {activity.name}
+                </option>
+              ))}
           </select>
+
 
           <button onClick={handleSearch}>Search</button>
         </div>
@@ -122,7 +165,9 @@ function Home() {
       </section>
 
       <div className="final-booking-action">
-        <button className="book-now-large">Book Now</button>
+        <Link to="/book-activity">
+          <button className="book-now-large">Find Activities</button>
+        </Link>
       </div>
 
       <footer className="footer">
