@@ -1,0 +1,265 @@
+import { useEffect, useState } from "react";
+import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
+import { Link } from "react-router-dom";
+import { TimeSlot } from "../components/Timeslot";
+import { municipalities } from '../data/municipalities';
+
+export default function Discover() {
+    const [activities, setActivities] = useState([]);
+    const [timeSlots, setTimeSlots] = useState([]);
+    const [filteredActivities, setFilteredActivities] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [loading, setLoading] = useState(true);
+    const [date, setDate] = useState(null);
+    const [activeDate, setActiveDate] = useState(new Date());
+
+    const [selectedSlot, setSelectedSlot] = useState(null);
+
+    const API_BASE_URL = "http://localhost:3000";
+    const FALLBACK_IMAGE = "https://placehold.co/600x400";
+    const [location, setLocation] = useState("");
+
+    const resolveImage = (path) => {
+        if (!path) return FALLBACK_IMAGE;
+        if (path.startsWith("http://")) return path;
+        if (path.startsWith("https://")) return path;
+        if (path.startsWith("/")) return API_BASE_URL + path;
+        return API_BASE_URL + "/" + path;
+    };
+
+    // koska tietokanta vielä tyhjä
+    const placeholders = [
+        {
+            id: 101,
+            name: "Nuuksio Camping",
+            host: "Host 1",
+            category: "Nature & outdoors",
+            city: "Espoo",
+            image_url: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4",
+            experience_length: "Full-day",
+            description:
+                "Experience the silence of Finnish nature in Nuuksio. Camp under the stars and enjoy a traditional Finnish campfire meal.",
+        },
+        {
+            id: 102,
+            name: "Traditional Smoke Sauna",
+            host: "Host 2",
+            category: "Wellness",
+            city: "Helsinki",
+            image_url:
+                "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format",
+            experience_length: "Half-day",
+            description: "Relax in an authentic Finnish smoke sauna.",
+        },
+    ];
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const data = await getActivities();
+
+                const timeslotData = await getAllTimeSlotsWithHost();
+
+                setTimeSlots(timeslotData);
+                const finalData = data && data.length > 0 ? data : placeholders;
+                setActivities(finalData);
+                setFilteredActivities(timeslotData);
+                console.log("timeslots with host:", timeslotData);
+            } catch (error) {
+                console.error(error);
+                setActivities(placeholders);
+                setFilteredActivities(placeholders);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (selectedSlot) {
+            document.body.style.overflow = "hidden";
+            document.body.style.paddingRight = "0px";
+        } else {
+            document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "unset";
+        }
+        return () => {
+            document.body.style.overflow = "unset";
+            document.body.style.paddingRight = "unset";
+        };
+    }, [selectedSlot]);
+
+    const handleFilter = (category) => {
+        setSelectedCategory(category);
+
+        if (category === "All") {
+            setFilteredActivities(timeSlots.length > 0 ? timeSlots : placeholders);
+        } else {
+            const source = timeSlots.length > 0 ? timeSlots : placeholders;
+
+            const filtered = source.filter((item) => {
+                if (item.activities) {
+                    return item.activities.some((act) => act.name === category);
+                }
+                return item.category === category;
+            });
+
+            setFilteredActivities(filtered);
+        }
+    };
+
+    const handleDates = (value) => {
+        if (!value) {
+            setDate([]);
+            return;
+        }
+        const values = Array.isArray(value) ? value : [value];
+        setDate(values);
+
+        const targetStart = values[0];
+        const targetEnd = values[1] || values[0];
+
+        const filtered = timeSlots.filter((slot) => {
+            const slotStart = new Date(slot.start_time);
+            const slotEnd = new Date(slot.end_time);
+
+            return slotStart <= targetEnd && slotEnd >= targetStart;
+        });
+
+        setFilteredActivities(filtered);
+    };
+
+    const nextMonth = () => {
+        setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+    };
+
+    const prevMonth = () => {
+        setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+    };
+
+    const resetFilters = () => {
+        setLocation("");
+        setDate(null);
+        setSelectedCategory("All");
+        setFilteredActivities(timeSlots.length > 0 ? timeSlots : placeholders);
+    };
+
+    if (loading) return <div className="loading">Loading...</div>;
+
+    return (
+        <section className="discover-page">
+            <div className="navigation-header">
+                <Link to="/" className="back-link">
+                    ← Back to Booking
+                </Link>
+            </div>
+
+            <div className="discover-filter-bar">
+                <div className="filter-group">
+                    <label className="filter-label">Sijainti</label>
+                    <div className="location-wrapper">
+                        <input
+                            type="text"
+                            className="filter-input"
+                            placeholder="Hae kaupunkia..."
+                            list="discover-municipalities-list"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                        />
+                        <datalist id="discover-municipalities-list">
+                            {municipalities.map((m) => (
+                                <option key={m} value={m} />
+                            ))}
+                        </datalist>
+                    </div>
+                </div>
+
+                <div className="filter-group border-left">
+                    <label className="filter-label">Change date</label>
+                    <input
+                        type="date"
+                        className="filter-input"
+                        onChange={(e) => handleDates(new Date(e.target.value))}
+                    />
+                </div>
+
+                <div className="filter-actions">
+                    <button className="show-all-btn" onClick={resetFilters}>
+                        Reset Filters
+                    </button>
+                </div>
+            </div>
+
+            <header className="discover-header">
+                <h1>Available Activities</h1>
+                <p>Choose an activity for your selected dates and location</p>
+            </header>
+
+            <div className="filter-container">
+                <button
+                    key="all"
+                    className={`filter-btn ${selectedCategory === "All" ? "active" : ""}`}
+                    onClick={() => handleFilter("All")}
+                >
+                    All
+                </button>
+                {[...new Set(activities.map((act) => act.name))]
+                    .sort()
+                    .map((categoryName) => (
+                        <button
+                            key={categoryName}
+                            className={`filter-btn ${selectedCategory === categoryName ? "active" : ""}`}
+                            onClick={() => handleFilter(categoryName)}
+                        >
+                            {categoryName}
+                        </button>
+                    ))}
+            </div>
+
+            <div className="activity-grid">
+                {filteredActivities.map((activity) => (
+                    <div
+                        key={activity.id}
+                        className="activity-card"
+                        onClick={() => setSelectedSlot(activity)}
+                    >
+                        <div className="card-image">
+                            <img
+                                src={resolveImage(activity.images[0]?.url)}
+                                alt={activity.name}
+                            />
+                            <span className="duration-badge">
+                                {activity.experience_length}
+                            </span>
+                        </div>
+                        <span className="profile-timeslot-pill discover">
+                            {activity.type === "halfday" ? "Half Day" : "Full Day"}
+                        </span>
+                        <div className="card-content">
+                            <span className="host-tag">
+                                {activity.first_name} {activity.last_name}
+                            </span>
+                            <span className="location-tag">📍 {activity.city}</span>
+                            <h3>{activity.name}</h3>
+                            <p className="category-text">{activity.category}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+
+            {
+                selectedSlot && (
+                    <TimeSlot
+                        slot={selectedSlot}
+                        activities={activities}
+                        canEdit={false}
+                        onClose={() => setSelectedSlot(null)}
+                    />
+                )
+            }
+        </section >
+
+    );
+}
