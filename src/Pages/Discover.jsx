@@ -81,9 +81,11 @@ export default function Discover() {
       document.body.style.paddingRight = "0px";
     } else {
       document.body.style.overflow = "unset";
+      document.body.style.paddingRight = "unset";
     }
     return () => {
       document.body.style.overflow = "unset";
+      document.body.style.paddingRight = "unset";
     };
   }, [selectedSlot]);
 

@@ -120,7 +120,7 @@ export const Profile = () => {
   }, [user, loading]);
 
   useEffect(() => {
-    if (selectedSlot) {
+    if (selectedSlot || showNewTimeslot) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -128,7 +128,7 @@ export const Profile = () => {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [selectedSlot]);
+  }, [selectedSlot, showNewTimeslot]);
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -655,11 +655,12 @@ export const Profile = () => {
                     onUpdate={(updatedTimeslot) =>
                       handleOnUpdate(updatedTimeslot)
                     }
-                    onDelete={(deleteId) =>
+                    onDelete={(deleteId) => {
                       setTimeSlots((prev) =>
                         prev.filter((timeslot) => timeslot.id !== deleteId),
-                      )
-                    }
+                      );
+                      setSelectedSlot(null);
+                    }}
                   />
                 )}
               </div>

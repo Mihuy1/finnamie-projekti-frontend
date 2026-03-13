@@ -64,16 +64,18 @@ export const TimeSlot = ({
   };
 
   const handleDelete = async (timeslotId) => {
-    const res = await deleteTimeslot(timeslotId);
+    try {
+      const res = await deleteTimeslot(timeslotId);
 
-    console.log("res:", res);
-
-    if (!res.error) toast.success("Timeslot deleted successfully!");
-
-    setIsModalOpen(false);
-    setIsEditing(false);
-
-    onDelete?.(timeslotId);
+      if (!res.error) {
+        toast.success("Timeslot deleted successfully!");
+        onDelete?.(timeslotId);
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Error deleting timeslot:", error);
+      toast.error("Failed to delete timeslot");
+    }
   };
 
   const handleSave = async (updatedData, images, toRemoveImages) => {
