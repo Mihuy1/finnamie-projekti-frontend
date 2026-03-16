@@ -114,12 +114,6 @@ export const TimeSlot = ({
         onUpdate?.(updatedData);
         setIsEditing(false);
 
-        // const res = await getTimeSlotImage(slot.id);
-
-        // if (res) {
-        //   setImages(res.map((img) => img.url));
-        // }
-
         handleClose();
       }
     } catch (error) {

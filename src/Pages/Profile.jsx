@@ -630,22 +630,6 @@ export const Profile = () => {
                   </article>
                 ))}
 
-                <div className="create-timeslot-div">
-                  <button
-                    onClick={() => setShowNewTimeslot(true)}
-                    className="create-new-timeslot-btn"
-                  >
-                    Create new timeslot
-                  </button>
-                </div>
-
-                {showNewTimeslot && (
-                  <CreateNewTimeslot
-                    onSave={handleNewTimeslot}
-                    onClose={handleCloseNewTimeslot}
-                  />
-                )}
-
                 {selectedSlot && (
                   <TimeSlot
                     slot={selectedSlot}
@@ -665,6 +649,21 @@ export const Profile = () => {
                 )}
               </div>
             )}
+
+            {showNewTimeslot && (
+              <CreateNewTimeslot
+                onSave={handleNewTimeslot}
+                onClose={handleCloseNewTimeslot}
+              />
+            )}
+            <div className="create-timeslot-div">
+              <button
+                onClick={() => setShowNewTimeslot(true)}
+                className="create-new-timeslot-btn"
+              >
+                Create new timeslot
+              </button>
+            </div>
           </>
         )}
       </div>
