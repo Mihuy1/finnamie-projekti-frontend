@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { getProfile, updateProfile, uploadUserImage } from "../api/apiClient";
+import {
+  getProfile,
+  loadCountries,
+  updateProfile,
+  uploadUserImage,
+} from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import Select from "react-select";
@@ -62,19 +67,18 @@ export const Profile = () => {
   const [loadingCountries, setLoadingCountries] = useState(true);
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name")
-      .then((res) => res.json())
-      .then((data) => {
-        const sortedCountries = data
-          .map((c) => c.name.common)
-          .sort((a, b) => a.localeCompare(b));
-        setCountries(sortedCountries);
+    const getCountries = async () => {
+      try {
+        const data = await loadCountries();
+        setCountries(data);
+      } catch (error) {
+        console.error("Failed to load countries:", error);
+      } finally {
         setLoadingCountries(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching countries:", err);
-        setLoadingCountries(false);
-      });
+      }
+    };
+
+    getCountries();
   }, []);
 
   useEffect(() => {

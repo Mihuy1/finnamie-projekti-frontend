@@ -496,6 +496,25 @@ export const loadOptions = async (inputValue) => {
   }
 };
 
+export const loadCountries = async () => {
+  try {
+    const res = await fetch(`https://restcountries.com/v3.1/all?fields=name`);
+
+    if (!res.ok) throw new Error("Rest Countries error");
+
+    const data = await res.json();
+
+    const sortedCountries = data
+      .map((c) => c.name.common)
+      .sort((a, b) => a.localeCompare(b));
+
+    return sortedCountries;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const startConversation = async (receiverId) => {
   console.log(receiverId);
   const res = await fetch(`${BASE_URL}conversations/`, {

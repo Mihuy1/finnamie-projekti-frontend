@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { postLogin, register } from "../api/apiClient";
+import { loadCountries, postLogin, register } from "../api/apiClient";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/AuthContext";
 
@@ -20,21 +20,19 @@ export default function Register() {
 
   const navigate = useNavigate();
 
-  // REST Countries API:sta haetaan maat
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name")
-      .then((res) => res.json())
-      .then((data) => {
-        const sortedCountries = data
-          .map((c) => c.name.common)
-          .sort((a, b) => a.localeCompare(b));
-        setCountries(sortedCountries);
-        setLoadingCountries(false);
-      })
-      .catch((err) => {
+    const fetchCountries = async () => {
+      try {
+        const data = await loadCountries();
+        setCountries(data);
+      } catch (err) {
         console.error("Error fetching countries:", err);
+      } finally {
         setLoadingCountries(false);
-      });
+      }
+    };
+
+    fetchCountries();
   }, []);
 
   async function handleSubmit(e) {

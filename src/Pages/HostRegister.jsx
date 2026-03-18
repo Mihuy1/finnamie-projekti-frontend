@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getActivities, postLogin, register } from "../api/apiClient";
+import {
+  getActivities,
+  loadCountries,
+  postLogin,
+  register,
+} from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/AuthContext";
@@ -31,19 +36,18 @@ export default function HostRegister() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name")
-      .then((res) => res.json())
-      .then((data) => {
-        const sortedCountries = data
-          .map((c) => c.name.common)
-          .sort((a, b) => a.localeCompare(b));
-        setCountries(sortedCountries);
-        setLoadingCountries(false);
-      })
-      .catch((err) => {
+    const fetchCountries = async () => {
+      try {
+        const data = await loadCountries();
+        setCountries(data);
+      } catch (err) {
         console.error("Error fetching countries:", err);
+      } finally {
         setLoadingCountries(false);
-      });
+      }
+    };
+
+    fetchCountries();
   }, []);
 
   useEffect(() => {
