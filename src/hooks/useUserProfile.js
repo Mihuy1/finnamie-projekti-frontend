@@ -44,9 +44,8 @@ export const useUserProfile = (user, loading) => {
         const initialData = {
           ...data,
           date_of_birth: formatDateForInput(data.date_of_birth),
-          host_activities: data.host_activites || [],
+          host_activities: data.host_activities || [],
         };
-
         setActivitiesForm(activitiesData);
         setProfile(initialData);
         setProfileForm(initialData);
