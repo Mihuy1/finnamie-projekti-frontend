@@ -90,23 +90,41 @@ export default function Discover() {
         };
     }, [selectedSlot]);
 
+    useEffect(() => {
+        let source = timeSlots.length > 0 ? timeSlots : placeholders;
+        let result = [...source];
+
+        if (location) {
+            result = result.filter(item =>
+                item.city && item.city.toLowerCase().includes(location.toLowerCase())
+            );
+        }
+
+        if (selectedCategory !== "All") {
+            result = result.filter((item) => {
+                if (item.activities) {
+                    return item.activities.some((act) => act.name === selectedCategory);
+                }
+                return item.category === selectedCategory || item.name === selectedCategory;
+            });
+        }
+
+        if (date && date.length > 0) {
+            const targetStart = date[0];
+            const targetEnd = date[1] || date[0];
+
+            result = result.filter((slot) => {
+                const slotStart = new Date(slot.start_time);
+                const slotEnd = new Date(slot.end_time);
+                return slotStart <= targetEnd && slotEnd >= targetStart;
+            });
+        }
+
+        setFilteredActivities(result);
+    }, [location, selectedCategory, date, timeSlots]);
+
     const handleFilter = (category) => {
         setSelectedCategory(category);
-
-        if (category === "All") {
-            setFilteredActivities(timeSlots.length > 0 ? timeSlots : placeholders);
-        } else {
-            const source = timeSlots.length > 0 ? timeSlots : placeholders;
-
-            const filtered = source.filter((item) => {
-                if (item.activities) {
-                    return item.activities.some((act) => act.name === category);
-                }
-                return item.category === category;
-            });
-
-            setFilteredActivities(filtered);
-        }
     };
 
     const handleDates = (value) => {
@@ -116,18 +134,6 @@ export default function Discover() {
         }
         const values = Array.isArray(value) ? value : [value];
         setDate(values);
-
-        const targetStart = values[0];
-        const targetEnd = values[1] || values[0];
-
-        const filtered = timeSlots.filter((slot) => {
-            const slotStart = new Date(slot.start_time);
-            const slotEnd = new Date(slot.end_time);
-
-            return slotStart <= targetEnd && slotEnd >= targetStart;
-        });
-
-        setFilteredActivities(filtered);
     };
 
     const nextMonth = () => {
@@ -157,21 +163,45 @@ export default function Discover() {
 
             <div className="discover-filter-bar">
                 <div className="filter-group">
-                    <label className="filter-label">Sijainti</label>
-                    <div className="location-wrapper">
+                    <label className="filter-label">Location</label>
+                    <div className="location-wrapper" style={{ position: 'relative' }}>
                         <input
                             type="text"
                             className="filter-input"
-                            placeholder="Hae kaupunkia..."
+                            placeholder="Change location"
                             list="discover-municipalities-list"
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
+                            onFocus={(e) => {
+                                if (location) setLocation("");
+                            }}
                         />
                         <datalist id="discover-municipalities-list">
                             {municipalities.map((m) => (
                                 <option key={m} value={m} />
                             ))}
                         </datalist>
+
+                        {location && (
+                            <button
+                                type="button"
+                                className="clear-location-btn"
+                                onClick={() => setLocation("")}
+                                style={{
+                                    position: 'absolute',
+                                    right: '15px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    color: '#999',
+                                    fontSize: '18px'
+                                }}
+                            >
+                                ✕
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -218,34 +248,48 @@ export default function Discover() {
             </div>
 
             <div className="activity-grid">
-                {filteredActivities.map((activity) => (
-                    <div
-                        key={activity.id}
-                        className="activity-card"
-                        onClick={() => setSelectedSlot(activity)}
-                    >
-                        <div className="card-image">
-                            <img
-                                src={resolveImage(activity.images[0]?.url)}
-                                alt={activity.name}
-                            />
-                            <span className="duration-badge">
-                                {activity.experience_length}
+                {filteredActivities.length > 0 ? (
+                    filteredActivities.map((activity) => (
+                        <div
+                            key={activity.id}
+                            className="activity-card"
+                            onClick={() => setSelectedSlot(activity)}
+                        >
+                            <div className="card-image">
+                                <img
+                                    src={resolveImage(activity.images[0]?.url)}
+                                    alt={activity.name}
+                                />
+                                <span className="duration-badge">
+                                    {activity.experience_length}
+                                </span>
+                            </div>
+                            <span className="profile-timeslot-pill discover">
+                                {activity.type === "halfday" ? "Half Day" : "Full Day"}
                             </span>
+                            <div className="card-content">
+                                <span className="host-tag">
+                                    {activity.first_name} {activity.last_name}
+                                </span>
+                                <span className="location-tag">📍 {activity.city}</span>
+                                <h3>{activity.name}</h3>
+                                <p className="category-text">{activity.category}</p>
+                            </div>
                         </div>
-                        <span className="profile-timeslot-pill discover">
-                            {activity.type === "halfday" ? "Half Day" : "Full Day"}
-                        </span>
-                        <div className="card-content">
-                            <span className="host-tag">
-                                {activity.first_name} {activity.last_name}
-                            </span>
-                            <span className="location-tag">📍 {activity.city}</span>
-                            <h3>{activity.name}</h3>
-                            <p className="category-text">{activity.category}</p>
+                    ))
+                ) : (
+                    <div className="no-results-container">
+                        <div className="no-results-content">
+                            <span style={{ fontSize: '50px' }}>🔍</span>
+                            <h3>No activities found</h3>
+                            <p>We couldn't find anything matching your current filters.</p>
+                            <p>Try changing your location or dates.</p>
+                            <button onClick={resetFilters} className="reset-all-btn">
+                                Show all activities
+                            </button>
                         </div>
                     </div>
-                ))}
+                )}
             </div>
 
 
