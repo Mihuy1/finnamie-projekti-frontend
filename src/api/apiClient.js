@@ -43,6 +43,7 @@ export const deleteTimeslot = async (timeslotId) => {
     return await res.json();
   } catch (e) {
     console.error(e);
+    throw e;
   }
 };
 
@@ -306,6 +307,7 @@ export const getActivities = async () => {
     return await res.json();
   } catch (error) {
     console.error(error);
+    throw error;
   }
 };
 
