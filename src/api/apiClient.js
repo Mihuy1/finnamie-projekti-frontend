@@ -43,6 +43,7 @@ export const deleteTimeslot = async (timeslotId) => {
     return await res.json();
   } catch (e) {
     console.error(e);
+    throw e;
   }
 };
 
@@ -306,6 +307,7 @@ export const getActivities = async () => {
     return await res.json();
   } catch (error) {
     console.error(error);
+    throw error;
   }
 };
 
@@ -491,6 +493,25 @@ export const loadOptions = async (inputValue) => {
   } catch (e) {
     console.error("Autocomplete failed:", e);
     return [];
+  }
+};
+
+export const loadCountries = async () => {
+  try {
+    const res = await fetch(`https://restcountries.com/v3.1/all?fields=name`);
+
+    if (!res.ok) throw new Error("Rest Countries error");
+
+    const data = await res.json();
+
+    const sortedCountries = data
+      .map((c) => c.name.common)
+      .sort((a, b) => a.localeCompare(b));
+
+    return sortedCountries;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 };
 

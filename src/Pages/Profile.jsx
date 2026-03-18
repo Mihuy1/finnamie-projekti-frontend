@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  getActivities,
   getProfile,
-  getTimeSlotsByHostId,
+  loadCountries,
   updateProfile,
   uploadUserImage,
 } from "../api/apiClient";
@@ -16,6 +15,7 @@ import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
 import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
+import { useUserProfile } from "../hooks/useUserProfile";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -36,21 +36,28 @@ configureLeaflet();
 
 export const Profile = () => {
   const { user, loading } = useAuth();
+
+  const {
+    profile,
+    setProfile,
+    profileForm,
+    setProfileForm,
+    activitiesForm,
+    isHost,
+    timeSlots,
+    setTimeSlots,
+    isProfileLoading,
+  } = useUserProfile(user, loading);
+
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [profile, setProfile] = useState(EMPTY_PROFILE);
-  const [profileForm, setProfileForm] = useState(EMPTY_PROFILE);
   const [passwordForm, setPasswordForm] = useState({
     new_password: "",
     confirm_new_password: "",
   });
-  const hasFetchedProfile = useRef(false);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [isHost, setIsHost] = useState(false);
-  const [activitiesForm, setActivitiesForm] = useState([]);
   const fileInputRef = useRef(null);
 
-  const [timeSlots, setTimeSlots] = useState([]);
   const [openChat, setOpenChat] = useState(false);
 
   const [showNewTimeslot, setShowNewTimeslot] = useState(false);
@@ -60,64 +67,19 @@ export const Profile = () => {
   const [loadingCountries, setLoadingCountries] = useState(true);
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name")
-      .then((res) => res.json())
-      .then((data) => {
-        const sortedCountries = data
-          .map((c) => c.name.common)
-          .sort((a, b) => a.localeCompare(b));
-        setCountries(sortedCountries);
-        setLoadingCountries(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching countries:", err);
-        setLoadingCountries(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (loading) return;
-    if (!user) return;
-
-    if (hasFetchedProfile.current) return;
-    hasFetchedProfile.current = true;
-
-    const fetchData = async () => {
+    const getCountries = async () => {
       try {
-        const data = await toast.promise(getProfile(), {
-          pending: "Loading Profile Data",
-          success: "Profile loaded!",
-          error: "Failed to get profile data",
-        });
-
-        if (!data) throw new Error("No data received");
-
-        if (data.role === "host") {
-          setIsHost(true);
-          const hostTimeslots = await getTimeSlotsByHostId(user.id);
-          setTimeSlots(hostTimeslots || []);
-        }
-
-        const activitiesData = await getActivities();
-        const hostActivities = data.host_activities || [];
-
-        setActivitiesForm(activitiesData || []);
-
-        const initialData = {
-          ...data,
-          date_of_birth: formatDateForInput(data.date_of_birth),
-          host_activities: hostActivities,
-        };
-
-        setProfile(initialData);
-        setProfileForm(initialData);
+        const data = await loadCountries();
+        setCountries(data);
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Failed to load countries:", error);
+      } finally {
+        setLoadingCountries(false);
       }
     };
 
-    fetchData();
-  }, [user, loading]);
+    getCountries();
+  }, []);
 
   useEffect(() => {
     if (selectedSlot || showNewTimeslot) {
@@ -311,6 +273,11 @@ export const Profile = () => {
   const handleCloseNewTimeslot = () => {
     setShowNewTimeslot(false);
   };
+
+  if (isProfileLoading)
+    return <div className="profile-page">Loading profile data...</div>;
+
+  console.log("timeslots:", timeSlots);
 
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
   const avatarLetter = (fullName[0] ?? "U").toUpperCase();
