@@ -139,7 +139,10 @@ export const TimeSlot = ({
     <div className="profile-timeslots">
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => handleClose()}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content timeslot-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button className="close-modal" onClick={() => handleClose()}>
               ×
             </button>
