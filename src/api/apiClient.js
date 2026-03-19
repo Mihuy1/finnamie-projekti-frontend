@@ -333,7 +333,11 @@ export const getAllActivitySuggestions = async () => {
       credentials: "include",
     });
 
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || "Something went wrong");
+
+    return data;
   } catch (error) {
     console.log(error);
     throw error;
