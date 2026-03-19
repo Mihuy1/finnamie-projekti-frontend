@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPublicUserInfo, getTimeSlotsByHostId } from "../api/apiClient";
+import {
+  getPublicUserInfo,
+  getReviewsByHostId,
+  getTimeSlotsByHostId,
+} from "../api/apiClient";
 import { TimeSlot } from "../components/Timeslot";
 import { Chatbox } from "../components/Chatbox";
+import { useAuth } from "../auth/AuthContext";
 
 export const PublicProfile = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [openChat, setOpenChat] = useState(false);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,14 +32,17 @@ export const PublicProfile = () => {
           // fetch timeslot by host id
           const timeSlotsRes = await getTimeSlotsByHostId();
 
+          const reviewData = await getReviewsByHostId(id);
+          console.log(reviewData);
+
           if (!timeSlotsRes) {
             console.error("Time slots not found for host");
             return;
           }
 
           console.log("Fetched time slots:", timeSlotsRes);
-
           setTimeSlots(timeSlotsRes);
+          setReviews(reviewData);
         }
 
         console.log("Fetched profile:", res);
@@ -55,6 +65,15 @@ export const PublicProfile = () => {
     fetchProfile();
     fetchTimeSlots();
   }, [id]);
+
+  const isUnderFiveMinutesFromCreation = (created, updated) => {
+    const createdAt = new Date(created);
+    const updatedAt = new Date(updated);
+    const diffMs = Math.abs(updatedAt - createdAt);
+    const fiveMinutes = 5 * 60 * 1000;
+
+    return diffMs <= fiveMinutes;
+  };
 
   return (
     <section className="profile-page">
@@ -88,13 +107,15 @@ export const PublicProfile = () => {
                 <p className="profile-role">
                   {profile.role === "host" ? "Host" : "Guest"}
                 </p>
-                <button
-                  className="chat-launcher"
-                  aria-label="Open chat"
-                  onClick={() => setOpenChat(true)}
-                >
-                  Send a message
-                </button>
+                {user && (
+                  <button
+                    className="profile-btn profile-btn-primary"
+                    aria-label="Open chat"
+                    onClick={() => setOpenChat(true)}
+                  >
+                    Send a message
+                  </button>
+                )}
                 {openChat && (
                   <Chatbox
                     closeChat={() => setOpenChat(false)}
@@ -176,6 +197,30 @@ export const PublicProfile = () => {
                   />
                 )}
               </div>
+            </>
+          )}
+
+          {reviews.length > 0 && (
+            // tyylittelyä vailla
+            <>
+              <hr className="profile-divider" />
+              <h3 className="profile-selection-title">Reviews</h3>
+              {reviews.map((review) => {
+                return (
+                  <div key={review.id}>
+                    <h4>Created at: {review.created_at}</h4>
+                    {
+                      // dont add update field if the review is updated within 5 minutes of creation.
+                      !isUnderFiveMinutesFromCreation(
+                        review.created_at,
+                        review.updated_at,
+                      ) && <h4>Updated at: {review.updated_at}</h4>
+                    }
+                    <h4>Score: {review.score}</h4>
+                    <p>{review.content}</p>
+                  </div>
+                );
+              })}
             </>
           )}
         </div>

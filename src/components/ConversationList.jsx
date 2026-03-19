@@ -19,7 +19,6 @@ export const ConversationList = ({ handleOpen, convId, messageReceiver }) => {
           if (messageReceiver) {
             const userIds = data.map((receiver) => receiver.user_id);
             if (!userIds.includes(messageReceiver.user_id)) {
-              console.log("new conversation");
               const newConvId = await startConversation(
                 messageReceiver.user_id,
               );

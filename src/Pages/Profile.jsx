@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   getProfile,
+  getReservations,
   loadCountries,
   updateProfile,
   uploadUserImage,
@@ -16,6 +17,7 @@ import { useAuth } from "../auth/AuthContext";
 import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 import { useUserProfile } from "../hooks/useUserProfile";
+import { ReviewModal } from "../components/ReviewModal";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -66,6 +68,12 @@ export const Profile = () => {
 
   const [loadingCountries, setLoadingCountries] = useState(true);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [reservations, setReservations] = useState([]);
+
+  const [reservation, setReservation] = useState({});
+
   useEffect(() => {
     const getCountries = async () => {
       try {
@@ -79,6 +87,19 @@ export const Profile = () => {
     };
 
     getCountries();
+  }, []);
+
+  useEffect(() => {
+    const getRes = async () => {
+      try {
+        const data = await getReservations();
+        console.log(data);
+        setReservations(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    getRes();
   }, []);
 
   useEffect(() => {
@@ -265,13 +286,18 @@ export const Profile = () => {
 
   const handleNewTimeslot = (timeslot) => {
     setShowNewTimeslot(false);
-    console.log("timeslot:", timeslot);
+    //console.log("timeslot:", timeslot);
 
     setTimeSlots((prev) => [...prev, timeslot]);
   };
 
   const handleCloseNewTimeslot = () => {
     setShowNewTimeslot(false);
+  };
+
+  const handleModalOpen = (reservation) => {
+    setReservation(reservation);
+    setIsModalOpen(true);
   };
 
   if (isProfileLoading)
@@ -345,7 +371,7 @@ export const Profile = () => {
               </p>
             )}
             <button
-              className="chat-launcher"
+              className="profile-btn profile-btn-primary"
               aria-label="Open chat"
               onClick={() => setOpenChat(true)}
             >
@@ -558,7 +584,7 @@ export const Profile = () => {
           </div>
         </form>
 
-        {isHost && (
+        {isHost ? (
           <>
             <hr className="profile-divider" />
             <h2 className="profile-section-title">Your Timeslots</h2>
@@ -631,6 +657,68 @@ export const Profile = () => {
                 Create new timeslot
               </button>
             </div>
+          </>
+        ) : (
+          // guest userille
+          // tyylittelyä vailla
+          <>
+            {reservations.length !== 0 && (
+              <>
+                <hr className="profile-divider" />
+                <h2 className="profile-section-title">Reservation history</h2>
+
+                {reservations.map((reservation) => {
+                  const now = new Date();
+                  const date = new Date(reservation.res_date);
+                  const inPast = now >= date;
+
+                  return (
+                    <div
+                      key={reservation.reservation_id}
+                      style={{
+                        margin: 8,
+                        backgroundColor: inPast ? "#de7676" : "#79e36f",
+                        borderStyle: "solid",
+                        borderRadius: "1rem",
+                      }}
+                    >
+                      <h3>{reservation.city}</h3>
+                      <h3>{reservation.type}</h3>
+                      <h3>{reservation.description}</h3>
+                      <h3>{reservation.res_date}</h3>
+                      {inPast && (
+                        <button
+                          onClick={() => handleModalOpen(reservation)}
+                          style={{
+                            background: "#615bb8",
+                            color: "#fff",
+                            border: "none",
+                            padding: "0.6rem 1.2rem",
+                            borderRadius: "8px",
+                            fontWeight: "500",
+                            cursor: "pointer",
+                          }}
+                          onMouseEnter={(e) =>
+                            (e.target.style.opacity = "0.85")
+                          }
+                          onMouseLeave={(e) => (e.target.style.opacity = "1")}
+                        >
+                          {!reservation.content ? "Review" : "Update Review"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+
+            {isModalOpen && (
+              <ReviewModal
+                isModalOpen={isModalOpen}
+                closeModal={() => setIsModalOpen(false)}
+                reservation={reservation}
+              />
+            )}
           </>
         )}
       </div>

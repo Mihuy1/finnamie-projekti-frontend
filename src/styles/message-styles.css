@@ -69,17 +69,6 @@
   background-color: #51a5ff;
 }
 
-.chat-launcher {
-  min-width: 56px;
-  padding: 8px;
-  border: none;
-  border-radius: 4px;
-  background: #51a5ff;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .chatbox {
   position: fixed;
   right: 24px;
