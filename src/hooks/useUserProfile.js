@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   getActivities,
   getProfile,
+  getSuggestionActivitiesByHostId,
   getTimeSlotsByHostId,
 } from "../api/apiClient";
 import { formatDateForInput } from "../utils/date-utils";
@@ -26,10 +27,12 @@ export const useUserProfile = (user, loading) => {
       try {
         const profilePromise = getProfile();
 
-        const [data, activitiesData] = await Promise.all([
-          profilePromise,
-          getActivities(),
-        ]);
+        const [data, activitiesData, activitiesSuggestionData] =
+          await Promise.all([
+            profilePromise,
+            getActivities(),
+            getSuggestionActivitiesByHostId(),
+          ]);
 
         if (!data) throw new Error("No data recieved");
 
@@ -45,6 +48,7 @@ export const useUserProfile = (user, loading) => {
           ...data,
           date_of_birth: formatDateForInput(data.date_of_birth),
           host_activities: data.host_activities || [],
+          activities_suggestions: activitiesSuggestionData,
         };
         setActivitiesForm(activitiesData);
         setProfile(initialData);

@@ -1921,6 +1921,34 @@ body {
   border-color: rgba(170, 0, 162, 0.45);
 }
 
+.profile-activity-suggestion-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.profile-activity-suggestion-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.profile-activity-suggestion-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 47, 108, 0.2);
+  font-size: 14px;
+  background: white;
+}
+
 .profile-btn {
   border: none;
   border-radius: 999px;
@@ -2373,6 +2401,11 @@ body {
 
   .profile-form label {
     font-size: 13px;
+  }
+
+  .profile-activity-suggestion-form label {
+    flex-direction: column !important;
+    gap: 6px !important;
   }
 
   .profile-form input,

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  createActivitySuggestion,
   getProfile,
   loadCountries,
   updateProfile,
@@ -53,6 +54,10 @@ export const Profile = () => {
   const [passwordForm, setPasswordForm] = useState({
     new_password: "",
     confirm_new_password: "",
+  });
+
+  const [newActivitySuggestionForm, setNewActivitySuggestionForm] = useState({
+    new_activity_suggestion: "",
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -265,7 +270,6 @@ export const Profile = () => {
 
   const handleNewTimeslot = (timeslot) => {
     setShowNewTimeslot(false);
-    console.log("timeslot:", timeslot);
 
     setTimeSlots((prev) => [...prev, timeslot]);
   };
@@ -274,10 +278,34 @@ export const Profile = () => {
     setShowNewTimeslot(false);
   };
 
+  const handleActivitySuggestionInput = (e) => {
+    const { name, value } = e.target;
+
+    setNewActivitySuggestionForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleActivitySuggestionSubmit = async (e) => {
+    e.preventDefault();
+
+    await toast.promise(
+      createActivitySuggestion(
+        newActivitySuggestionForm.new_activity_suggestion,
+      ),
+      {
+        pending: "Sending Activity Suggestion...",
+        success: "Activity Suggestion Sent!",
+        error: (e) => e.message,
+      },
+    );
+
+    setNewActivitySuggestionForm({ new_activity_suggestion: "" });
+  };
+
   if (isProfileLoading)
     return <div className="profile-page">Loading profile data...</div>;
-
-  console.log("timeslots:", timeSlots);
 
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
   const avatarLetter = (fullName[0] ?? "U").toUpperCase();
@@ -560,6 +588,31 @@ export const Profile = () => {
 
         {isHost && (
           <>
+            <h2 className="profile-section-title">Suggest new activities</h2>
+            <form
+              className="profile-activity-suggestion-form"
+              onSubmit={handleActivitySuggestionSubmit}
+            >
+              <label>
+                Activity Name
+                <input
+                  type="text"
+                  name="new_activity_suggestion"
+                  value={newActivitySuggestionForm.new_activity_suggestion}
+                  onChange={handleActivitySuggestionInput}
+                  placeholder="New Activity..."
+                />
+              </label>
+              <div className="profile-action">
+                <button
+                  className="profile-btn profile-btn-primary"
+                  type="submit"
+                >
+                  Add Suggestion
+                </button>
+              </div>
+            </form>
+
             <hr className="profile-divider" />
             <h2 className="profile-section-title">Your Timeslots</h2>
 
