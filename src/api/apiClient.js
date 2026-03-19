@@ -311,6 +311,55 @@ export const getActivities = async () => {
   }
 };
 
+export const getSuggestionActivitiesByHostId = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/suggestions/host`, {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getAllActivitySuggestions = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/suggestions`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const createActivitySuggestion = async (name) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/suggestions`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || "Something went wrong");
+
+    return data;
+  } catch (error) {
+    console.error("error creating new activity suggestion:", error);
+    throw error;
+  }
+};
+
 export const uploadUserImage = async (file) => {
   const formData = new FormData();
   formData.append("image", file);
