@@ -92,9 +92,11 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 47, 108, 0.2),
-      rgba(0, 0, 0, 0.3));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 47, 108, 0.2),
+    rgba(0, 0, 0, 0.3)
+  );
   z-index: 1;
 }
 
@@ -578,7 +580,6 @@ body {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -1940,6 +1941,16 @@ body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.host-phone-input {
+  --PhoneInputCountryFlag-height: 1em;
+  --PhoneInputCountrySelectArrow-opacity: 0;
+  width: 100%;
+}
+
+.host-phone-input .PhoneInputCountrySelectArrow {
+  display: none;
 }
 
 .profile-password-form label {

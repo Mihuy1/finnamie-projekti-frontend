@@ -7,7 +7,6 @@ import {
   uploadUserImage,
 } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
-import toast from "react-hot-toast";
 import Select from "react-select";
 import "leaflet/dist/leaflet.css";
 import configureLeaflet from "../utils/leaflet-config";
@@ -17,6 +16,9 @@ import { useAuth } from "../auth/AuthContext";
 import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 import { useUserProfile } from "../hooks/useUserProfile";
+import toast from "react-hot-toast";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -118,6 +120,13 @@ export const Profile = () => {
     }));
   };
 
+  const handlePhoneNumberInputChange = (number) => {
+    setProfileForm((prev) => ({
+      ...prev,
+      phone_number: number,
+    }));
+  };
+
   const handlePasswordInputChange = (event) => {
     const { name, value } = event.target;
 
@@ -141,6 +150,7 @@ export const Profile = () => {
       email: profileForm.email,
       country: profileForm.country,
       date_of_birth: profileForm.date_of_birth,
+      gender: profileForm.gender,
     };
 
     if (isHost) {
@@ -160,7 +170,7 @@ export const Profile = () => {
 
     try {
       await toast.promise(updateProfile(userUpdate), {
-        pending: "Updating profile...",
+        loading: "Updating profile...",
         success: "Profile updated successfully!",
         error: (error) => error.message || "Failed to update profile",
       });
@@ -194,7 +204,7 @@ export const Profile = () => {
 
     try {
       await toast.promise(updateProfile(newPasswords), {
-        pending: "Updating password...",
+        loading: "Updating password...",
         success: "Password updated successfully!",
         error: (error) => error.message || "Failed to update password",
       });
@@ -226,7 +236,7 @@ export const Profile = () => {
 
     try {
       const uploadResult = await toast.promise(uploadUserImage(file), {
-        pending: "Uploading image...",
+        loading: "Uploading image...",
         success: "Image uploaded successfully!",
         error: "Failed to upload image",
       });
@@ -295,7 +305,7 @@ export const Profile = () => {
         newActivitySuggestionForm.new_activity_suggestion,
       ),
       {
-        pending: "Sending Activity Suggestion...",
+        loading: "Sending Activity Suggestion...",
         success: "Activity Suggestion Sent!",
         error: (e) => e.message,
       },
@@ -442,16 +452,18 @@ export const Profile = () => {
             </select>
           </label>
 
-          <label>
-            City
-            <input
-              name="city"
-              value={profileForm.city || ""}
-              onChange={handleProfileInputChange}
-              disabled={!isEditing}
-              placeholder="City"
-            />
-          </label>
+          {isHost && (
+            <label>
+              City
+              <input
+                name="city"
+                value={profileForm.city || ""}
+                onChange={handleProfileInputChange}
+                disabled={!isEditing}
+                placeholder="City"
+              />
+            </label>
+          )}
 
           <label>
             Date of birth
@@ -464,16 +476,38 @@ export const Profile = () => {
             />
           </label>
 
+          <label>
+            Gender
+            <select
+              name="gender"
+              value={profileForm.gender}
+              onChange={handleProfileInputChange}
+              disabled={!isEditing}
+            >
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+
           {isHost && (
             <>
               <label>
                 Phone number
-                <input
+                {/* <input
                   name="phone_number"
                   value={profileForm.phone_number || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
                   placeholder="Phone Number"
+                /> */}
+                <PhoneInput
+                  className="host-phone-input"
+                  placeholder="Enter phone number"
+                  defaultCountry="FI"
+                  value={profileForm.phone_number}
+                  onChange={handlePhoneNumberInputChange}
+                  disabled={!isEditing}
                 />
               </label>
 

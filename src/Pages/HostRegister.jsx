@@ -9,6 +9,8 @@ import {
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/AuthContext";
+import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 export default function HostRegister() {
   const [activities, setActivites] = useState([]);
@@ -28,10 +30,12 @@ export default function HostRegister() {
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
   const [description, setDescription] = useState("");
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [countries, setCountries] = useState([]);
   const { refresh } = useAuth();
+  const [phoneError, setPhoneError] = useState("");
 
   const navigate = useNavigate();
 
@@ -72,6 +76,23 @@ export default function HostRegister() {
       setSelectedActivities([...selectedActivities, activityId]);
     }
     e.target.value = "";
+  };
+
+  const handlePhoneNumberInputChange = (value) => {
+    const normalized = value || "";
+    setPhoneNumber(normalized);
+
+    if (!normalized) {
+      setPhoneError("Phone number is required.");
+      return;
+    }
+
+    if (!isPossiblePhoneNumber(normalized)) {
+      setPhoneError("Please enter a valid phone number");
+      return;
+    }
+
+    setPhoneError("");
   };
 
   const removeActivity = (activityId) => {
@@ -117,6 +138,7 @@ export default function HostRegister() {
         role: "host",
         country,
         date_of_birth: dateOfBirth,
+        gender: gender,
         phone_number: phoneNumber,
         street_address: streetAddress,
         postal_code: postalCode,
@@ -126,7 +148,7 @@ export default function HostRegister() {
         activity_ids: selectedActivities,
       }),
       {
-        pending: "Registration pending...",
+        loading: "Registration pending...",
         success: "Registration successful!",
         error: (err) => err?.message || "Registration failed.",
       },
@@ -210,12 +232,15 @@ export default function HostRegister() {
 
         <label>
           <span className="required">Phone number</span>
-          <input
-            type="tel"
+          <PhoneInput
+            className="host-phone-input"
+            placeholder="Enter phone number"
+            defaultCountry="FI"
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={handlePhoneNumberInputChange}
             required
           />
+          {phoneError && <p className="login_register-error">{phoneError}</p>}
         </label>
 
         <div className="address-grid">
@@ -229,18 +254,6 @@ export default function HostRegister() {
             />
           </label>
           <label>
-            <span className="required">Postal Code</span>
-            <input
-              type="text"
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-
-        <div className="address-grid">
-          <label>
             <span className="required">City</span>
             <input
               type="text"
@@ -249,15 +262,18 @@ export default function HostRegister() {
               required
             />
           </label>
-          {/* <label>
-            <span className="required">Country</span>
+        </div>
+
+        <div className="address-grid">
+          <label>
+            <span className="required">Postal Code</span>
             <input
               type="text"
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
               required
             />
-          </label> */}
+          </label>
           <label>
             <span className="required">Country</span>
             <select
@@ -291,6 +307,23 @@ export default function HostRegister() {
           />
         </label>
 
+        <label>
+          <span className="required"> Gender </span>
+          <select
+            value={gender}
+            required
+            onChange={(e) => setGender(e.target.value)}
+            className="country-select"
+          >
+            <option value="" disabled>
+              Gender
+            </option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
         <h2>
           <span className="required">Activities you offer</span>
         </h2>
@@ -302,11 +335,13 @@ export default function HostRegister() {
           <option value="">-- Choose an activity --</option>
 
           {Array.isArray(activities) &&
-            activities.map((activity) => (
-              <option key={activity.id} value={activity.id}>
-                {activity.name}
-              </option>
-            ))}
+            activities
+              .filter((act) => !selectedActivities.includes(act.id))
+              .map((activity) => (
+                <option key={activity.id} value={activity.id}>
+                  {activity.name}
+                </option>
+              ))}
         </select>
 
         {selectedActivities.length > 0 && (
@@ -358,7 +393,7 @@ export default function HostRegister() {
           hobbies or what else you have to offer.
         </p>
         <textarea
-          rows="5"
+          rows={5}
           placeholder="Tell us about yourself..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
