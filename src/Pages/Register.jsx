@@ -11,6 +11,7 @@ export default function Register() {
   // const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -52,18 +53,17 @@ export default function Register() {
         // phone,
         country,
         date_of_birth: dateOfBirth,
+        gender,
         password,
         confirmPassword: confirm,
         role: "guest",
       }),
       {
-        pending: "Registering account...",
+        loading: "Registering account...",
         success: "Account created successfully!",
         error: (err) => err?.message || "Registration failed.",
       },
     );
-
-    console.log("res:", res);
 
     if (res?.userId) {
       await postLogin(email, password);
@@ -148,6 +148,23 @@ export default function Register() {
               onChange={(e) => setDateOfBirth(e.target.value)}
               required
             />
+          </label>
+
+          <label>
+            <span className="required"> Gender </span>
+            <select
+              value={gender}
+              required
+              onChange={(e) => setGender(e.target.value)}
+              className="country-select"
+            >
+              <option value="" disabled>
+                Gender
+              </option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
           </label>
 
           <label>

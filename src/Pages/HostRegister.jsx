@@ -28,6 +28,7 @@ export default function HostRegister() {
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
   const [description, setDescription] = useState("");
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [countries, setCountries] = useState([]);
@@ -117,6 +118,7 @@ export default function HostRegister() {
         role: "host",
         country,
         date_of_birth: dateOfBirth,
+        gender: gender,
         phone_number: phoneNumber,
         street_address: streetAddress,
         postal_code: postalCode,
@@ -126,7 +128,7 @@ export default function HostRegister() {
         activity_ids: selectedActivities,
       }),
       {
-        pending: "Registration pending...",
+        loading: "Registration pending...",
         success: "Registration successful!",
         error: (err) => err?.message || "Registration failed.",
       },
@@ -229,18 +231,6 @@ export default function HostRegister() {
             />
           </label>
           <label>
-            <span className="required">Postal Code</span>
-            <input
-              type="text"
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-
-        <div className="address-grid">
-          <label>
             <span className="required">City</span>
             <input
               type="text"
@@ -249,15 +239,18 @@ export default function HostRegister() {
               required
             />
           </label>
-          {/* <label>
-            <span className="required">Country</span>
+        </div>
+
+        <div className="address-grid">
+          <label>
+            <span className="required">Postal Code</span>
             <input
               type="text"
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
               required
             />
-          </label> */}
+          </label>
           <label>
             <span className="required">Country</span>
             <select
@@ -289,6 +282,23 @@ export default function HostRegister() {
             onChange={(e) => setDateOfBirth(e.target.value)}
             required
           />
+        </label>
+
+        <label>
+          <span className="required"> Gender </span>
+          <select
+            value={gender}
+            required
+            onChange={(e) => setGender(e.target.value)}
+            className="country-select"
+          >
+            <option value="" disabled>
+              Gender
+            </option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="other">Other</option>
+          </select>
         </label>
 
         <h2>
@@ -358,7 +368,7 @@ export default function HostRegister() {
           hobbies or what else you have to offer.
         </p>
         <textarea
-          rows="5"
+          rows={5}
           placeholder="Tell us about yourself..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}

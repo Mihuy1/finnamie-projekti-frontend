@@ -12,8 +12,8 @@ import {
 import toast from "react-hot-toast";
 import configureLeaflet from "../utils/leaflet-config";
 import { formatDateTimeDisplay } from "../utils/date-utils";
-import { Carousel } from "./Carousel";
 import { Link } from "react-router-dom";
+import { Carousel } from "./Carousel";
 
 configureLeaflet();
 

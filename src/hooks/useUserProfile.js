@@ -41,8 +41,6 @@ export const useUserProfile = (user, loading) => {
 
         if (data.role === "host") {
           setIsHost(true);
-          // const hostTimeslots = await getTimeSlotsByHostId(user.id);
-          // setTimeSlots(hostTimeslots || []);
 
           try {
             const [hostTimeslots, suggestions] = await Promise.all([
