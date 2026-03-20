@@ -9,6 +9,8 @@ import {
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/AuthContext";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 export default function HostRegister() {
   const [activities, setActivites] = useState([]);
@@ -212,11 +214,18 @@ export default function HostRegister() {
 
         <label>
           <span className="required">Phone number</span>
-          <input
+          {/* <input
             type="tel"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             required
+          /> */}
+          <PhoneInput
+            className="host-phone-input"
+            placeholder="Enter phone number"
+            defaultCountry="FI"
+            value={phoneNumber}
+            onChange={setPhoneNumber}
           />
         </label>
 

@@ -17,6 +17,8 @@ import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 import { useUserProfile } from "../hooks/useUserProfile";
 import toast from "react-hot-toast";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -115,6 +117,13 @@ export const Profile = () => {
     setProfileForm((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handlePhoneNumberInputChange = (number) => {
+    setProfileForm((prev) => ({
+      ...prev,
+      phone_number: number,
     }));
   };
 
@@ -485,12 +494,20 @@ export const Profile = () => {
             <>
               <label>
                 Phone number
-                <input
+                {/* <input
                   name="phone_number"
                   value={profileForm.phone_number || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
                   placeholder="Phone Number"
+                /> */}
+                <PhoneInput
+                  className="host-phone-input"
+                  placeholder="Enter phone number"
+                  defaultCountry="FI"
+                  value={profileForm.phone_number}
+                  onChange={handlePhoneNumberInputChange}
+                  disabled={!isEditing}
                 />
               </label>
 
