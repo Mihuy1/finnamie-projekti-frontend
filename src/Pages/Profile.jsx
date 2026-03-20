@@ -470,6 +470,7 @@ export const Profile = () => {
           <label>
             Gender
             <select
+              name="gender"
               value={profileForm.gender}
               onChange={handleProfileInputChange}
               disabled={!isEditing}
