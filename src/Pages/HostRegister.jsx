@@ -9,7 +9,7 @@ import {
 import isEmail from "validator/lib/isEmail";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/AuthContext";
-import PhoneInput from "react-phone-number-input";
+import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
 export default function HostRegister() {
@@ -35,6 +35,7 @@ export default function HostRegister() {
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [countries, setCountries] = useState([]);
   const { refresh } = useAuth();
+  const [phoneError, setPhoneError] = useState("");
 
   const navigate = useNavigate();
 
@@ -75,6 +76,23 @@ export default function HostRegister() {
       setSelectedActivities([...selectedActivities, activityId]);
     }
     e.target.value = "";
+  };
+
+  const handlePhoneNumberInputChange = (value) => {
+    const normalized = value || "";
+    setPhoneNumber(normalized);
+
+    if (!normalized) {
+      setPhoneError("Phone number is required.");
+      return;
+    }
+
+    if (!isPossiblePhoneNumber(normalized)) {
+      setPhoneError("Please enter a valid phone number");
+      return;
+    }
+
+    setPhoneError("");
   };
 
   const removeActivity = (activityId) => {
@@ -214,20 +232,15 @@ export default function HostRegister() {
 
         <label>
           <span className="required">Phone number</span>
-          {/* <input
-            type="tel"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            required
-          /> */}
           <PhoneInput
             className="host-phone-input"
             placeholder="Enter phone number"
             defaultCountry="FI"
             value={phoneNumber}
-            onChange={setPhoneNumber}
+            onChange={handlePhoneNumberInputChange}
             required
           />
+          {phoneError && <p className="login_register-error">{phoneError}</p>}
         </label>
 
         <div className="address-grid">
