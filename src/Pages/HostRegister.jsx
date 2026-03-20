@@ -321,11 +321,13 @@ export default function HostRegister() {
           <option value="">-- Choose an activity --</option>
 
           {Array.isArray(activities) &&
-            activities.map((activity) => (
-              <option key={activity.id} value={activity.id}>
-                {activity.name}
-              </option>
-            ))}
+            activities
+              .filter((act) => !selectedActivities.includes(act.id))
+              .map((activity) => (
+                <option key={activity.id} value={activity.id}>
+                  {activity.name}
+                </option>
+              ))}
         </select>
 
         {selectedActivities.length > 0 && (
