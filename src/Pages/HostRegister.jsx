@@ -226,6 +226,7 @@ export default function HostRegister() {
             defaultCountry="FI"
             value={phoneNumber}
             onChange={setPhoneNumber}
+            required
           />
         </label>
 
