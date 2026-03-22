@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { postReview, updateReview } from "../api/apiClient";
+import toast from "react-hot-toast";
 
 export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
   const [rating, setRating] = useState(() => reservation?.score || 0);
@@ -11,28 +12,37 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
   if (!isModalOpen) return null;
 
   const handleSubmit = async () => {
-    console.log(reservation);
     const data = {
-      score: rating,
+      score: rating || 1,
       content: reviewText,
     };
-    if (!reservation?.content) {
-      const res = await postReview({
-        resId: reservation.reservation_id,
-        hostId: reservation.host_id,
-        ...data,
-      });
-      console.log(res);
+    if (!reservation?.conten && !reservation?.score) {
+      await toast.promise(
+        postReview({
+          resId: reservation.reservation_id,
+          hostId: reservation.host_id,
+          ...data,
+        }),
+        {
+          loading: "Posting review...",
+          success: "Review posted.",
+        },
+      );
     } else {
-      const res = await updateReview({
-        review_id: reservation.review_id,
-        guestId: reservation.guest_id,
-        ...data,
-      });
-      console.log(res);
+      await toast.promise(
+        updateReview({
+          review_id: reservation.review_id,
+          guestId: reservation.guest_id,
+          ...data,
+        }),
+        {
+          loading: "Updating review...",
+          success: "Review updated.",
+        },
+      );
     }
 
-    closeModal();
+    closeModal(true);
   };
 
   return (
@@ -113,7 +123,7 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
           </button>
 
           <button
-            onClick={closeModal}
+            onClick={() => closeModal(false)}
             style={{
               background: "#f3f4f6",
               color: "#111",

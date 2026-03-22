@@ -5,8 +5,6 @@ import { MessageList } from "./MessageList";
 import { ConversationList } from "./ConversationList";
 import "../styles/message-styles.css";
 
-//TODO:
-// -Refaktoroi tyylit yhteen css filuun.
 export const Chatbox = ({ closeChat, newReceiver = null }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [receiver, setReceiver] = useState({

@@ -21,6 +21,8 @@ import toast from "react-hot-toast";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
+import "../styles/timeslot-styles.css";
+import { Reservation } from "../components/Reservation";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -338,6 +340,18 @@ export const Profile = () => {
   const handleModalOpen = (reservation) => {
     setReservation(reservation);
     setIsModalOpen(true);
+  };
+
+  const handleCloseModal = async (submitted) => {
+    if (submitted) {
+      try {
+        const data = await getReservations();
+        setReservations(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setIsModalOpen(false);
   };
 
   if (isProfileLoading)
@@ -747,62 +761,31 @@ export const Profile = () => {
           </>
         ) : (
           // guest userille
-          // tyylittelyä vailla
           <>
             {reservations.length !== 0 && (
               <>
                 <hr className="profile-divider" />
-                <h2 className="profile-section-title">Reservation history</h2>
-
-                {reservations.map((reservation) => {
-                  const now = new Date();
-                  const date = new Date(reservation.res_date);
-                  const inPast = now >= date;
-
-                  return (
-                    <div
+                <h2 className="profile-section-title">Reservations</h2>
+                <div className="profile-timeslot-list">
+                  {reservations.map((reservation) => (
+                    <Reservation
                       key={reservation.reservation_id}
-                      style={{
-                        margin: 8,
-                        backgroundColor: inPast ? "#de7676" : "#79e36f",
-                        borderStyle: "solid",
-                        borderRadius: "1rem",
-                      }}
-                    >
-                      <h3>{reservation.city}</h3>
-                      <h3>{reservation.type}</h3>
-                      <h3>{reservation.description}</h3>
-                      <h3>{reservation.res_date}</h3>
-                      {inPast && (
-                        <button
-                          onClick={() => handleModalOpen(reservation)}
-                          style={{
-                            background: "#615bb8",
-                            color: "#fff",
-                            border: "none",
-                            padding: "0.6rem 1.2rem",
-                            borderRadius: "8px",
-                            fontWeight: "500",
-                            cursor: "pointer",
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.target.style.opacity = "0.85")
-                          }
-                          onMouseLeave={(e) => (e.target.style.opacity = "1")}
-                        >
-                          {!reservation.content ? "Review" : "Update Review"}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
+                      inPast={new Date() >= new Date(reservation.res_date)}
+                      formattedDate={formatDateTimeDisplay(
+                        reservation.res_date,
+                      ).split(",")}
+                      reservation={reservation}
+                      handleModalOpen={handleModalOpen}
+                    />
+                  ))}
+                </div>
               </>
             )}
 
             {isModalOpen && (
               <ReviewModal
                 isModalOpen={isModalOpen}
-                closeModal={() => setIsModalOpen(false)}
+                closeModal={handleCloseModal}
                 reservation={reservation}
               />
             )}

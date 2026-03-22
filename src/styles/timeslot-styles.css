@@ -24,7 +24,9 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
 }
@@ -100,7 +102,9 @@
   background: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   padding: 0;
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
 .timeslot-dot.active {
@@ -175,6 +179,30 @@
   text-transform: capitalize;
 }
 
-.status-available { background: #e6f7ed; color: #1f8b4c; }
-.status-pending { background: #fff8e6; color: #b7791f; }
-.status-booked { background: #fdeaea; color: #c53030; }
+.status-available {
+  background: #e6f7ed;
+  color: #1f8b4c;
+}
+.status-pending {
+  background: #fff8e6;
+  color: #b7791f;
+}
+.status-booked {
+  background: #fdeaea;
+  color: #c53030;
+}
+
+.booking-status-cancelled {
+  background: #fdeaea;
+  color: #c53030;
+}
+
+.booking-status-confirmed {
+  background: #fdeaea;
+  color: #1f8b4c;
+}
+
+.booking-status-pending {
+  background: #fdeaea;
+  color: #b7791f;
+}

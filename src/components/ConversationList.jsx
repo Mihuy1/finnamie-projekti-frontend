@@ -5,7 +5,6 @@ import { CListItem } from "./CListItem";
 
 // TODO:
 //  - avaa oikean keskustelun, kun avaa keskustelut vastaanottajan profiilista.
-//  - merkki keskusteluun, jos keskustelussa lukemattomia viestejä (?)
 export const ConversationList = ({ handleOpen, convId, messageReceiver }) => {
   const [conversations, setConversations] = useState([]);
   const { user } = useAuth();
