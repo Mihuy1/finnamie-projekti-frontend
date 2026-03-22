@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   getActivities,
   getProfile,
+  getSuggestionActivitiesByHostId,
   getTimeSlotsByHostId,
 } from "../api/apiClient";
 import { formatDateForInput } from "../utils/date-utils";
@@ -29,23 +30,40 @@ export const useUserProfile = (user, loading) => {
         const [data, activitiesData] = await Promise.all([
           profilePromise,
           getActivities(),
+          // getSuggestionActivitiesByHostId(),
         ]);
 
-        if (!data) throw new Error("No data recieved");
+        if (!data) throw new Error("No data received");
 
         hasFetchedProfile.current = user.id;
 
+        let activitiesSuggestionData;
+
         if (data.role === "host") {
           setIsHost(true);
-          const hostTimeslots = await getTimeSlotsByHostId(user.id);
-          setTimeSlots(hostTimeslots || []);
+
+          try {
+            const [hostTimeslots, suggestions] = await Promise.all([
+              getTimeSlotsByHostId(user.id),
+              getSuggestionActivitiesByHostId(),
+            ]);
+
+            setTimeSlots(hostTimeslots || []);
+            activitiesSuggestionData = Array.isArray(suggestions)
+              ? suggestions
+              : [];
+          } catch (hostError) {
+            console.error("Error fetching host specific data:", hostError);
+          }
         }
 
         const initialData = {
           ...data,
           date_of_birth: formatDateForInput(data.date_of_birth),
           host_activities: data.host_activities || [],
+          activities_suggestions: activitiesSuggestionData,
         };
+
         setActivitiesForm(activitiesData);
         setProfile(initialData);
         setProfileForm(initialData);

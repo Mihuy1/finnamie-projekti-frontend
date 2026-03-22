@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  createActivitySuggestion,
   getProfile,
   getReservations,
   loadCountries,
@@ -7,7 +8,6 @@ import {
   uploadUserImage,
 } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
-import toast from "react-hot-toast";
 import Select from "react-select";
 import "leaflet/dist/leaflet.css";
 import configureLeaflet from "../utils/leaflet-config";
@@ -17,6 +17,9 @@ import { useAuth } from "../auth/AuthContext";
 import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 import { useUserProfile } from "../hooks/useUserProfile";
+import toast from "react-hot-toast";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
 
 const EMPTY_PROFILE = {
@@ -55,6 +58,10 @@ export const Profile = () => {
   const [passwordForm, setPasswordForm] = useState({
     new_password: "",
     confirm_new_password: "",
+  });
+
+  const [newActivitySuggestionForm, setNewActivitySuggestionForm] = useState({
+    new_activity_suggestion: "",
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -134,6 +141,13 @@ export const Profile = () => {
     }));
   };
 
+  const handlePhoneNumberInputChange = (number) => {
+    setProfileForm((prev) => ({
+      ...prev,
+      phone_number: number,
+    }));
+  };
+
   const handlePasswordInputChange = (event) => {
     const { name, value } = event.target;
 
@@ -157,6 +171,7 @@ export const Profile = () => {
       email: profileForm.email,
       country: profileForm.country,
       date_of_birth: profileForm.date_of_birth,
+      gender: profileForm.gender,
     };
 
     if (isHost) {
@@ -176,7 +191,7 @@ export const Profile = () => {
 
     try {
       await toast.promise(updateProfile(userUpdate), {
-        pending: "Updating profile...",
+        loading: "Updating profile...",
         success: "Profile updated successfully!",
         error: (error) => error.message || "Failed to update profile",
       });
@@ -210,7 +225,7 @@ export const Profile = () => {
 
     try {
       await toast.promise(updateProfile(newPasswords), {
-        pending: "Updating password...",
+        loading: "Updating password...",
         success: "Password updated successfully!",
         error: (error) => error.message || "Failed to update password",
       });
@@ -242,7 +257,7 @@ export const Profile = () => {
 
     try {
       const uploadResult = await toast.promise(uploadUserImage(file), {
-        pending: "Uploading image...",
+        loading: "Uploading image...",
         success: "Image uploaded successfully!",
         error: "Failed to upload image",
       });
@@ -286,13 +301,38 @@ export const Profile = () => {
 
   const handleNewTimeslot = (timeslot) => {
     setShowNewTimeslot(false);
-    //console.log("timeslot:", timeslot);
 
     setTimeSlots((prev) => [...prev, timeslot]);
   };
 
   const handleCloseNewTimeslot = () => {
     setShowNewTimeslot(false);
+  };
+
+  const handleActivitySuggestionInput = (e) => {
+    const { name, value } = e.target;
+
+    setNewActivitySuggestionForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleActivitySuggestionSubmit = async (e) => {
+    e.preventDefault();
+
+    await toast.promise(
+      createActivitySuggestion(
+        newActivitySuggestionForm.new_activity_suggestion,
+      ),
+      {
+        loading: "Sending Activity Suggestion...",
+        success: "Activity Suggestion Sent!",
+        error: (e) => e.message,
+      },
+    );
+
+    setNewActivitySuggestionForm({ new_activity_suggestion: "" });
   };
 
   const handleModalOpen = (reservation) => {
@@ -302,8 +342,6 @@ export const Profile = () => {
 
   if (isProfileLoading)
     return <div className="profile-page">Loading profile data...</div>;
-
-  console.log("timeslots:", timeSlots);
 
   const fullName = `${profile.first_name} ${profile.last_name}`.trim();
   const avatarLetter = (fullName[0] ?? "U").toUpperCase();
@@ -440,16 +478,18 @@ export const Profile = () => {
             </select>
           </label>
 
-          <label>
-            City
-            <input
-              name="city"
-              value={profileForm.city || ""}
-              onChange={handleProfileInputChange}
-              disabled={!isEditing}
-              placeholder="City"
-            />
-          </label>
+          {isHost && (
+            <label>
+              City
+              <input
+                name="city"
+                value={profileForm.city || ""}
+                onChange={handleProfileInputChange}
+                disabled={!isEditing}
+                placeholder="City"
+              />
+            </label>
+          )}
 
           <label>
             Date of birth
@@ -462,16 +502,38 @@ export const Profile = () => {
             />
           </label>
 
+          <label>
+            Gender
+            <select
+              name="gender"
+              value={profileForm.gender}
+              onChange={handleProfileInputChange}
+              disabled={!isEditing}
+            >
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+
           {isHost && (
             <>
               <label>
                 Phone number
-                <input
+                {/* <input
                   name="phone_number"
                   value={profileForm.phone_number || ""}
                   onChange={handleProfileInputChange}
                   disabled={!isEditing}
                   placeholder="Phone Number"
+                /> */}
+                <PhoneInput
+                  className="host-phone-input"
+                  placeholder="Enter phone number"
+                  defaultCountry="FI"
+                  value={profileForm.phone_number}
+                  onChange={handlePhoneNumberInputChange}
+                  disabled={!isEditing}
                 />
               </label>
 
@@ -586,6 +648,31 @@ export const Profile = () => {
 
         {isHost ? (
           <>
+            <h2 className="profile-section-title">Suggest new activities</h2>
+            <form
+              className="profile-activity-suggestion-form"
+              onSubmit={handleActivitySuggestionSubmit}
+            >
+              <label>
+                Activity Name
+                <input
+                  type="text"
+                  name="new_activity_suggestion"
+                  value={newActivitySuggestionForm.new_activity_suggestion}
+                  onChange={handleActivitySuggestionInput}
+                  placeholder="New Activity..."
+                />
+              </label>
+              <div className="profile-action">
+                <button
+                  className="profile-btn profile-btn-primary"
+                  type="submit"
+                >
+                  Add Suggestion
+                </button>
+              </div>
+            </form>
+
             <hr className="profile-divider" />
             <h2 className="profile-section-title">Your Timeslots</h2>
 

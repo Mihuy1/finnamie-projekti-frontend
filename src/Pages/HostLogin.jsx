@@ -15,9 +15,10 @@ export default function HostLogin() {
 
     try {
       await toast.promise(postLogin(email, password), {
-        pending: "Logging in as host...",
+        loading: "Logging in as host...",
         success: "Host login successful!",
-        error: (err) => `Login failed: ${err?.message || "Check your credentials"}`,
+        error: (err) =>
+          `Login failed: ${err?.message || "Check your credentials"}`,
       });
 
       await refresh();
@@ -67,7 +68,8 @@ export default function HostLogin() {
             Are you a guest? <Link to="/login">Login here</Link>
           </p>
           <p>
-            Want to become a host? <Link to="/host/register">Register here</Link>
+            Want to become a host?{" "}
+            <Link to="/host/register">Register here</Link>
           </p>
         </div>
       </div>

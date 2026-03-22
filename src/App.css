@@ -546,6 +546,54 @@ body {
   font-size: 12px;
 }
 
+/* Error styles */
+
+.input-error {
+  border: 2px solid #ff4d4f !important;
+  background-color: #fff1f0 !important;
+}
+
+.error-text {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.search-box-error {
+  animation: shake 0.4s;
+}
+
+.calendar-error-style {
+  border: 2px solid #ff4d4f;
+  border-radius: 15px;
+  padding: 10px;
+  background-color: #fff1f0;
+  animation: shake 0.4s;
+}
+
+.error-text-small {
+  color: #ff4d4f;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
 /* MOBIILI HOME PAGE */
 
 @media screen and (max-width: 768px) {
@@ -1878,6 +1926,16 @@ body {
   gap: 16px;
 }
 
+.host-phone-input {
+  --PhoneInputCountryFlag-height: 1em;
+  --PhoneInputCountrySelectArrow-opacity: 0;
+  width: 100%;
+}
+
+.host-phone-input .PhoneInputCountrySelectArrow {
+  display: none;
+}
+
 .profile-password-form label {
   display: flex;
   flex-direction: column;
@@ -1902,6 +1960,34 @@ body {
 .profile-password-form input:focus {
   outline: none;
   border-color: rgba(170, 0, 162, 0.45);
+}
+
+.profile-activity-suggestion-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.profile-activity-suggestion-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.profile-activity-suggestion-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 47, 108, 0.2);
+  font-size: 14px;
+  background: white;
 }
 
 .profile-btn {
@@ -2358,6 +2444,11 @@ body {
     font-size: 13px;
   }
 
+  .profile-activity-suggestion-form label {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
   .profile-form input,
   .profile-form select,
   .profile-form textarea {
@@ -2492,4 +2583,42 @@ body {
 .location-wrapper {
   position: relative;
   width: 100%;
+}
+
+.no-results-container {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  background: #f8fafc;
+  border-radius: 15px;
+  border: 2px dashed #e2e8f0;
+  text-align: center;
+}
+
+.no-results-content h3 {
+  font-size: 22px;
+  color: #1e293b;
+  margin: 15px 0 5px;
+}
+
+.no-results-content p {
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.reset-all-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reset-all-btn:hover {
+  background: #0056b3;
 }
