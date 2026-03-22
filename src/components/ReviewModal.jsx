@@ -66,6 +66,7 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
         }}
       >
         <h2>Leave a review</h2>
+        <p>This review will be available publicly on the host's profile.</p>
         <div style={{ fontSize: "2rem", cursor: "pointer" }}>
           {[1, 2, 3, 4, 5].map((star) => (
             <span
