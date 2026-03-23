@@ -13,6 +13,7 @@ import { Admin } from "./Pages/Admin";
 import { CreateNewTimeslot } from "./components/CreateNewTimeslot";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import BookActivity from "./Pages/BookActivity";
+import { ReviewModal } from "./components/ReviewModal";
 
 function App() {
   return (
@@ -31,6 +32,8 @@ function App() {
         </Route>
 
         <Route path="/discover" element={<Discover />} />
+
+        <Route path="/modal-test" element={<ReviewModal />} />
 
         <Route path="/profile/:id" element={<PublicProfile />} />
         <Route path="/host/register" element={<HostRegister />} />

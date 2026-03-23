@@ -736,6 +736,7 @@ body {
     font-size: 18px;
   }
 
+  /* Tätä luokkaa ei käytetä missään, saa VARMAAN poistaa
   .chat-launcher {
     position: fixed;
     bottom: 100px;
@@ -755,6 +756,7 @@ body {
     justify-content: center;
     cursor: pointer;
   }
+    */
 
   .chatbox-wrapper,
   .chatbox-container {
@@ -767,26 +769,7 @@ body {
   }
 }
 
-@media screen and (max-width: 768px) {
-  .chat-launcher {
-    position: fixed !important;
-    bottom: 55px !important;
-    right: 40px !important;
-    width: 55px !important;
-    height: 55px !important;
-    left: auto !important;
-    top: auto !important;
-    display: flex !important;
-    z-index: 9999 !important;
-  }
-}
-
 @media screen and (min-width: 481px) and (max-width: 1700px) {
-  .chat-launcher {
-    bottom: 80px !important;
-    right: 60px !important;
-  }
-
   .chatbox {
     bottom: 150px !important;
     right: 60px !important;

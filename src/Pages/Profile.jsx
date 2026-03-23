@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   createActivitySuggestion,
   getProfile,
+  getReservations,
   loadCountries,
   updateProfile,
   uploadUserImage,
@@ -19,6 +20,8 @@ import { useUserProfile } from "../hooks/useUserProfile";
 import toast from "react-hot-toast";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import { ReviewModal } from "../components/ReviewModal";
+import { Reservation } from "../components/Reservation";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -73,6 +76,12 @@ export const Profile = () => {
 
   const [loadingCountries, setLoadingCountries] = useState(true);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [reservations, setReservations] = useState([]);
+
+  const [reservation, setReservation] = useState({});
+
   useEffect(() => {
     const getCountries = async () => {
       try {
@@ -86,6 +95,19 @@ export const Profile = () => {
     };
 
     getCountries();
+  }, []);
+
+  useEffect(() => {
+    const getRes = async () => {
+      try {
+        const data = await getReservations();
+        console.log(data);
+        setReservations(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    getRes();
   }, []);
 
   useEffect(() => {
@@ -314,6 +336,23 @@ export const Profile = () => {
     setNewActivitySuggestionForm({ new_activity_suggestion: "" });
   };
 
+  const handleModalOpen = (reservation) => {
+    setReservation(reservation);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = async (submitted) => {
+    if (submitted) {
+      try {
+        const data = await getReservations();
+        setReservations(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setIsModalOpen(false);
+  };
+
   if (isProfileLoading)
     return <div className="profile-page">Loading profile data...</div>;
 
@@ -383,7 +422,7 @@ export const Profile = () => {
               </p>
             )}
             <button
-              className="chat-launcher"
+              className="profile-btn profile-btn-primary"
               aria-label="Open chat"
               onClick={() => setOpenChat(true)}
             >
@@ -620,7 +659,7 @@ export const Profile = () => {
           </div>
         </form>
 
-        {isHost && (
+        {isHost ? (
           <>
             <h2 className="profile-section-title">Suggest new activities</h2>
             <form
@@ -718,6 +757,37 @@ export const Profile = () => {
                 Create new timeslot
               </button>
             </div>
+          </>
+        ) : (
+          // guest userille
+          <>
+            {reservations.length !== 0 && (
+              <>
+                <hr className="profile-divider" />
+                <h2 className="profile-section-title">Reservations</h2>
+                <div className="profile-timeslot-list">
+                  {reservations.map((reservation) => (
+                    <Reservation
+                      key={reservation.reservation_id}
+                      inPast={new Date() >= new Date(reservation.res_date)}
+                      formattedDate={formatDateTimeDisplay(
+                        reservation.res_date,
+                      ).split(",")}
+                      reservation={reservation}
+                      handleModalOpen={handleModalOpen}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {isModalOpen && (
+              <ReviewModal
+                isModalOpen={isModalOpen}
+                closeModal={handleCloseModal}
+                reservation={reservation}
+              />
+            )}
           </>
         )}
       </div>

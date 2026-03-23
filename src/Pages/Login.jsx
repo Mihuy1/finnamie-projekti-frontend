@@ -14,7 +14,7 @@ export default function Login() {
     e.preventDefault();
     try {
       await toast.promise(postLogin(email, password), {
-        pending: "Logging in...",
+        loading: "Logging in...",
         success: "Login successful!",
         error: (err) => `Login failed: ${err?.message || "Unknown error"}`,
       });

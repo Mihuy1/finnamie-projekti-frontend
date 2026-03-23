@@ -571,7 +571,6 @@ export const loadCountries = async () => {
 };
 
 export const startConversation = async (receiverId) => {
-  console.log(receiverId);
   const res = await fetch(`${BASE_URL}conversations/`, {
     method: "POST",
     headers: {
@@ -581,4 +580,64 @@ export const startConversation = async (receiverId) => {
     credentials: "include",
   });
   return await res.json();
+};
+
+export const postReview = async (review) => {
+  if (!review) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}reviews`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(review),
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const updateReview = async (review) => {
+  if (!review) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}reviews`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(review),
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const getReservations = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/`, {
+      method: "GET",
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const getReviewsByHostId = async (hostId) => {
+  try {
+    const res = await fetch(`${BASE_URL}reviews/host/${hostId}`, {
+      method: "GET",
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
 };
