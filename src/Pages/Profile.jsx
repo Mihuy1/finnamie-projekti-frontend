@@ -21,7 +21,6 @@ import toast from "react-hot-toast";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
-import "../styles/timeslot-styles.css";
 import { Reservation } from "../components/Reservation";
 
 const EMPTY_PROFILE = {
