@@ -14,6 +14,7 @@ import configureLeaflet from "../utils/leaflet-config";
 import { formatDateTimeDisplay } from "../utils/date-utils";
 import { Link } from "react-router-dom";
 import { Carousel } from "./Carousel";
+import { ConfirmModal } from "./ConfirmModal";
 
 configureLeaflet();
 
@@ -29,6 +30,7 @@ export const TimeSlot = ({
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
   const [images, setImages] = useState([]);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
@@ -75,6 +77,8 @@ export const TimeSlot = ({
     } catch (error) {
       console.error("Error deleting timeslot:", error);
       toast.error("Failed to delete timeslot");
+    } finally {
+      setConfirmDelete(false);
     }
   };
 
@@ -137,6 +141,20 @@ export const TimeSlot = ({
 
   return (
     <div className="profile-timeslots">
+      {confirmDelete && (
+        <ConfirmModal
+          text="Are you sure you want to delete this timeslot?"
+          title="Delete Timeslot"
+          confirmText="Delete"
+          declineText="Cancel"
+          onConfirm={() => handleDelete(slot.id)}
+          onDecline={() => {
+            setIsModalOpen(true);
+            setConfirmDelete(false);
+          }}
+        />
+      )}
+
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => handleClose()}>
           <div
@@ -242,7 +260,10 @@ export const TimeSlot = ({
                   </button>
                   <button
                     className="delete-timeslot-btn"
-                    onClick={() => handleDelete(slot.id)}
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setConfirmDelete(true);
+                    }}
                   >
                     Delete
                   </button>
