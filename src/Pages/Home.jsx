@@ -5,14 +5,12 @@ import { useState, useRef, useEffect } from "react";
 import { getActivities } from "../api/apiClient";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { useAuth } from "../auth/AuthContext";
 import { municipalities } from "../data/municipalities";
 
 function Home() {
   const [date, setDate] = useState([]);
   const [activeDate, setActiveDate] = useState(new Date());
-  const [activityType, setActivityType] = useState("");
-  const { user } = useAuth();
+  const [activityType] = useState("");
   const [activities, setActivites] = useState([]);
   const [selectedActivities, setSelectedActivities] = useState([]);
 
@@ -76,7 +74,9 @@ function Home() {
       setDate([]);
       return;
     }
+
     const values = Array.isArray(value) ? value : [value];
+
     setDate(values);
     setDateError(false);
   };
@@ -94,7 +94,16 @@ function Home() {
       return;
     }
 
-    navigate("/book-activity", { state: { location, selectedActivities, date } });
+    const selectedActivityObject = activities.find(a => a.id === selectedActivities[0]);
+    const initialCategory = selectedActivityObject ? selectedActivityObject.name : "All";
+
+    navigate("/book-activity", {
+      state: {
+        initialLocation: location,
+        initialDate: date,
+        initialCategory: initialCategory
+      }
+    });
   };
 
   return (
@@ -104,7 +113,7 @@ function Home() {
         <p>Find the perfect activity in your favorite location</p>
 
         <div className={`search-box ${searchError ? "search-box-error" : ""}`}>
-          <div className="location-wrapper" style={{ position: 'relative', flex: 1 }}>
+          <div className="location-wrapper">
             <input
               type="text"
               list="municipalities-list"
@@ -118,7 +127,6 @@ function Home() {
               onFocus={() => {
                 if (location) setLocation("");
               }}
-              style={{ width: '100%', paddingRight: '40px' }}
             />
             <datalist id="municipalities-list">
               {municipalities.map((m) => (
@@ -131,17 +139,6 @@ function Home() {
                 type="button"
                 className="clear-location-btn"
                 onClick={() => setLocation("")}
-                style={{
-                  position: 'absolute',
-                  right: '15px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#999',
-                  fontSize: '18px'
-                }}
               >
                 ✕
               </button>
@@ -150,7 +147,7 @@ function Home() {
 
           <select
             onChange={handleActivityChange}
-            className={searchError && selectedActivities.length === 0 ? "input-error" : ""}
+            className={`activity-select ${searchError && selectedActivities.length === 0 ? "input-error" : ""}`}
           >
             <option value="">Choose an activity</option>
             {activities.map((activity) => (
@@ -182,7 +179,7 @@ function Home() {
           <div className="step">
             <div className="step-number">2</div>
             <h3>Book</h3>
-            <p>Choose your date on the calendar to find available activities and book securely online.</p>
+            <p>Choose your visiting dates on the calendar to view availability and complete your booking online.</p>
           </div>
           <div className="step">
             <div className="step-number">3</div>
@@ -218,7 +215,8 @@ function Home() {
             onChange={handleDates}
             value={date}
             activeStartDate={activeDate}
-            selectRange
+            selectRange={true}
+            allowPartialRange={true}
             onActiveStartDateChange={({ activeStartDate }) =>
               setActiveDate(activeStartDate)
             }

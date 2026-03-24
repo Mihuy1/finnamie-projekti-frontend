@@ -101,10 +101,10 @@ export const Profile = () => {
     const getRes = async () => {
       try {
         const data = await getReservations();
-        console.log(data);
-        setReservations(data);
+        setReservations(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load reservations:", err);
+        setReservations([]);
       }
     };
     getRes();
@@ -761,24 +761,28 @@ export const Profile = () => {
         ) : (
           // guest userille
           <>
-            {reservations.length !== 0 && (
+            {reservations && reservations.length > 0 ? (
               <>
                 <hr className="profile-divider" />
-                <h2 className="profile-section-title">Reservations</h2>
+                <h2 className="profile-section-title">Your Reservations</h2>
                 <div className="profile-timeslot-list">
-                  {reservations.map((reservation) => (
+                  {reservations.map((res) => (
                     <Reservation
-                      key={reservation.reservation_id}
-                      inPast={new Date() >= new Date(reservation.res_date)}
-                      formattedDate={formatDateTimeDisplay(
-                        reservation.res_date,
-                      ).split(",")}
-                      reservation={reservation}
+                      key={res.reservation_id}
+                      inPast={new Date() >= new Date(res.res_date)}
+                      formattedDate={formatDateTimeDisplay(res.res_date).split(",")}
+                      reservation={res}
                       handleModalOpen={handleModalOpen}
                     />
                   ))}
                 </div>
               </>
+            ) : (
+              <div className="no-reservations">
+                <hr className="profile-divider" />
+                <h2 className="profile-section-title">Reservations</h2>
+                <p>You haven't made any reservations yet.</p>
+              </div>
             )}
 
             {isModalOpen && (
