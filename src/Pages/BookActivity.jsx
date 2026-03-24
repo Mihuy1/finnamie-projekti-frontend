@@ -1,23 +1,28 @@
 import { useEffect, useState } from "react";
 import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
 import { municipalities } from '../data/municipalities';
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
-export default function Discover() {
+
+export default function BookActivity() {
+    const { state } = useLocation();
     const [activities, setActivities] = useState([]);
     const [timeSlots, setTimeSlots] = useState([]);
     const [filteredActivities, setFilteredActivities] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [selectedCategory, setSelectedCategory] = useState(state?.initialCategory || "All");
     const [loading, setLoading] = useState(true);
-    const [date, setDate] = useState(null);
     const [activeDate, setActiveDate] = useState(new Date());
+    const [location, setLocation] = useState(state?.initialLocation || "");
+    const [date, setDate] = useState(state?.initialDate || null);
+    const [showCalendar, setShowCalendar] = useState(false);
 
     const [selectedSlot, setSelectedSlot] = useState(null);
 
     const API_BASE_URL = "http://localhost:3000";
     const FALLBACK_IMAGE = "https://placehold.co/600x400";
-    const [location, setLocation] = useState("");
 
     const resolveImage = (path) => {
         if (!path) return FALLBACK_IMAGE;
@@ -76,6 +81,7 @@ export default function Discover() {
         fetchData();
     }, []);
 
+
     useEffect(() => {
         if (selectedSlot) {
             document.body.style.overflow = "hidden";
@@ -96,32 +102,38 @@ export default function Discover() {
 
         if (location) {
             result = result.filter(item =>
-                item.city && item.city.toLowerCase().includes(location.toLowerCase())
+                item.city?.toLowerCase().includes(location.toLowerCase())
             );
         }
 
         if (selectedCategory !== "All") {
-            result = result.filter((item) => {
-                if (item.activities) {
-                    return item.activities.some((act) => act.name === selectedCategory);
+            result = result.filter(slot => {
+                if (slot.activities && Array.isArray(slot.activities)) {
+                    return slot.activities.some(act => act.name === selectedCategory);
                 }
-                return item.category === selectedCategory || item.name === selectedCategory;
+                return slot.category === selectedCategory || slot.name === selectedCategory;
             });
         }
 
-        if (date && date.length > 0) {
-            const targetStart = date[0];
-            const targetEnd = date[1] || date[0];
+        if (date && (Array.isArray(date) ? date.length > 0 : date)) {
+            const d = Array.isArray(date) ? date : [date];
+            const searchStart = new Date(d[0]);
+            searchStart.setHours(0, 0, 0, 0);
+            const searchEnd = new Date(d[1] || d[0]);
+            searchEnd.setHours(23, 59, 59, 999);
 
-            result = result.filter((slot) => {
+            result = result.filter(slot => {
                 const slotStart = new Date(slot.start_time);
-                const slotEnd = new Date(slot.end_time);
-                return slotStart <= targetEnd && slotEnd >= targetStart;
+                return slotStart >= searchStart && slotStart <= searchEnd;
             });
         }
 
         setFilteredActivities(result);
     }, [location, selectedCategory, date, timeSlots]);
+
+    const handleSlotClick = (activity) => {
+        setSelectedSlot(activity);
+    };
 
     const handleFilter = (category) => {
         setSelectedCategory(category);
@@ -136,18 +148,11 @@ export default function Discover() {
         setDate(values);
     };
 
-    const nextMonth = () => {
-        setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
-    };
-
-    const prevMonth = () => {
-        setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
-    };
-
     const resetFilters = () => {
         setLocation("");
         setDate(null);
         setSelectedCategory("All");
+        setShowCalendar(false);
         setFilteredActivities(timeSlots.length > 0 ? timeSlots : placeholders);
     };
 
@@ -205,13 +210,56 @@ export default function Discover() {
                     </div>
                 </div>
 
-                <div className="filter-group border-left">
+
+
+                <div className="filter-group border-left" style={{ position: 'relative' }}>
                     <label className="filter-label">Change date</label>
-                    <input
-                        type="date"
-                        className="filter-input"
-                        onChange={(e) => handleDates(new Date(e.target.value))}
-                    />
+                    <button
+                        className="filter-input-button"
+                        onClick={() => setShowCalendar(!showCalendar)}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: '10px 0',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            width: '100%',
+                            fontSize: '14px'
+                        }}
+                    >
+                        {date && Array.isArray(date) && date.length > 0
+                            ? `${new Date(date[0]).toLocaleDateString()} ${date[1] ? '- ' + new Date(date[1]).toLocaleDateString() : ''}`
+                            : "Select dates"}
+                    </button>
+
+                    {showCalendar && (
+                        <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            zIndex: 1000,
+                            background: 'white',
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                            borderRadius: '8px',
+                            padding: '10px'
+                        }}>
+                            <Calendar
+                                onChange={(val) => {
+                                    handleDates(val);
+                                    if (Array.isArray(val) && val[1]) setShowCalendar(false);
+                                }}
+                                value={date}
+                                selectRange={true}
+                                allowPartialRange={true}
+                            />
+                            <button
+                                onClick={() => setShowCalendar(false)}
+                                style={{ width: '100%', marginTop: '10px', padding: '5px', cursor: 'pointer' }}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="filter-actions">
@@ -253,7 +301,7 @@ export default function Discover() {
                         <div
                             key={activity.id}
                             className="activity-card"
-                            onClick={() => setSelectedSlot(activity)}
+                            onClick={() => handleSlotClick(activity)}
                         >
                             <div className="card-image">
                                 <img

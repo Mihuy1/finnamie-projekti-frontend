@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { postLogin } from "../api/apiClient";
 import { useAuth } from "../auth/AuthContext";
 import toast from "react-hot-toast";
@@ -9,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { refresh } = useAuth();
+  const { state } = useLocation();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -20,7 +21,15 @@ export default function Login() {
       });
 
       await refresh();
-      navigate("/", { replace: true });
+
+      if (state?.redirectTo) {
+        navigate(state.redirectTo, {
+          replace: true,
+          state: { slot: state.bookingData }
+        });
+      } else {
+        navigate(state?.from || "/", { replace: true });
+      }
     } catch (err) {
       console.error("Login error:", err);
     }
