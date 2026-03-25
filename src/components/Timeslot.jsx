@@ -3,6 +3,7 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
 import {
+  deleteExperienceById,
   deleteTimeslot,
   deleteTimeSlotImageByIdAndUrl,
   getTimeSlotImage,
@@ -67,7 +68,8 @@ export const TimeSlot = ({
 
   const handleDelete = async (timeslotId) => {
     try {
-      const res = await deleteTimeslot(timeslotId);
+      // const res = await deleteTimeslot(timeslotId);
+      const res = await deleteExperienceById(timeslotId);
 
       if (!res.error) {
         toast.success("Timeslot deleted successfully!");
@@ -188,11 +190,11 @@ export const TimeSlot = ({
               <div className="profile-timeslot-detail-grid">
                 <div>
                   <strong>Start</strong>
-                  <p>{formatDateTimeDisplay(slotData.start_time)}</p>
+                  <p>{formatDateTimeDisplay(slotData.rule[0].start_time)}</p>
                 </div>
                 <div>
                   <strong>End</strong>
-                  <p>{formatDateTimeDisplay(slotData.end_time)}</p>
+                  <p>{formatDateTimeDisplay(slotData.rule[0].end_time)}</p>
                 </div>
               </div>
 

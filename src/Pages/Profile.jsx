@@ -11,7 +11,11 @@ import isEmail from "validator/lib/isEmail";
 import Select from "react-select";
 import "leaflet/dist/leaflet.css";
 import configureLeaflet from "../utils/leaflet-config";
-import { formatDateForInput, formatDateTimeDisplay } from "../utils/date-utils";
+import {
+  formatDateForInput,
+  formatDateTimeDisplay,
+  formatDateTimeForInput,
+} from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
 import { Chatbox } from "../components/Chatbox";
@@ -703,7 +707,14 @@ export const Profile = () => {
                     <div className="profile-timeslot-summary">
                       <div className="profile-timeslot-summary-main">
                         <h3>{slot.city || "Unknown City"}</h3>
-                        <p>{formatDateTimeDisplay(slot.start_time)}</p>
+                        <p>
+                          {formatDateTimeForInput(slot.rule[0].start_date)} -{" "}
+                          {formatDateTimeForInput(slot.rule[0].end_date)}
+                        </p>
+                        <p>
+                          {formatDateTimeDisplay(slot.rule[0].start_time)} -{" "}
+                          {formatDateTimeDisplay(slot.rule[0].end_time)}
+                        </p>
                       </div>
 
                       <div className="profile-timeslot-summary-meta">

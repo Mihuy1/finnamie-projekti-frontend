@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
+import {
+  getActivities,
+  getAllExperiencesWithHost,
+  getAllTimeSlotsWithHost,
+} from "../api/apiClient";
 import { Link } from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
 import Calendar from "react-calendar";
@@ -57,7 +61,7 @@ export default function Discover() {
       try {
         const data = await getActivities();
 
-        const timeslotData = await getAllTimeSlotsWithHost();
+        const timeslotData = await getAllExperiencesWithHost();
 
         setTimeSlots(timeslotData);
         const finalData = data && data.length > 0 ? data : placeholders;
@@ -239,6 +243,8 @@ export default function Discover() {
           activities={activities}
           canEdit={false}
           onClose={() => setSelectedSlot(null)}
+          onDelete={() => {}}
+          onUpdate={() => {}}
         />
       )}
     </section>

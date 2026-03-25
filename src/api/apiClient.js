@@ -1,6 +1,53 @@
 const BASE_URL = "http://localhost:3000/api/";
 const GEOAPIFY_KEY = "b37952a659224430b7545612f420ab9c";
 
+export const getAllExperiencesWithHost = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}experiences/withHost`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("error fetching all experiences with host:", error);
+  }
+};
+
+export const getExperienceByHostId = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}experiences/host`, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("error getExperienceByHostId:", error);
+    throw error;
+  }
+};
+
+export const deleteExperienceById = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}experiences/host/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("delete experience:", error);
+    throw error;
+  }
+};
+
 export const getAllTimeSlots = async () => {
   try {
     const res = await fetch(`${BASE_URL}timeslots/available`, {
