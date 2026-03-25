@@ -20,6 +20,8 @@ export default function BookActivity() {
     const [showCalendar, setShowCalendar] = useState(false);
 
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+    const [filteredMunicipalities, setFilteredMunicipalities] = useState(municipalities);
 
     const API_BASE_URL = "http://localhost:3000";
     const FALLBACK_IMAGE = "https://placehold.co/600x400";
@@ -57,6 +59,16 @@ export default function BookActivity() {
             description: "Relax in an authentic Finnish smoke sauna.",
         },
     ];
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.location-wrapper')) {
+                setShowLocationDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -169,48 +181,75 @@ export default function BookActivity() {
             <div className="discover-filter-bar">
                 <div className="filter-group">
                     <label className="filter-label">Location</label>
-                    <div className="location-wrapper" style={{ position: 'relative' }}>
+                    <div className="location-wrapper" style={{ position: 'relative', width: '100%' }}>
                         <input
                             type="text"
                             className="filter-input"
                             placeholder="Change location"
-                            list="discover-municipalities-list"
                             value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            onFocus={(e) => {
-                                if (location) setLocation("");
+                            onFocus={() => {
+                                setFilteredMunicipalities(location ? municipalities.filter(m => m.toLowerCase().includes(location.toLowerCase())) : municipalities);
+                                setShowLocationDropdown(true);
+                            }}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setLocation(val);
+                                setFilteredMunicipalities(municipalities.filter(m => m.toLowerCase().includes(val.toLowerCase())));
+                                setShowLocationDropdown(true);
                             }}
                         />
-                        <datalist id="discover-municipalities-list">
-                            {municipalities.map((m) => (
-                                <option key={m} value={m} />
-                            ))}
-                        </datalist>
 
                         {location && (
                             <button
                                 type="button"
                                 className="clear-location-btn"
-                                onClick={() => setLocation("")}
+                                onClick={() => {
+                                    setLocation("");
+                                    setShowLocationDropdown(false);
+                                }}
                                 style={{
                                     position: 'absolute',
-                                    right: '15px',
+                                    right: '10px',
                                     top: '50%',
                                     transform: 'translateY(-50%)',
-                                    background: 'none',
+                                    background: 'white',
                                     border: 'none',
                                     cursor: 'pointer',
                                     color: '#999',
-                                    fontSize: '18px'
+                                    fontSize: '16px',
+                                    zIndex: 2,
+                                    padding: '2px 5px',
+                                    borderRadius: '50%'
                                 }}
                             >
                                 ✕
                             </button>
                         )}
+
+                        {/* CUSTOM DROPDOWN VALIKKO */}
+                        {showLocationDropdown && filteredMunicipalities.length > 0 && (
+                            <ul className="custom-dropdown" >
+                                {filteredMunicipalities.map((m) => (
+                                    <li
+                                        key={m}
+                                        onMouseDown={() => {
+                                            setLocation(m);
+                                            setShowLocationDropdown(false);
+                                        }}
+                                        style={{
+                                            padding: '10px 15px',
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            borderBottom: '1px solid rgba(0,0,0,0.05)'
+                                        }}
+                                    >
+                                        {m}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </div>
-
-
 
                 <div className="filter-group border-left" style={{ position: 'relative' }}>
                     <label className="filter-label">Change date</label>

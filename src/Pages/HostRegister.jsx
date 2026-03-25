@@ -14,10 +14,15 @@ import "react-phone-number-input/style.css";
 
 export default function HostRegister() {
   const [activities, setActivites] = useState([]);
-  const [selectedActivities, setSelectedActivities] = useState([]); // activity IDs
+  const [selectedActivities, setSelectedActivities] = useState([]);
   const [halfDay, setHalfDay] = useState(false);
   const [fullDay, setFullDay] = useState(false);
   const [error, setError] = useState("");
+
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+  const [filteredCountries, setFilteredCountries] = useState([]);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -38,6 +43,21 @@ export default function HostRegister() {
   const [phoneError, setPhoneError] = useState("");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        !event.target.closest('.location-wrapper') &&
+        !event.target.closest('.activity-wrapper')
+      ) {
+        setShowCountryDropdown(false);
+        setShowGenderDropdown(false);
+        setShowActivityDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -276,24 +296,47 @@ export default function HostRegister() {
           </label>
           <label>
             <span className="required">Country</span>
-            <select
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              required
-              disabled={loadingCountries}
-              className="country-select"
-            >
-              <option value="" disabled>
-                {loadingCountries
-                  ? "Loading countries..."
-                  : "Select your country"}
-              </option>
-              {countries.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+            <div className={`location-wrapper-host ${showCountryDropdown ? 'open' : ''}`}>
+              <input
+                type="text"
+                placeholder={loadingCountries ? "Loading..." : "Select country"}
+                className="location-input-host"
+                value={country}
+                onFocus={() => {
+                  setShowGenderDropdown(false);
+                  setShowActivityDropdown(false);
+                  setFilteredCountries(country ? countries.filter(c => c.toLowerCase().includes(country.toLowerCase())) : countries);
+                  setShowCountryDropdown(true);
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCountry(val);
+                  setFilteredCountries(countries.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                }}
+              />
+              {country && (
+                <button
+                  type="button"
+                  className="clear-location-btn"
+                  onClick={() => {
+                    setCountry("");
+                    setShowCountryDropdown(false);
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+
+              {showCountryDropdown && (
+                <ul className="custom-dropdown">
+                  {filteredCountries.map((c) => (
+                    <li key={c} onMouseDown={() => { setCountry(c); setShowCountryDropdown(false); }}>
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </label>
         </div>
 
@@ -308,48 +351,72 @@ export default function HostRegister() {
         </label>
 
         <label>
-          <span className="required"> Gender </span>
-          <select
-            value={gender}
-            required
-            onChange={(e) => setGender(e.target.value)}
-            className="country-select"
-          >
-            <option value="" disabled>
-              Gender
-            </option>
-            <option value="female">Female</option>
-            <option value="male">Male</option>
-            <option value="other">Other</option>
-          </select>
+          <span className="required">Gender</span>
+          <div className={`activity-wrapper-host ${showGenderDropdown ? 'open' : ''}`}>
+            <input
+              type="text"
+              className="activity-input-host"
+              value={gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : ""}
+              placeholder="Select gender"
+              readOnly
+              onClick={() => {
+                setShowCountryDropdown(false);
+                setShowActivityDropdown(false);
+                setShowGenderDropdown(!showGenderDropdown);
+              }}
+            />
+            {showGenderDropdown && (
+              <ul className="custom-dropdown">
+                {["female", "male", "other"].map((g) => (
+                  <li key={g} onMouseDown={() => { setGender(g); setShowGenderDropdown(false); }}>
+                    {g.charAt(0).toUpperCase() + g.slice(1)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </label>
-
-        <h2>
-          <span className="required">Activities you offer</span>
-        </h2>
+        <h2><span className="required">Activities you offer</span></h2>
         <p className="field-description">
           Select the types of activities you can provide to travelers.
         </p>
 
-        <select onChange={handleActivityChange}>
-          <option value="">-- Choose an activity --</option>
-
-          {Array.isArray(activities) &&
-            activities
-              .filter((act) => !selectedActivities.includes(act.id))
-              .map((activity) => (
-                <option key={activity.id} value={activity.id}>
-                  {activity.name}
-                </option>
-              ))}
-        </select>
+        <div className={`activity-wrapper-host ${showActivityDropdown ? 'open' : ''}`} style={{ marginBottom: '20px' }}>
+          <input
+            type="text"
+            className="activity-input-host"
+            placeholder="-- Choose an activity --"
+            readOnly
+            onClick={() => {
+              setShowCountryDropdown(false);
+              setShowGenderDropdown(false);
+              setShowActivityDropdown(!showActivityDropdown);
+            }}
+          />
+          {showActivityDropdown && (
+            <ul className="custom-dropdown">
+              {activities
+                .filter((act) => !selectedActivities.includes(act.id))
+                .map((activity) => (
+                  <li
+                    key={activity.id}
+                    onMouseDown={() => {
+                      setSelectedActivities([...selectedActivities, activity.id]);
+                      setShowActivityDropdown(false);
+                    }}
+                  >
+                    {activity.name}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
 
         {selectedActivities.length > 0 && (
           <div className="selected-tags">
             {selectedActivities.map((activityId) => (
               <span key={activityId} className="tag">
-                {activities.find((a) => a.id === activityId)?.name ??
-                  activityId}
+                {activities.find((a) => a.id === activityId)?.name ?? activityId}
                 <button
                   type="button"
                   onClick={() => removeActivity(activityId)}
