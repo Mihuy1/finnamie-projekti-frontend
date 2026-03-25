@@ -13,9 +13,10 @@ import {
 import toast from "react-hot-toast";
 import configureLeaflet from "../utils/leaflet-config";
 import { formatDateTimeDisplay } from "../utils/date-utils";
-import { Link } from "react-router-dom";
 import { Carousel } from "./Carousel";
 import { ConfirmModal } from "./ConfirmModal";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext"; //
 
 configureLeaflet();
 
@@ -27,6 +28,10 @@ export const TimeSlot = ({
   onUpdate,
   onDelete,
 }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const location = useLocation();
+
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
@@ -64,6 +69,33 @@ export const TimeSlot = ({
   const handleClose = () => {
     setIsModalOpen(false);
     onClose?.();
+  };
+
+  const handleBookNow = () => {
+    const isDiscoverPage = location.pathname.includes("/discover");
+
+    if (isDiscoverPage) {
+      navigate("/book-activity", {
+        state: {
+          initialCategory: slotData.name,
+          initialLocation: slotData.city,
+        },
+      });
+      handleClose();
+    } else {
+      if (!user) {
+        toast.error("Please login to book an activity");
+        navigate("/login", {
+          state: {
+            from: location.pathname,
+            redirectTo: "/reserve-activity",
+            bookingData: slotData,
+          },
+        });
+      } else {
+        navigate("/reserve-activity", { state: { slot: slotData } });
+      }
+    }
   };
 
   const handleDelete = async (timeslotId) => {
@@ -272,9 +304,11 @@ export const TimeSlot = ({
                 </div>
               ) : (
                 <div className="modal-actions">
-                  <Link to="/" className="book-now-btn">
-                    Book this activity
-                  </Link>
+                  <button onClick={handleBookNow} className="book-now-btn">
+                    {location.pathname.includes("/discover")
+                      ? "View available times"
+                      : "Book this activity"}
+                  </button>
                   <button className="close-btn" onClick={() => handleClose()}>
                     Close
                   </button>

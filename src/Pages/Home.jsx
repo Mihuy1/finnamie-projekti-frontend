@@ -5,14 +5,12 @@ import { useState, useRef, useEffect } from "react";
 import { getActivities } from "../api/apiClient";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { useAuth } from "../auth/AuthContext";
 import { municipalities } from "../data/municipalities";
 
 function Home() {
   const [date, setDate] = useState([]);
   const [activeDate, setActiveDate] = useState(new Date());
-  const [activityType, setActivityType] = useState("");
-  const { user } = useAuth();
+  const [activityType] = useState("");
   const [activities, setActivites] = useState([]);
   const [selectedActivities, setSelectedActivities] = useState([]);
 
@@ -23,6 +21,33 @@ function Home() {
   const mapSectionRef = useRef(null);
   const searchSectionRef = useRef(null);
   const navigate = useNavigate();
+
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filteredMunicipalities, setFilteredMunicipalities] = useState([]);
+
+  const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+  const [activitySearch, setActivitySearch] = useState("");
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.location-wrapper') && !event.target.closest('.activity-wrapper')) {
+        setShowDropdown(false);
+        setShowActivityDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  /*useEffect(() => {
+    if (showDropdown || showActivityDropdown) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+
+    return () => document.body.classList.remove('no-scroll');
+  }, [showDropdown, showActivityDropdown]);*/
 
   useEffect(() => {
     const fetchActivites = async () => {
@@ -76,7 +101,9 @@ function Home() {
       setDate([]);
       return;
     }
+
     const values = Array.isArray(value) ? value : [value];
+
     setDate(values);
     setDateError(false);
   };
@@ -94,7 +121,16 @@ function Home() {
       return;
     }
 
-    navigate("/book-activity", { state: { location, selectedActivities, date } });
+    const selectedActivityObject = activities.find(a => a.id === selectedActivities[0]);
+    const initialCategory = selectedActivityObject ? selectedActivityObject.name : "All";
+
+    navigate("/book-activity", {
+      state: {
+        initialLocation: location,
+        initialDate: date,
+        initialCategory: initialCategory
+      }
+    });
   };
 
   return (
@@ -104,72 +140,83 @@ function Home() {
         <p>Find the perfect activity in your favorite location</p>
 
         <div className={`search-box ${searchError ? "search-box-error" : ""}`}>
-          <div className="location-wrapper" style={{ position: 'relative', flex: 1 }}>
+
+          <div className={`location-wrapper ${showDropdown ? 'open' : ''}`}>
             <input
               type="text"
-              list="municipalities-list"
               placeholder="Location"
-              className={`location-input ${searchError && !location ? "input-error" : ""}`}
+              className="location-input"
               value={location}
+              onFocus={() => {
+                setShowActivityDropdown(false);
+                setFilteredMunicipalities(location ? municipalities.filter(m => m.toLowerCase().includes(location.toLowerCase())) : municipalities);
+                setShowDropdown(true);
+              }}
               onChange={(e) => {
                 setLocation(e.target.value);
-                setSearchError(false);
+                setShowActivityDropdown(false);
+                setShowDropdown(true);
               }}
-              onFocus={() => {
-                if (location) setLocation("");
-              }}
-              style={{ width: '100%', paddingRight: '40px' }}
             />
-            <datalist id="municipalities-list">
-              {municipalities.map((m) => (
-                <option key={m} value={m} />
-              ))}
-            </datalist>
+
+            {showDropdown && filteredMunicipalities.length > 0 && (
+              <ul className="custom-dropdown">
+                {filteredMunicipalities.map((m) => (
+                  <li key={m} onMouseDown={() => { setLocation(m); setShowDropdown(false); }}>
+                    {m}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {location && (
-              <button
-                type="button"
-                className="clear-location-btn"
-                onClick={() => setLocation("")}
-                style={{
-                  position: 'absolute',
-                  right: '15px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#999',
-                  fontSize: '18px'
-                }}
-              >
+              <button type="button" className="clear-location-btn" onClick={() => { setLocation(""); setShowDropdown(false); }}>
                 ✕
               </button>
             )}
           </div>
 
-          <select
-            onChange={handleActivityChange}
-            className={searchError && selectedActivities.length === 0 ? "input-error" : ""}
-          >
-            <option value="">Choose an activity</option>
-            {activities.map((activity) => (
-              <option key={activity.id} value={activity.id}>
-                {activity.name}
-              </option>
-            ))}
-          </select>
+          <div className={`activity-wrapper ${showActivityDropdown ? 'open' : ''}`}>
+            <input
+              type="text"
+              placeholder="Choose an activity"
+              className="activity-input"
+              value={activitySearch}
+              readOnly
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDropdown(false);
+                setShowActivityDropdown(!showActivityDropdown);
+              }}
+            />
 
-          <button onClick={handleSearch}>Search</button>
+            {showActivityDropdown && (
+              <ul className="custom-dropdown">
+                {activities.map((activity) => (
+                  <li
+                    key={activity.id}
+                    onMouseDown={() => {
+                      handleActivityChange({ target: { value: activity.id } });
+                      setActivitySearch(activity.name);
+                      setShowActivityDropdown(false);
+                    }}
+                  >
+                    {activity.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <button className="search-main-btn" onClick={handleSearch}>Search</button>
         </div>
-        {
-          searchError && (
-            <p className="error-text-small" style={{ textAlign: 'center', marginTop: '15px' }}>
-              Please select location and activity to continue
-            </p>
-          )
-        }
-      </section >
+
+        {searchError && (
+          <p className="error-text-small" style={{ textAlign: 'center', marginTop: '15px' }}>
+            Please select location and activity to continue
+          </p>
+        )}
+      </section>
 
       <section className="info-section">
         <h2>How it works</h2>
@@ -182,7 +229,7 @@ function Home() {
           <div className="step">
             <div className="step-number">2</div>
             <h3>Book</h3>
-            <p>Choose your date on the calendar to find available activities and book securely online.</p>
+            <p>Choose your visiting dates on the calendar to view availability and complete your booking online.</p>
           </div>
           <div className="step">
             <div className="step-number">3</div>
@@ -218,7 +265,8 @@ function Home() {
             onChange={handleDates}
             value={date}
             activeStartDate={activeDate}
-            selectRange
+            selectRange={true}
+            allowPartialRange={true}
             onActiveStartDateChange={({ activeStartDate }) =>
               setActiveDate(activeStartDate)
             }

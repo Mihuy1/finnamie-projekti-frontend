@@ -19,7 +19,22 @@ export default function Register() {
   const [loadingCountries, setLoadingCountries] = useState(true);
   const { refresh } = useAuth();
 
+  const [filteredCountries, setFilteredCountries] = useState([]);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.location-wrapper-host') && !event.target.closest('.activity-wrapper-host')) {
+        setShowCountryDropdown(false);
+        setShowGenderDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -120,24 +135,38 @@ export default function Register() {
 
           <label>
             <span className="required">Country</span>
-            <select
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              required
-              disabled={loadingCountries}
-              className="country-select"
-            >
-              <option value="" disabled>
-                {loadingCountries
-                  ? "Loading countries..."
-                  : "Select your country"}
-              </option>
-              {countries.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+            <div className={`guest-wrapper ${showCountryDropdown ? 'open' : ''}`}>
+              <input
+                type="text"
+                placeholder={loadingCountries ? "Loading..." : "Select country"}
+                className="guest-input"
+                value={country}
+                onFocus={() => {
+                  setShowGenderDropdown(false);
+                  setFilteredCountries(country ? countries.filter(c => c.toLowerCase().includes(country.toLowerCase())) : countries);
+                  setShowCountryDropdown(true);
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCountry(val);
+                  setFilteredCountries(countries.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                }}
+              />
+              {country && (
+                <button type="button" className="guest-clear-btn" onClick={() => { setCountry(""); setShowCountryDropdown(false); }}>
+                  ✕
+                </button>
+              )}
+              {showCountryDropdown && (
+                <ul className="guest-dropdown">
+                  {filteredCountries.map((c) => (
+                    <li key={c} onMouseDown={() => { setCountry(c); setShowCountryDropdown(false); }}>
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </label>
 
           <label>
@@ -151,20 +180,29 @@ export default function Register() {
           </label>
 
           <label>
-            <span className="required"> Gender </span>
-            <select
-              value={gender}
-              required
-              onChange={(e) => setGender(e.target.value)}
-              className="country-select"
-            >
-              <option value="" disabled>
-                Gender
-              </option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="other">Other</option>
-            </select>
+            <span className="required">Gender</span>
+            <div className={`guest-wrapper ${showGenderDropdown ? 'open' : ''}`}>
+              <input
+                type="text"
+                className="guest-input"
+                value={gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : ""}
+                placeholder="Select gender"
+                readOnly
+                onClick={() => {
+                  setShowCountryDropdown(false);
+                  setShowGenderDropdown(!showGenderDropdown);
+                }}
+              />
+              {showGenderDropdown && (
+                <ul className="guest-dropdown">
+                  {["female", "male", "other"].map((g) => (
+                    <li key={g} onMouseDown={() => { setGender(g); setShowGenderDropdown(false); }}>
+                      {g.charAt(0).toUpperCase() + g.slice(1)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </label>
 
           <label>

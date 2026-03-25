@@ -14,6 +14,8 @@ import { CreateNewTimeslot } from "./components/CreateNewTimeslot";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import BookActivity from "./Pages/BookActivity";
 import { ReviewModal } from "./components/ReviewModal";
+import Reservation from "./Pages/Reservation";
+import ReservationConfirmed from "./Pages/ReservationConfirmed";
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
         <Route path="/host/login" element={<HostLogin />} />
       </Route>
       <Route path="/book-activity" element={<BookActivity />} />
+      <Route path="/reserve-activity" element={<Reservation />} />
+      <Route path="reservation-confirmed" element={<ReservationConfirmed />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

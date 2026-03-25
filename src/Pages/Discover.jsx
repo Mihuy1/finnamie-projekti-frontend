@@ -1,22 +1,19 @@
 import { useEffect, useState } from "react";
-import {
-  getActivities,
-  getAllExperiencesWithHost,
-  getAllTimeSlotsWithHost,
-} from "../api/apiClient";
-import { Link } from "react-router-dom";
+import { getActivities, getAllExperiencesWithHost } from "../api/apiClient";
+import { Link, useLocation } from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
-import Calendar from "react-calendar";
 
 export default function Discover() {
+  const { state } = useLocation();
+
   const [activities, setActivities] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
-  const [date, setDate] = useState(null);
-  const [activeDate, setActiveDate] = useState(new Date());
 
+  const [location, setLocation] = useState(state?.initialLocation || "");
+  const [date, setDate] = useState(state?.initialDate || null);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const API_BASE_URL = "http://localhost:3000";
@@ -24,54 +21,44 @@ export default function Discover() {
 
   const resolveImage = (path) => {
     if (!path) return FALLBACK_IMAGE;
-    if (path.startsWith("http://")) return path;
-    if (path.startsWith("https://")) return path;
-    if (path.startsWith("/")) return API_BASE_URL + path;
-    return API_BASE_URL + "/" + path;
+    if (path.startsWith("http")) return path;
+    return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
   };
 
-  // koska tietokanta vielä tyhjä
   const placeholders = [
     {
       id: 101,
       name: "Nuuksio Camping",
-      host: "Host 1",
       category: "Nature & outdoors",
       city: "Espoo",
       image_url: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4",
       experience_length: "Full-day",
-      description:
-        "Experience the silence of Finnish nature in Nuuksio. Camp under the stars and enjoy a traditional Finnish campfire meal.",
     },
     {
       id: 102,
       name: "Traditional Smoke Sauna",
-      host: "Host 2",
       category: "Wellness",
       city: "Helsinki",
       image_url:
         "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format",
       experience_length: "Half-day",
-      description: "Relax in an authentic Finnish smoke sauna.",
     },
   ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getActivities();
+        const [actData, slotData] = await Promise.all([
+          getActivities(),
+          getAllExperiencesWithHost(),
+        ]);
 
-        const timeslotData = await getAllExperiencesWithHost();
-
-        setTimeSlots(timeslotData);
-        const finalData = data && data.length > 0 ? data : placeholders;
-        setActivities(finalData);
-        setFilteredActivities(timeslotData);
-        console.log("timeslots with host:", timeslotData);
+        const finalActivities = actData?.length > 0 ? actData : placeholders;
+        setActivities(finalActivities);
+        setTimeSlots(slotData || []);
       } catch (error) {
-        console.error(error);
+        console.error("Virhe haettaessa dataa:", error);
         setActivities(placeholders);
-        setFilteredActivities(placeholders);
       } finally {
         setLoading(false);
       }
@@ -80,66 +67,45 @@ export default function Discover() {
   }, []);
 
   useEffect(() => {
-    if (selectedSlot) {
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = "0px";
-    } else {
-      document.body.style.overflow = "unset";
-      document.body.style.paddingRight = "unset";
+    let source = timeSlots.length > 0 ? timeSlots : placeholders;
+    let result = [...source];
+
+    if (location) {
+      result = result.filter((item) =>
+        item.city?.toLowerCase().includes(location.toLowerCase()),
+      );
     }
-    return () => {
-      document.body.style.overflow = "unset";
-      document.body.style.paddingRight = "unset";
-    };
-  }, [selectedSlot]);
 
-  const handleFilter = (category) => {
-    setSelectedCategory(category);
-
-    if (category === "All") {
-      setFilteredActivities(timeSlots.length > 0 ? timeSlots : placeholders);
-    } else {
-      const source = timeSlots.length > 0 ? timeSlots : placeholders;
-
-      const filtered = source.filter((item) => {
+    if (selectedCategory !== "All") {
+      result = result.filter((item) => {
         if (item.activities) {
-          return item.activities.some((act) => act.name === category);
+          return item.activities.some((act) => act.name === selectedCategory);
         }
-        return item.category === category;
+        return (
+          item.category === selectedCategory || item.name === selectedCategory
+        );
       });
-
-      setFilteredActivities(filtered);
     }
-  };
 
-  const handleDates = (value) => {
-    if (!value) {
-      setDate([]);
-      return;
+    if (date && (Array.isArray(date) ? date.length > 0 : date)) {
+      const d = Array.isArray(date) ? date : [date];
+      const start = new Date(d[0]);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(d[1] || d[0]);
+      end.setHours(23, 59, 59, 999);
+
+      result = result.filter((slot) => {
+        const slotTime = new Date(slot.start_time);
+        return slotTime >= start && slotTime <= end;
+      });
     }
-    const values = Array.isArray(value) ? value : [value];
-    setDate(values);
 
-    const targetStart = values[0];
-    const targetEnd = values[1] || values[0];
+    setFilteredActivities(result);
+  }, [location, selectedCategory, date, timeSlots]);
 
-    const filtered = timeSlots.filter((slot) => {
-      const slotStart = new Date(slot.start_time);
-      const slotEnd = new Date(slot.end_time);
-
-      return slotStart <= targetEnd && slotEnd >= targetStart;
-    });
-
-    setFilteredActivities(filtered);
-  };
-
-  const nextMonth = () => {
-    setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
-  };
-
-  const prevMonth = () => {
-    setActiveDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
-  };
+  useEffect(() => {
+    document.body.style.overflow = selectedSlot ? "hidden" : "unset";
+  }, [selectedSlot]);
 
   if (loading) return <div className="loading">Loading...</div>;
 
@@ -152,89 +118,61 @@ export default function Discover() {
       </div>
 
       <header className="discover-header">
-        <h1>Discover Finland</h1>
-        <p>Explore authentic experiences hosted by locals.</p>
-      </header>
-
-      <div className="calendar-container calendar-container--narrow">
-        <h2>Choose your date</h2>
-        <p className="calendar-subtitle">
-          Check availability for your selected dates
+        <h1>Available Activities</h1>
+        <p>
+          Explore experiences in {location || "Finland"} for your selected
+          dates.
         </p>
-
-        <div className="calendar-nav">
-          <button onClick={prevMonth}>&lsaquo;</button>
-          <span style={{ fontWeight: 700, color: "#002f6c", fontSize: "16px" }}>
-            {activeDate.toLocaleString("en-GB", {
-              month: "long",
-              year: "numeric",
-            })}
-          </span>
-          <button onClick={nextMonth}>&rsaquo;</button>
-        </div>
-
-        <Calendar
-          onChange={handleDates}
-          value={date}
-          activeStartDate={activeDate}
-          selectRange
-          onActiveStartDateChange={({ activeStartDate }) =>
-            setActiveDate(activeStartDate)
-          }
-          showNavigation={false}
-        />
-      </div>
+      </header>
 
       <div className="filter-container">
         <button
-          key="all"
           className={`filter-btn ${selectedCategory === "All" ? "active" : ""}`}
-          onClick={() => handleFilter("All")}
+          onClick={() => setSelectedCategory("All")}
         >
           All
         </button>
-        {[...new Set(activities.map((act) => act.name))]
-          .sort()
-          .map((categoryName) => (
-            <button
-              key={categoryName}
-              className={`filter-btn ${selectedCategory === categoryName ? "active" : ""}`}
-              onClick={() => handleFilter(categoryName)}
-            >
-              {categoryName}
-            </button>
-          ))}
+        {[...new Set(activities.map((act) => act.name))].sort().map((name) => (
+          <button
+            key={name}
+            className={`filter-btn ${selectedCategory === name ? "active" : ""}`}
+            onClick={() => setSelectedCategory(name)}
+          >
+            {name}
+          </button>
+        ))}
       </div>
 
       <div className="activity-grid">
-        {filteredActivities.map((activity) => (
-          <div
-            key={activity.id}
-            className="activity-card"
-            onClick={() => setSelectedSlot(activity)}
-          >
-            <div className="card-image">
-              <img
-                src={resolveImage(activity.images[0]?.url)}
-                alt={activity.name}
-              />
-              <span className="duration-badge">
-                {activity.experience_length}
-              </span>
+        {filteredActivities.length > 0 ? (
+          filteredActivities.map((item) => (
+            <div
+              key={item.id}
+              className="activity-card"
+              onClick={() => setSelectedSlot(item)}
+            >
+              <div className="card-image">
+                <img
+                  src={resolveImage(item.images?.[0]?.url || item.image_url)}
+                  alt={item.name}
+                />
+                <span className="duration-badge">{item.experience_length}</span>
+              </div>
+              <div className="card-content">
+                <span className="host-tag">
+                  {item.first_name} {item.last_name}
+                </span>
+                <span className="location-tag">📍 {item.city}</span>
+                <h3>{item.name}</h3>
+                <p className="category-text">{item.category}</p>
+              </div>
             </div>
-            <span className="profile-timeslot-pill discover">
-              {activity.type === "halfday" ? "Half Day" : "Full Day"}
-            </span>
-            <div className="card-content">
-              <span className="host-tag">
-                {activity.first_name} {activity.last_name}
-              </span>
-              <span className="location-tag">📍 {activity.city}</span>
-              <h3>{activity.name}</h3>
-              <p className="category-text">{activity.category}</p>
-            </div>
+          ))
+        ) : (
+          <div className="no-results">
+            No activities found for these filters.
           </div>
-        ))}
+        )}
       </div>
 
       {selectedSlot && (
