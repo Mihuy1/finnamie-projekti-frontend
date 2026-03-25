@@ -159,15 +159,7 @@ body {
   flex: 0.8;
 }
 
-.clear-location-btn {
-  position: absolute;
-  right: 15px;
-  background: none;
-  border: none;
-  color: #999;
-  font-size: 10px;
-  cursor: pointer;
-}
+
 
 .search-box button:hover {
   background: #880082;
@@ -552,6 +544,12 @@ body {
   font-size: 12px;
 }
 
+/*.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+  width: 100%;
+}*/
+
 /* Error styles */
 
 .input-error {
@@ -662,14 +660,14 @@ body {
 
   .search-box {
     flex-direction: column;
-    width: calc(100% - 60px);
-    max-width: 300px;
+    width: calc(100% - 40px);
+    max-width: 400px;
     margin: 20px auto 0;
-    padding: 15px;
+    padding: 10px;
     gap: 0;
     border-radius: 20px;
-    box-sizing: border-box;
     background: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
   .search-box input,
@@ -742,6 +740,43 @@ body {
     max-width: 300px;
     padding: 15px 30px;
     font-size: 18px;
+  }
+
+  .location-wrapper,
+  .activity-wrapper {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 5px 0;
+  }
+
+  .activity-wrapper {
+    border-bottom: none !important;
+  }
+
+  .location-input,
+  .activity-input {
+    width: 100% !important;
+    padding: 15px !important;
+    text-align: left;
+    font-size: 16px !important;
+  }
+
+  .search-box button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 15px;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .custom-dropdown {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    z-index: 10001;
+    max-height: 200px;
   }
 
   /* Tätä luokkaa ei käytetä missään, saa VARMAAN poistaa
@@ -934,6 +969,92 @@ body {
   opacity: 0.7;
 }
 
+.guest-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.guest-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 12px 16px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 47, 108, 0.2) !important;
+  font-size: 14px !important;
+  background: white !important;
+  color: rgba(0, 47, 108, 1);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.guest-input:focus {
+  outline: none !important;
+  border-color: rgba(170, 0, 162, 0.5) !important;
+}
+
+.guest-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent !important;
+  border: none !important;
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 5;
+  padding: 0 5px;
+}
+
+.guest-clear-btn:hover {
+  color: rgba(170, 0, 162, 1);
+}
+
+.guest-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid rgba(0, 47, 108, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.guest-dropdown li {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: rgba(0, 47, 108, 1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.guest-dropdown li:hover {
+  background: rgba(170, 0, 162, 0.05);
+  color: rgba(170, 0, 162, 1);
+}
+
+.guest-wrapper::after {
+  content: '▼';
+  font-size: 10px;
+  color: rgba(0, 47, 108, 0.3);
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.guest-wrapper:has(.guest-clear-btn)::after {
+  display: none;
+}
+
 @media (max-width: 480px) {
   .address-grid {
     grid-template-columns: 1fr;
@@ -949,14 +1070,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.host-page h1 {
-  font-size: 42px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: rgba(170, 0, 162, 1);
-  text-align: center;
 }
 
 .host-page .subtitle {
@@ -992,9 +1105,18 @@ body {
   gap: 32px;
 }
 
+.host-page h1 {
+  font-size: 42px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: rgba(170, 0, 162, 1);
+  text-align: center;
+}
+
 .host-form h2 {
   font-size: 20px;
   font-weight: 500;
+  margin-top: 20px;
   margin-bottom: 12px;
   color: rgba(0, 47, 108, 1);
 }
@@ -1024,20 +1146,67 @@ body {
   color: rgba(0, 47, 108, 1);
 }
 
-.host-form select,
-.host-form input[type="tel"],
-.host-form input[type="text"],
+.host-form input[type="text"]:not(.location-input-host):not(.activity-input-host),
 .host-form input[type="email"],
 .host-form input[type="password"],
 .host-form input[type="date"],
+.host-form input[type="tel"],
 .host-form textarea {
+  border: none;
+  border-bottom: 1px solid rgba(0, 47, 108, 0.2);
+  padding: 12px 0;
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 47, 108, 0.2);
-  font-size: 14px;
-  background: white;
-  box-sizing: border-box;
+}
+
+input.location-input-host,
+input.activity-input-host {
+  width: 100%;
+  border: none !important;
+  border-bottom: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 12px 25px 12px 0 !important;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.location-wrapper-host:focus-within,
+.location-wrapper-host.open,
+.activity-wrapper-host:focus-within,
+.activity-wrapper-host.open {
+  border-bottom: 2px solid rgba(170, 0, 162, 1) !important;
+}
+
+.location-wrapper-host,
+.activity-wrapper-host {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid rgba(0, 47, 108, 0.2) !important;
+  padding: 0 !important;
+  transition: border-color 0.2s;
+  background: transparent;
+}
+
+.location-wrapper-host::after,
+.activity-wrapper-host::after {
+  content: '▼';
+  font-size: 10px;
+  color: #999;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+.location-wrapper-host.open::after,
+.activity-wrapper-host.open::after {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .host-form textarea {
@@ -1069,11 +1238,11 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: -16px;
+  margin-top: 10px;
 }
 
 .tag {
-  background: rgba(170, 0, 162, 0.1);
+  background: rgba(170, 0, 162, 0.05);
   color: rgba(170, 0, 162, 1);
   padding: 6px 14px;
   border-radius: 20px;
@@ -1124,6 +1293,7 @@ body {
 @media screen and (max-width: 768px) {
   .host-page {
     padding: 20px 15px 60px !important;
+    overflow-x: hidden;
   }
 
   .host-page .back-link {
@@ -1148,33 +1318,39 @@ body {
     line-height: 1.5;
   }
 
-  .host-form {
-    gap: 24px !important;
-    width: 100%;
-  }
-
-  .address-grid {
-    grid-template-columns: 1fr !important;
-    gap: 20px !important;
-  }
-
-  .host-form h2 {
-    font-size: 18px !important;
-    margin-bottom: 8px;
-  }
-
-  .field-description {
-    margin-top: -16px !important;
-    font-size: 13px !important;
-    margin-bottom: 5px;
-  }
-
-  .host-form input,
+  .host-form input:not(.location-input-host):not(.activity-input-host),
   .host-form select,
   .host-form textarea {
-    padding: 14px !important;
+    padding: 14px 0 !important;
     font-size: 16px !important;
-    border-radius: 12px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(0, 47, 108, 0.2) !important;
+  }
+
+  .host-form input.location-input-host,
+  .host-form input.activity-input-host {
+    border: none !important;
+    border-bottom: none !important;
+    border-radius: 0 !important;
+    padding: 12px 35px 12px 0 !important;
+    font-size: 16px !important;
+    background: transparent !important;
+    height: auto !important;
+  }
+
+  .location-wrapper-host,
+  .activity-wrapper-host {
+    border-radius: 0 !important;
+    border-bottom: 1px solid rgba(0, 47, 108, 0.2) !important;
+    padding: 0 !important;
+  }
+
+  .host-clear-btn {
+    right: 5px !important;
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 18px !important;
   }
 
   .checkbox-group {
@@ -1183,27 +1359,26 @@ body {
     align-items: flex-start !important;
   }
 
-  .selected-tags {
-    margin-top: -8px !important;
-    gap: 8px !important;
-  }
-
-  .tag {
-    padding: 8px 14px !important;
-    font-size: 12px !important;
-  }
-
   .host-form button[type="submit"] {
     width: 100% !important;
     padding: 18px !important;
     font-size: 16px !important;
     margin-top: 10px;
+    border-radius: 999px !important;
   }
 }
 
 @media screen and (max-width: 380px) {
   .host-page h1 {
     font-size: 24px !important;
+  }
+
+  .host-page .subtitle {
+    font-size: 14px !important;
+  }
+
+  .host-form h2 {
+    font-size: 17px !important;
   }
 }
 
@@ -2685,21 +2860,128 @@ body {
   z-index: 10;
 }
 
-.location-wrapper {
+.location-wrapper,
+.activity-wrapper {
   position: relative;
   flex: 2;
   display: flex;
   align-items: center;
-  border-right: 1px solid #ddd;
+  min-width: 200px;
+  border-right: 1px solid #eee;
 }
 
-.location-input {
+.location-wrapper::after,
+.activity-wrapper::after {
+  content: '▼';
+  font-size: 10px;
+  color: #666;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+.location-wrapper.open::after .activity-wrapper.open::after {
+  transform: rotate(180deg);
+}
+
+.location-wrapper:has(.clear-location-btn)::after .activity-wrapper:has(.clear-location-btn)::after {
+  display: none;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: 100% !important;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  margin-top: 4px;
+  padding: 0;
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.custom-dropdown li {
+  padding: 12px 15px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.custom-dropdown li:last-child {
+  border-bottom: none;
+}
+
+.custom-dropdown li:hover {
+  background-color: #f0f7ff;
+  color: #002f6c;
+}
+
+.custom-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-dropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0 8px 8px 0;
+}
+
+.custom-dropdown::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.custom-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+.clear-location-btn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 2px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 5;
+  transition: color 0.2s;
+}
+
+.clear-location-btn:hover {
+  color: #333;
+  transform: translateY(-50%) !important;
+}
+
+.location-wrapper:has(.clear-location-btn)::after {
+  display: none;
+}
+
+.location-input,
+.activity-input {
   width: 100%;
   border: none !important;
   padding: 12px 20px;
   font-size: 16px;
   outline: none;
   background: transparent;
+  cursor: pointer;
 }
 
 .activity-select {
