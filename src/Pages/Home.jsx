@@ -135,38 +135,7 @@ function Home() {
 
   return (
     <div className="app">
-      <header className="header">
-        <div className="logo">Finnamie</div>
-        <nav className="nav">
-          {!user ? (
-            <ul>
-              <Link to="/discover">Discover activities</Link>
-              <Link to="/host/register">Become a Host</Link>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </ul>
-          ) : (
-            <>
-              <Link to="/discover">Discover activities</Link>
-               <Link to="/admin">Admin Page</Link>
-              <Link to="/profile">
-                {user.first_name} {user.last_name}{" "}
-              </Link>
-            </>
-          )}
-        </nav>
-      </header>
-
-      <section className="booking-section">
-        <button
-          className="chat-launcher"
-          aria-label="Open chat"
-          onClick={() => setOpenChat(true)}
-        >
-          Chat
-        </button>
-        {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}
-
+      <section className="booking-section" ref={searchSectionRef}>
         <h1>Book your local experience</h1>
         <p>Find the perfect activity in your favorite location</p>
 

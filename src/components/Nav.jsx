@@ -37,6 +37,7 @@ export const Nav = () => {
             <Link to="/profile">
               {user.first_name} {user.last_name}
             </Link>
+            <Link to ="/admin"> Admin page</Link>
             <a className="logout-link" onClick={handleLogout}>
               Logout
             </a>

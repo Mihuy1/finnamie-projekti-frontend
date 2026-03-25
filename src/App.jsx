@@ -8,6 +8,13 @@ import Discover from "./Pages/Discover";
 import Booking from "./Pages/Booking";
 import { Profile } from "./Pages/Profile";
 import {Admin } from "./Pages/Admin";
+import { Layout } from "./components/Layout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ReviewModal } from "./components/ReviewModal";
+import { PublicProfile } from "./Pages/PublicProfile";
+import BookActivity from "./Pages/BookActivity";
+import Reservation from "./Pages/Reservation";
+import ReservationConfirmed from "./Pages/ReservationConfirmed";
 
 function App() {
   return (
@@ -45,7 +52,7 @@ function App() {
       </Route>
       <Route path="/book-activity" element={<BookActivity />} />
       <Route path="/reserve-activity" element={<Reservation />} />
-      <Route path="reservation-confirmed" element={<ReservationConfirmed />} />
+      <Route path="/reservation-confirmed" element={<ReservationConfirmed />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
