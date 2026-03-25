@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { loadCountries, postLogin, register } from "../api/apiClient";
 import toast from "react-hot-toast";
 import { useAuth } from "../auth/AuthContext";
+import { useLocation } from "react-router-dom";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -22,6 +23,8 @@ export default function Register() {
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+
+  const { state } = useLocation();
 
   const navigate = useNavigate();
 
@@ -60,34 +63,41 @@ export default function Register() {
       return;
     }
 
-    const res = await toast.promise(
-      register({
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        // phone,
-        country,
-        date_of_birth: dateOfBirth,
-        gender,
-        password,
-        confirmPassword: confirm,
-        role: "guest",
-      }),
-      {
-        loading: "Registering account...",
-        success: "Account created successfully!",
-        error: (err) => err?.message || "Registration failed.",
-      },
-    );
+    try {
+      const res = await toast.promise(
+        register({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          country,
+          date_of_birth: dateOfBirth,
+          gender,
+          password,
+          confirmPassword: confirm,
+          role: "guest",
+        }),
+        {
+          loading: "Registering account...",
+          success: "Account created successfully!",
+          error: (err) => err?.message || "Registration failed.",
+        },
+      );
 
-    if (res?.userId) {
-      await postLogin(email, password);
+      if (res?.userId) {
+        await postLogin(email, password);
+        await refresh();
 
-      await refresh();
-
-      setTimeout(() => {
-        navigate("/profile");
-      }, 1000);
+        if (state?.redirectTo) {
+          navigate(state.redirectTo, {
+            replace: true,
+            state: { slot: state.bookingData }
+          });
+        } else {
+          navigate("/profile", { replace: true });
+        }
+      }
+    } catch (err) {
+      console.error("Registration flow error:", err);
     }
   }
 

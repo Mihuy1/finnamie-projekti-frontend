@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { logout } from "../api/apiClient";
+import { useState } from "react";
+import { Chatbox } from "./Chatbox";
 
 export const Nav = () => {
   const { user } = useAuth();
+  const [openChat, setOpenChat] = useState(false);
 
   const handleLogout = async () => {
     console.log("Logout initiated");
@@ -37,12 +40,24 @@ export const Nav = () => {
             <Link to="/profile">
               {user.first_name} {user.last_name}
             </Link>
+            <a
+              className="nav-conversations-link"
+              onClick={() => setOpenChat(prev => !prev)}
+              style={{
+                cursor: 'pointer',
+                alignItems: 'center',
+              }}
+            >
+              Conversations
+              <span className="nav-chat-dot"></span>
+            </a>
             <a className="logout-link" onClick={handleLogout}>
               Logout
             </a>
           </>
         )}
       </nav>
+      {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}
     </header>
   );
 };

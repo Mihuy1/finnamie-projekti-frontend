@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link, useLocation } from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
-import { municipalities } from '../data/municipalities';
+import { municipalities } from '../data/municipalities.js';
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
@@ -226,7 +226,6 @@ export default function BookActivity() {
                             </button>
                         )}
 
-                        {/* CUSTOM DROPDOWN VALIKKO */}
                         {showLocationDropdown && filteredMunicipalities.length > 0 && (
                             <ul className="custom-dropdown" >
                                 {filteredMunicipalities.map((m) => (

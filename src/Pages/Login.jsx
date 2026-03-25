@@ -71,7 +71,7 @@ export default function Login() {
 
         <div className="login_register-links">
           <p>
-            No account? <Link to="/register">Register</Link>
+            No account? <Link to="/register" state={state}>Register</Link>
           </p>
         </div>
       </div>

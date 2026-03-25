@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { getActivities } from "../api/apiClient";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { municipalities } from "../data/municipalities";
+import { municipalities } from "../data/municipalities.js";
 
 function Home() {
   const [date, setDate] = useState([]);
