@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
   const TABS =[
   { id: "users",label: "Users",icon: "👤" },
@@ -20,6 +21,7 @@ export const Admin = () => {
   return (
     <div className="admin">
       <div className="admin-sidebar">
+        <Link to="/" className="admin-back-btn">← Back</Link>
         <div className="admin-sidebar-title">Admin</div>
         {TABS.map((tab) => (
           <div

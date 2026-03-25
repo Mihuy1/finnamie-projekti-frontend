@@ -1662,7 +1662,6 @@ body {
 .pill-rejected { background: #FCEBEB; color: #A32D2D; }
 .pill-full     { background: #FCEBEB; color: #A32D2D; }
 .pill-open     { background: #EAF3DE; color: #3B6D11; }
-
 /* ── Buttons ── */
 
 .btn {
@@ -1785,4 +1784,17 @@ body {
 .td-dash {
   font-size: 12px;
   color: #aaa;
+}
+
+.admin-back-btn {
+  display: block;
+  padding: 10px 1rem;
+  font-size: 13px;
+  color: #666;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+.admin-back-btn:hover {
+  color: #3C3489;
 }
