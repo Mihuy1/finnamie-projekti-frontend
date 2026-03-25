@@ -35,6 +35,7 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
     address: "",
     activity_ids: [],
     activities: [],
+    res_status: "",
   });
 
   const [isModalOpen, setIsModalOpen] = useState(true);

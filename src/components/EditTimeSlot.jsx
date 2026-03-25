@@ -5,12 +5,16 @@ import { loadOptions } from "../api/apiClient";
 import Select from "react-select";
 import { formatDateTimeForInput } from "../utils/date-utils";
 import { MultiImageUpload } from "./MultiImageUpload";
+import Calendar from "react-calendar";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
   map.setView(center, 14);
   return null;
 };
+
+const API_BASE_URL = "http://localhost:3000";
+const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
 export const EditTimeSlot = ({
   slot,
@@ -30,13 +34,14 @@ export const EditTimeSlot = ({
     [slot],
   );
 
+  const [activeDate, setActiveDate] = useState(new Date());
+  const [date, setDate] = useState(null);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+
   const [formData, setFormData] = useState(initialFormData);
   const [selectedImages, setSelectedImages] = useState([]);
   const [toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
-
-  const API_BASE_URL = "http://localhost:3000";
-  const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
   const preselectedImageUrls = useMemo(
     () =>
@@ -49,6 +54,31 @@ export const EditTimeSlot = ({
       }),
     [images],
   );
+
+  const nextMonth = () => {
+    setActiveDate(
+      (currentDate) =>
+        new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+    );
+  };
+
+  const prevMonth = () => {
+    setActiveDate(
+      (currentDate) =>
+        new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+    );
+  };
+
+  const handleDates = (value) => {
+    if (!value) {
+      setDate([]);
+      return;
+    }
+    const values = Array.isArray(value) ? value : [value];
+    setDate(values);
+
+    console.log(values);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -102,27 +132,67 @@ export const EditTimeSlot = ({
                 />
               </label>
 
-              <label>
-                Start Time
-                <input
-                  type="datetime-local"
-                  name="start_time"
-                  value={formatDateTimeForInput(formData.start_time)}
-                  onChange={handleInputChange}
-                  required
-                />
-              </label>
+              <div className="date-picker-timeslot-edit">
+                <label>
+                  Date
+                  <input
+                    type="text"
+                    onClick={() => setCalendarVisible(!calendarVisible)}
+                    placeholder="Pick a date"
+                    value={`${date ? date[0] + " - " + date[1] : "Pick a date"}`}
+                    readOnly
+                  />
+                </label>
+                {calendarVisible && (
+                  <div className="calendar-container-timeslot-edit">
+                    <div className="calendar-nav">
+                      <button onClick={prevMonth}>&lsaquo;</button>
+                      <span
+                        style={{
+                          fontWeight: 700,
+                          color: "#002f6c",
+                          fontSize: "16px",
+                        }}
+                      >
+                        {activeDate.toLocaleString("en-GB", {
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <button onClick={nextMonth}>&rsaquo;</button>
+                    </div>
 
-              <label>
-                End Time
-                <input
-                  type="datetime-local"
-                  name="end_time"
-                  value={formatDateTimeForInput(formData.end_time)}
-                  onChange={handleInputChange}
-                  required
-                />
-              </label>
+                    <Calendar
+                      onChange={handleDates}
+                      value={date}
+                      activeStartDate={activeDate}
+                      selectRange
+                      onActiveStartDateChange={({ activeStartDate }) =>
+                        setActiveDate(activeStartDate)
+                      }
+                      showNavigation={false}
+                    />
+
+                    <input
+                      type="datetime-local"
+                      name="start_time"
+                      placeholder="Start Time"
+                      value={formatDateTimeForInput(formData.start_time)}
+                      onChange={handleInputChange}
+                      required
+                    />
+
+                    <input
+                      type="datetime-local"
+                      name="end_time"
+                      placeholder="End Time"
+                      value={formatDateTimeForInput(formData.end_time)}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                )}
+              </div>
 
               <label>
                 Activity Type

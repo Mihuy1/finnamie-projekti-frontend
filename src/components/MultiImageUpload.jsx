@@ -9,7 +9,7 @@ const mapPreselectedToFiles = (preselectedImages = []) =>
   }));
 
 export const MultiImageUpload = ({
-  slotId,
+  slotId = null,
   preselectedImages = [],
   onChange,
   setToRemoveImages,
@@ -74,7 +74,7 @@ export const MultiImageUpload = ({
               className="preview-remove-btn"
               onClick={() => {
                 setFiles((prev) => prev.filter((_, i) => i !== index));
-                if (!file.isObjectUrl) {
+                if (!file.isObjectUrl && slotId !== null) {
                   setToRemoveImages((prev) => [
                     ...prev,
                     { url: file.preview, slotId },

@@ -206,6 +206,23 @@ body {
   margin: 0 auto;
 }
 
+.date-picker-timeslot-edit {
+  position: relative;
+  display: inline-block;
+}
+
+.calendar-container-timeslot-edit {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  z-index: 1000;
+}
+
+.calendar-container-timeslot-edit div {
+  margin: 0;
+}
+
 .calendar-subtitle {
   text-align: center;
   color: #666;
@@ -253,7 +270,7 @@ body {
 .react-calendar {
   width: 100% !important;
   border: none !important;
-  background: transparent !important;
+  /* background: transparent !important; */
   margin-top: 10px;
 }
 
