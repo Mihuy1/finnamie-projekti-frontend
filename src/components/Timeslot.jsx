@@ -48,23 +48,25 @@ export const TimeSlot = ({
     return API_BASE_URL + "/" + path;
   };
 
-  // fetch images for this timeslot
-  useEffect(() => {
-    if (images.length > 0) return;
-    const fetchImages = async () => {
-      try {
-        const res = await getTimeSlotImage(slot.id);
+  console.log("slot image:", slot.images[0].url);
 
-        if (res) {
-          setImages(res.map((img) => img.url));
-        }
-      } catch (error) {
-        console.error("Error fetching timeslot images:", error);
-      }
-    };
+  // // fetch images for this timeslot
+  // useEffect(() => {
+  //   if (images.length > 0) return;
+  //   const fetchImages = async () => {
+  //     try {
+  //       const res = await getTimeSlotImage(slot.id);
 
-    fetchImages();
-  }, [slot.id]);
+  //       if (res) {
+  //         setImages(res.map((img) => img.url));
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching timeslot images:", error);
+  //     }
+  //   };
+
+  //   fetchImages();
+  // }, [slot.id]);
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -199,9 +201,11 @@ export const TimeSlot = ({
               ×
             </button>
 
-            {images && images.length > 0 && (
+            {slot.images && (
               <div className="modal-image">
-                <Carousel images={images.map((img) => resolveImage(img))} />
+                <Carousel
+                  images={slot.images.map((img) => resolveImage(img.url))}
+                />
               </div>
             )}
 
