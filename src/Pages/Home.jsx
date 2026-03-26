@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { getActivities } from "../api/apiClient";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { municipalities } from "../data/municipalities.js";
+import { municipalities } from "../data/municipalities";
 
 function Home() {
   const [date, setDate] = useState([]);
@@ -18,7 +18,7 @@ function Home() {
   const [searchError, setSearchError] = useState(false);
   const [dateError, setDateError] = useState(false);
 
-  const mapSectionRef = useRef(null);
+  const calendarSectionRef = useRef(null);
   const searchSectionRef = useRef(null);
   const navigate = useNavigate();
 
@@ -74,8 +74,8 @@ function Home() {
     setSearchError(false);
   };
 
-  const scrollToMap = () => {
-    mapSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToCalendar = () => {
+    calendarSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleSearch = () => {
@@ -85,7 +85,7 @@ function Home() {
     }
 
     setSearchError(false);
-    scrollToMap();
+    scrollToCalendar();
   };
 
   const nextMonth = () => {
@@ -117,7 +117,7 @@ function Home() {
 
     if (!date || (Array.isArray(date) && date.length === 0)) {
       setDateError(true);
-      mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      calendarSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
       return;
     }
 
@@ -239,7 +239,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="map-and-calendar" ref={mapSectionRef}>
+      <section className="map-and-calendar" ref={calendarSectionRef}>
         <div className="map-container">
           <Map activityType={activityType} />
         </div>
