@@ -31,6 +31,48 @@ export const getExperienceByHostId = async () => {
   }
 };
 
+export const createExperience = async (data, images) => {
+  const formData = new FormData();
+
+  for (const key in data) {
+    const value = data[key];
+
+    if (value === undefined || value === null) continue;
+
+    if (Array.isArray(value)) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, String(value));
+    }
+  }
+
+  if (images) {
+    for (const file of images) {
+      formData.append("images", file);
+    }
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}experiences/host`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    console.log("res:", res);
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Failed to create experience");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Create Experience error:", error);
+    throw error;
+  }
+};
+
 export const deleteExperienceById = async (id) => {
   try {
     const res = await fetch(`${BASE_URL}experiences/host/${id}`, {

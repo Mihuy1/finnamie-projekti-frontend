@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 import Select from "react-select";
 import { useEffect } from "react";
 import {
+  createExperience,
   createTimeslot,
   getActivities,
   uploadTimeSlotImage,
@@ -12,6 +13,7 @@ import { loadOptions } from "../api/apiClient";
 import AsyncSelect from "react-select/async";
 import { MultiImageUpload } from "./MultiImageUpload";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import { DayOfWeek } from "./DayOfWeek";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -25,25 +27,39 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
   const { user, loading } = useAuth();
 
   const [formData, setFormData] = useState({
-    type: "",
-    start_time: "",
-    end_time: "",
+    title: "",
     description: "",
-    city: "",
+    type: "",
+    address: "",
     latitude_deg: "",
     longitude_deg: "",
-    address: "",
+    city: "",
+    start_date: "",
+    end_date: "",
+    start_time: "",
+    end_time: "",
+    res_status: "",
+    max_participants: 3,
     activity_ids: [],
     activities: [],
-    res_status: "",
   });
 
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [toRemoveImages, setToRemoveImages] = useState([]);
+  const [_toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([
     formData.latitude_deg,
     formData.longitude_deg,
+  ]);
+
+  const [selectedDays, setSelectedDays] = useState([
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
   ]);
 
   const [activitiesData, setActivitiesData] = useState([]);
@@ -57,6 +73,12 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
 
     fetchActivities();
   }, []);
+
+  const calculateBitmask = (daysArray) => {
+    return daysArray
+      .filter((day) => day !== null)
+      .reduce((acc, index) => acc + (1 << index), 0);
+  };
 
   const handleAddressChange = (selected) => {
     if (selected) {
@@ -87,22 +109,26 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
     const dataToSend = {
       ...formData,
       activity_ids: formData.activities.map((a) => a.id),
+      weekdays_bitmask: calculateBitmask(selectedDays),
     };
 
-    const res = await createTimeslot(dataToSend);
+    delete dataToSend.activities;
 
-    if (!res.timeslot) return;
-    if (res.timeslot.id) {
-      console.log("hey");
-      const upload = await uploadTimeSlotImage(res.timeslot.id, selectedImages);
+    const res = await createExperience(dataToSend, selectedImages);
 
-      console.log("upload:", upload);
+    console.log("res:", res);
 
-      if (!upload) return;
-    }
+    // if (!res.timeslot) return;
+    // if (res.timeslot.id) {
+    //   const upload = await uploadTimeSlotImage(res.timeslot.id, selectedImages);
 
-    toast.success("Timeslot created!");
-    onSave?.(res.timeslot);
+    //   console.log("upload:", upload);
+
+    //   if (!upload) return;
+    // }
+
+    toast.success("Experience created!");
+    onSave?.(res.experience);
     onClose?.();
   };
 
@@ -122,22 +148,55 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
             <div className="modal-body">
               <form className="profile-form" onSubmit={handleSubmit}>
                 <label>
+                  Title
+                  <input
+                    name="title"
+                    type="text"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    placeholder="Fun tour around Espoo"
+                    required
+                  />
+                </label>
+                <label>
                   City
                   <input
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    placeholder="City"
+                    placeholder="Espoo"
                     required
                   />
                 </label>
+                <label>
+                  Start Date
+                  <input
+                    name="start_date"
+                    type="date"
+                    value={formData.start_date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+
+                <label>
+                  End Date
+                  <input
+                    name="end_date"
+                    type="date"
+                    value={formData.end_date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+
                 <label>
                   Start Time
                   <input
                     name="start_time"
                     value={formData.start_time}
                     onChange={handleInputChange}
-                    type="datetime-local"
+                    type="time"
                     required
                   />
                 </label>
@@ -147,11 +206,11 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     name="end_time"
                     value={formData.end_time}
                     onChange={handleInputChange}
-                    type="datetime-local"
+                    type="time"
                   />
                 </label>
                 <label>
-                  Activity Type
+                  Experience Length
                   <select
                     name="type"
                     value={formData.type}
@@ -159,12 +218,15 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     className="profile-select"
                     required
                   >
-                    <option value="">Select status...</option>
+                    <option value="" disabled>
+                      Select Length...
+                    </option>
                     <option value="Half-day">Half-day</option>
                     <option value="Full-day">Full-day</option>
                   </select>
                 </label>
-                <label>
+
+                {/* <label>
                   Reservation Status
                   <select
                     name="res_status"
@@ -178,7 +240,7 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     <option value="reserved">Reserved</option>
                     <option value="pending">Pending</option>
                   </select>
-                </label>
+                </label> */}
                 <label>
                   Activities
                   <Select
@@ -197,6 +259,26 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     }
                   />
                 </label>
+                <label>
+                  Max Participants
+                  <input
+                    type="number"
+                    max={10}
+                    value={formData.max_participants}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        max_participants: Number(e.target.value),
+                      }))
+                    }
+                    min={1}
+                    required
+                  />
+                  <DayOfWeek
+                    selectedDays={selectedDays}
+                    setSelectedDays={setSelectedDays}
+                  />
+                </label>
                 <label className="profile-full-width">
                   Description
                   <textarea
@@ -204,7 +286,7 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     value={formData.description}
                     onChange={handleInputChange}
                     required
-                    placeholder="Describe what's included in this timeslot..."
+                    placeholder="Describe the experience..."
                   />
                 </label>
 
@@ -219,6 +301,7 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                   </label>
 
                   <AsyncSelect
+                    required
                     classNamePrefix="timeslot-address-select"
                     cacheOptions
                     loadOptions={loadOptions}

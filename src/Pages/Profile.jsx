@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   createActivitySuggestion,
+  createExperience,
   getProfile,
   getReservations,
   loadCountries,
@@ -708,12 +709,11 @@ export const Profile = () => {
                       <div className="profile-timeslot-summary-main">
                         <h3>{slot.city || "Unknown City"}</h3>
                         <p>
-                          {formatDateTimeForInput(slot.rule[0].start_date)} -{" "}
-                          {formatDateTimeForInput(slot.rule[0].end_date)}
+                          {slot.rule[0].start_date} - {slot.rule[0].end_date}
                         </p>
                         <p>
-                          {formatDateTimeDisplay(slot.rule[0].start_time)} -{" "}
-                          {formatDateTimeDisplay(slot.rule[0].end_time)}
+                          {slot.rule[0].start_time.slice(0, 5)} -{" "}
+                          {slot.rule[0].end_time.slice(0, 5)}
                         </p>
                       </div>
 
@@ -781,7 +781,9 @@ export const Profile = () => {
                     <Reservation
                       key={res.reservation_id}
                       inPast={new Date() >= new Date(res.res_date)}
-                      formattedDate={formatDateTimeDisplay(res.res_date).split(",")}
+                      formattedDate={formatDateTimeDisplay(res.res_date).split(
+                        ",",
+                      )}
                       reservation={res}
                       handleModalOpen={handleModalOpen}
                     />
