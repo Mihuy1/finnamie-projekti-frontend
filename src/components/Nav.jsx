@@ -51,6 +51,7 @@ export const Nav = () => {
               Conversations
               <span className="nav-chat-dot"></span>
             </a>
+            <Link to="/admin"> Admin page</Link>
             <a className="logout-link" onClick={handleLogout}>
               Logout
             </a>

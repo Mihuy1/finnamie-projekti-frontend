@@ -7,13 +7,12 @@ import HostLogin from "./Pages/HostLogin";
 import Discover from "./Pages/Discover";
 import Booking from "./Pages/Booking";
 import { Profile } from "./Pages/Profile";
-import { PublicProfile } from "./Pages/PublicProfile";
+import {Admin } from "./Pages/Admin";
 import { Layout } from "./components/Layout";
-import { Admin } from "./Pages/Admin";
-import { CreateNewTimeslot } from "./components/CreateNewTimeslot";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import BookActivity from "./Pages/BookActivity";
 import { ReviewModal } from "./components/ReviewModal";
+import { PublicProfile } from "./Pages/PublicProfile";
+import BookActivity from "./Pages/BookActivity";
 import Reservation from "./Pages/Reservation";
 import ReservationConfirmed from "./Pages/ReservationConfirmed";
 
@@ -22,6 +21,12 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/discover" element={<Discover />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/host/register" element={<HostRegister />} />
+      <Route path="/booking/:id" element={<Booking />} />
+      <Route path="/admin" element={<Admin />} />
 
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<Admin />} />
@@ -47,7 +52,7 @@ function App() {
       </Route>
       <Route path="/book-activity" element={<BookActivity />} />
       <Route path="/reserve-activity" element={<Reservation />} />
-      <Route path="reservation-confirmed" element={<ReservationConfirmed />} />
+      <Route path="/reservation-confirmed" element={<ReservationConfirmed />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
