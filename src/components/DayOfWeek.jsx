@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import "./DayOfWeek.css"; // Import your separate CSS file
+import "./DayOfWeek.css";
 
 export const DayOfWeek = ({ selectedDays, setSelectedDays }) => {
   // Monday through Sunday UI order
@@ -10,7 +9,7 @@ export const DayOfWeek = ({ selectedDays, setSelectedDays }) => {
     { label: "T", value: 4 },
     { label: "F", value: 5 },
     { label: "S", value: 6 },
-    { label: "S", value: 0 }, // Sunday is 0 for our backend logic
+    { label: "S", value: 0 },
   ];
 
   const toggleDay = (val) => {
@@ -20,16 +19,8 @@ export const DayOfWeek = ({ selectedDays, setSelectedDays }) => {
     setSelectedDays(newSelection);
   };
 
-  const calculateBitmask = (daysArray) => {
-    return daysArray
-      .filter((day) => day !== null)
-      .reduce((acc, index) => acc + (1 << index), 0);
-  };
-
   return (
     <div className="day-selector-container">
-      <h3 className="day-selector-label">Days of the week</h3>
-
       <div className="day-circles-row">
         {daysConfig.map((day) => {
           // Check if this specific day value is currently selected
@@ -46,11 +37,6 @@ export const DayOfWeek = ({ selectedDays, setSelectedDays }) => {
             </button>
           );
         })}
-      </div>
-
-      <div className="bitmask-display">
-        Selected Bitmask:{" "}
-        <span className="bitmask-number">{calculateBitmask(selectedDays)}</span>
       </div>
     </div>
   );

@@ -2,12 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import Select from "react-select";
 import { useEffect } from "react";
-import {
-  createExperience,
-  createTimeslot,
-  getActivities,
-  uploadTimeSlotImage,
-} from "../api/apiClient";
+import { createExperience, getActivities } from "../api/apiClient";
 import toast from "react-hot-toast";
 import { loadOptions } from "../api/apiClient";
 import AsyncSelect from "react-select/async";
@@ -118,14 +113,10 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
 
     console.log("res:", res);
 
-    // if (!res.timeslot) return;
-    // if (res.timeslot.id) {
-    //   const upload = await uploadTimeSlotImage(res.timeslot.id, selectedImages);
-
-    //   console.log("upload:", upload);
-
-    //   if (!upload) return;
-    // }
+    if (!res.experience) {
+      toast.error("Failed to create experience!");
+      return;
+    }
 
     toast.success("Experience created!");
     onSave?.(res.experience);
@@ -263,7 +254,8 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                   Max Participants
                   <input
                     type="number"
-                    max={10}
+                    max={100}
+                    placeholder="e.g. 10"
                     value={formData.max_participants}
                     onChange={(e) =>
                       setFormData((prev) => ({
@@ -274,11 +266,15 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     min={1}
                     required
                   />
+                </label>
+                <label>
+                  Days of the week
                   <DayOfWeek
                     selectedDays={selectedDays}
                     setSelectedDays={setSelectedDays}
                   />
                 </label>
+
                 <label className="profile-full-width">
                   Description
                   <textarea

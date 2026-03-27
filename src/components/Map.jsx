@@ -50,16 +50,16 @@ function Map({ activityType }) {
         {filteredSlots.length > 0 &&
           filteredSlots.map((slot) => {
             const position = [slot.latitude_deg, slot.longitude_deg];
-            const start = new Date(slot.rule[0].start_date).toLocaleString(
+            const start = new Date(slot.rule.start_date).toLocaleString(
               "en-GB",
             );
-            const end = new Date(slot.rule[0].end_date).toLocaleString("en-GB");
+            const end = new Date(slot.rule.end_date).toLocaleString("en-GB");
             return (
               <Marker position={position} key={slot.id}>
                 <Popup>
                   <p>City: {slot.city}</p>
-                  <p>Start: {slot.rule[0].start_time}</p>
-                  <p>End: {slot.rule[0].end_time}</p>
+                  <p>Start: {slot.rule.start_time}</p>
+                  <p>End: {slot.rule.end_time}</p>
                 </Popup>
               </Marker>
             );

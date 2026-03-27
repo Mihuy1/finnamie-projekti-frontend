@@ -1,11 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { loadOptions } from "../api/apiClient";
 import Select from "react-select";
-import { formatDateTimeForInput } from "../utils/date-utils";
 import { MultiImageUpload } from "./MultiImageUpload";
-import Calendar from "react-calendar";
+import { DayOfWeek } from "./DayOfWeek";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -34,18 +33,26 @@ export const EditTimeSlot = ({
     [slot],
   );
 
-  const [activeDate, setActiveDate] = useState(new Date());
-  const [date, setDate] = useState(null);
-  const [calendarVisible, setCalendarVisible] = useState(false);
-
   const [formData, setFormData] = useState(initialFormData);
   const [selectedImages, setSelectedImages] = useState([]);
   const [toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
 
-  images.map((path) => {
-    console.log("path:", path.url);
-  });
+  const bitmaskToState = (bitmask) => {
+    // Create an array of 7 elements
+    return Array.from({ length: 7 }, (_, i) => {
+      // Check if the bit at position 'i' is set in the bitmask
+      // (1 << i) creates the value for that day (1, 2, 4, 8, 16, 32, 64)
+      const isSelected = (bitmask & (1 << i)) !== 0;
+
+      // If selected, return the index (0-6), otherwise return null
+      return isSelected ? i : null;
+    });
+  };
+
+  const [selectedDays, setSelectedDays] = useState(
+    bitmaskToState(slot.rule.weekdays_bitmask),
+  );
 
   const preselectedImageUrls = useMemo(
     () =>
@@ -59,34 +66,26 @@ export const EditTimeSlot = ({
     [images],
   );
 
-  const nextMonth = () => {
-    setActiveDate(
-      (currentDate) =>
-        new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
-    );
-  };
-
-  const prevMonth = () => {
-    setActiveDate(
-      (currentDate) =>
-        new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
-    );
-  };
-
-  const handleDates = (value) => {
-    if (!value) {
-      setDate([]);
-      return;
-    }
-    const values = Array.isArray(value) ? value : [value];
-    setDate(values);
-
-    console.log(values);
+  const calculateBitmask = (daysArray) => {
+    return daysArray
+      .filter((day) => day !== null)
+      .reduce((acc, index) => acc + (1 << index), 0);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRuleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      rule: {
+        ...prev.rule,
+        [name]: value,
+      },
+    }));
   };
 
   const handleAddressChange = (selected) => {
@@ -104,7 +103,16 @@ export const EditTimeSlot = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData, selectedImages, toRemoveImages);
+
+    const dataToSend = {
+      ...formData,
+      weekdays_bitmask: calculateBitmask(selectedDays),
+      activity_ids: formData.activities.map((a) => a.id),
+    };
+
+    delete dataToSend.activities;
+
+    onSave(dataToSend, selectedImages, toRemoveImages);
   };
 
   return (
@@ -125,6 +133,17 @@ export const EditTimeSlot = ({
           >
             <div className="modal-body-timeslot">
               <label>
+                Title
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title || ""}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g. Morning Paddleboarding"
+                />
+              </label>
+              <label>
                 City
                 <input
                   type="text"
@@ -136,67 +155,48 @@ export const EditTimeSlot = ({
                 />
               </label>
 
-              <div className="date-picker-timeslot-edit">
-                <label>
-                  Date
-                  <input
-                    type="text"
-                    onClick={() => setCalendarVisible(!calendarVisible)}
-                    placeholder="Pick a date"
-                    value={`${date ? date[0] + " - " + date[1] : "Pick a date"}`}
-                    readOnly
-                  />
-                </label>
-                {calendarVisible && (
-                  <div className="calendar-container-timeslot-edit">
-                    <div className="calendar-nav">
-                      <button onClick={prevMonth}>&lsaquo;</button>
-                      <span
-                        style={{
-                          fontWeight: 700,
-                          color: "#002f6c",
-                          fontSize: "16px",
-                        }}
-                      >
-                        {activeDate.toLocaleString("en-GB", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </span>
-                      <button onClick={nextMonth}>&rsaquo;</button>
-                    </div>
+              <label>
+                Start Date
+                <input
+                  type="date"
+                  name="start_date"
+                  value={formData.rule.start_date || ""}
+                  onChange={handleRuleInputChange}
+                  required
+                />
+              </label>
 
-                    <Calendar
-                      onChange={handleDates}
-                      value={date}
-                      activeStartDate={activeDate}
-                      selectRange
-                      onActiveStartDateChange={({ activeStartDate }) =>
-                        setActiveDate(activeStartDate)
-                      }
-                      showNavigation={false}
-                    />
+              <label>
+                End Date
+                <input
+                  type="date"
+                  name="end_date"
+                  value={formData.rule.end_date || ""}
+                  onChange={handleRuleInputChange}
+                  required
+                />
+              </label>
 
-                    <input
-                      type="datetime-local"
-                      name="start_time"
-                      placeholder="Start Time"
-                      value={formatDateTimeForInput(formData.start_time)}
-                      onChange={handleInputChange}
-                      required
-                    />
-
-                    <input
-                      type="datetime-local"
-                      name="end_time"
-                      placeholder="End Time"
-                      value={formatDateTimeForInput(formData.end_time)}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                )}
-              </div>
+              <label>
+                Start Time
+                <input
+                  type="time"
+                  name="start_time"
+                  value={formData.rule.start_time || ""}
+                  onChange={handleRuleInputChange}
+                  required
+                />
+              </label>
+              <label>
+                End Time
+                <input
+                  type="time"
+                  name="end_time"
+                  value={formData.rule.end_time || ""}
+                  onChange={handleRuleInputChange}
+                  required
+                />
+              </label>
 
               <label>
                 Activity Type
@@ -211,7 +211,7 @@ export const EditTimeSlot = ({
                 </select>
               </label>
 
-              <label>
+              {/* <label>
                 Reservation Status
                 <select
                   name="res_status"
@@ -224,7 +224,7 @@ export const EditTimeSlot = ({
                   <option value="reserved">Reserved</option>
                   <option value="pending">Pending</option>
                 </select>
-              </label>
+              </label> */}
 
               <label>
                 Activities
@@ -246,6 +246,28 @@ export const EditTimeSlot = ({
                   placeholder="Select activities..."
                 />
               </label>
+
+              <label>
+                Max Participants
+                <input
+                  type="number"
+                  name="max_participants"
+                  value={formData.rule.max_participants || ""}
+                  onChange={handleRuleInputChange}
+                  min={1}
+                  placeholder="e.g. 10"
+                  max={100}
+                />
+              </label>
+
+              <label>
+                Days of the week
+                <DayOfWeek
+                  selectedDays={selectedDays}
+                  setSelectedDays={setSelectedDays}
+                />
+              </label>
+              <p> bitmask value: {calculateBitmask(selectedDays)} </p>
 
               <label className="profile-full-width">
                 Description

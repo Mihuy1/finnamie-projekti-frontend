@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
 import {
   deleteExperienceById,
-  deleteTimeslot,
   deleteTimeSlotImageByIdAndUrl,
-  getTimeSlotImage,
-  updateTimeSlot,
+  updateExperience,
   uploadTimeSlotImage,
 } from "../api/apiClient";
 import toast from "react-hot-toast";
@@ -35,7 +33,6 @@ export const TimeSlot = ({
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
-  const [images, setImages] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const API_BASE_URL = "http://localhost:3000";
@@ -47,8 +44,6 @@ export const TimeSlot = ({
     if (path.startsWith("/")) return API_BASE_URL + path;
     return API_BASE_URL + "/" + path;
   };
-
-  console.log("slot image:", slot.images[0].url);
 
   // // fetch images for this timeslot
   // useEffect(() => {
@@ -102,7 +97,6 @@ export const TimeSlot = ({
 
   const handleDelete = async (timeslotId) => {
     try {
-      // const res = await deleteTimeslot(timeslotId);
       const res = await deleteExperienceById(timeslotId);
 
       if (!res.error) {
@@ -120,33 +114,27 @@ export const TimeSlot = ({
 
   const handleEdit = async (updatedData, images, toRemoveImages) => {
     try {
-      const dataToSend = {
-        ...updatedData,
-        activity_ids: (updatedData.activities || []).map((a) => a.id),
-      };
+      const result = await updateExperience(slot.id, updatedData, images);
 
-      // Clean up for API
-      delete dataToSend.activities;
-
-      const result = await updateTimeSlot(slot.id, dataToSend);
+      console.log("Edit timeslot result:", result);
 
       if (!result) return;
 
-      if (toRemoveImages.length > 0) {
-        for (const img of toRemoveImages) {
-          img.url = img.url.replace(API_BASE_URL, "");
-          const res = await deleteTimeSlotImageByIdAndUrl(slot.id, img.url);
+      // if (toRemoveImages.length > 0) {
+      //   for (const img of toRemoveImages) {
+      //     img.url = img.url.replace(API_BASE_URL, "");
+      //     const res = await deleteTimeSlotImageByIdAndUrl(slot.id, img.url);
 
-          if (!res) return;
-        }
-      }
+      //     if (!res) return;
+      //   }
+      // }
 
-      const newFiles = (images || []).filter((f) => f instanceof File);
+      // const newFiles = (images || []).filter((f) => f instanceof File);
 
-      if (newFiles.length > 0) {
-        const upload = await uploadTimeSlotImage(slot.id, newFiles);
-        if (!upload) return;
-      }
+      // if (newFiles.length > 0) {
+      //   const upload = await uploadTimeSlotImage(slot.id, newFiles);
+      //   if (!upload) return;
+      // }
 
       if (result) {
         toast.success("Timeslot updated successfully!");

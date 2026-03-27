@@ -59,8 +59,6 @@ export const createExperience = async (data, images) => {
       body: formData,
     });
 
-    console.log("res:", res);
-
     if (!res.ok) {
       const errorData = await res.json();
       throw new Error(errorData.message || "Failed to create experience");
@@ -276,6 +274,38 @@ export const uploadTimeSlotImage = async (timeslot_id, files) => {
   } catch (error) {
     console.error("Error uploading image for timeslot:", error);
     throw new Error("Network error. Please try again.");
+  }
+};
+
+export const updateExperience = async (id, data, images) => {
+  const formData = new FormData();
+
+  for (const key in data) {
+    const value = data[key];
+
+    if (Array.isArray(value)) formData.append(key, JSON.stringify(value));
+    else formData.append(key, String(value));
+  }
+
+  if (images) {
+    for (const image of images) {
+      formData.append("images", image);
+      console.log("current form data:", formData);
+    }
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}experiences/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      body: formData,
+    });
+
+    console.log("update experience res:", res);
+
+    return await res.json();
+  } catch (error) {
+    console.error("Update Experience error:", error);
   }
 };
 
