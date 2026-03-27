@@ -118,7 +118,7 @@ export const TimeSlot = ({
     }
   };
 
-  const handleSave = async (updatedData, images, toRemoveImages) => {
+  const handleEdit = async (updatedData, images, toRemoveImages) => {
     try {
       const dataToSend = {
         ...updatedData,
@@ -167,9 +167,9 @@ export const TimeSlot = ({
         <EditTimeSlot
           slot={slotData}
           activities={activities}
-          images={images}
+          images={slotData.images}
           onCancel={() => handleClose()}
-          onSave={handleSave}
+          onSave={handleEdit}
         />
       </div>
     );
@@ -226,11 +226,11 @@ export const TimeSlot = ({
               <div className="profile-timeslot-detail-grid">
                 <div>
                   <strong>Start</strong>
-                  <p>{formatDateTimeDisplay(slotData.rule[0].start_time)}</p>
+                  <p>{formatDateTimeDisplay(slotData.rule.start_time)}</p>
                 </div>
                 <div>
                   <strong>End</strong>
-                  <p>{formatDateTimeDisplay(slotData.rule[0].end_time)}</p>
+                  <p>{formatDateTimeDisplay(slotData.rule.end_time)}</p>
                 </div>
               </div>
 

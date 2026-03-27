@@ -27,8 +27,8 @@ export const EditTimeSlot = ({
     () => ({
       ...slot,
       address: slot.address || "",
-      start_time: formatDateTimeForInput(slot.start_time),
-      end_time: formatDateTimeForInput(slot.end_time),
+      start_time: slot.rule.start_time,
+      end_time: slot.rule.end_time,
       activities: slot.activities || [],
     }),
     [slot],
@@ -43,14 +43,18 @@ export const EditTimeSlot = ({
   const [toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
 
+  images.map((path) => {
+    console.log("path:", path.url);
+  });
+
   const preselectedImageUrls = useMemo(
     () =>
       (images || []).map((path) => {
-        if (!path) return FALLBACK_IMAGE;
-        if (path.startsWith("http://") || path.startsWith("https://"))
-          return path;
-        if (path.startsWith("/")) return API_BASE_URL + path;
-        return API_BASE_URL + "/" + path;
+        if (!path.url) return FALLBACK_IMAGE;
+        if (path.url.startsWith("http://") || path.url.startsWith("https://"))
+          return path.url;
+        if (path.url.startsWith("/")) return API_BASE_URL + path.url;
+        return API_BASE_URL + "/" + path.url;
       }),
     [images],
   );

@@ -709,11 +709,11 @@ export const Profile = () => {
                       <div className="profile-timeslot-summary-main">
                         <h3>{slot.city || "Unknown City"}</h3>
                         <p>
-                          {slot.rule[0].start_date} - {slot.rule[0].end_date}
+                          {slot.rule.start_date} - {slot.rule.end_date}
                         </p>
                         <p>
-                          {slot.rule[0].start_time.slice(0, 5)} -{" "}
-                          {slot.rule[0].end_time.slice(0, 5)}
+                          {slot.rule.start_time.slice(0, 5)} -{" "}
+                          {slot.rule.end_time.slice(0, 5)}
                         </p>
                       </div>
 
