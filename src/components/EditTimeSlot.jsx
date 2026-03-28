@@ -106,7 +106,10 @@ export const EditTimeSlot = ({
 
     const dataToSend = {
       ...formData,
-      weekdays_bitmask: calculateBitmask(selectedDays),
+      rule: {
+        ...formData.rule,
+        weekdays_bitmask: calculateBitmask(selectedDays),
+      },
       activity_ids: formData.activities.map((a) => a.id),
     };
 

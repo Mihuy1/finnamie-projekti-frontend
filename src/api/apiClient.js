@@ -283,14 +283,14 @@ export const updateExperience = async (id, data, images) => {
   for (const key in data) {
     const value = data[key];
 
-    if (Array.isArray(value)) formData.append(key, JSON.stringify(value));
+    if (Array.isArray(value) || typeof value === "object")
+      formData.append(key, JSON.stringify(value));
     else formData.append(key, String(value));
   }
 
   if (images) {
     for (const image of images) {
       formData.append("images", image);
-      console.log("current form data:", formData);
     }
   }
 
@@ -300,8 +300,6 @@ export const updateExperience = async (id, data, images) => {
       credentials: "include",
       body: formData,
     });
-
-    console.log("update experience res:", res);
 
     return await res.json();
   } catch (error) {

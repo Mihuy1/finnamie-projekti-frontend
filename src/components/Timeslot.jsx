@@ -116,8 +116,6 @@ export const TimeSlot = ({
     try {
       const result = await updateExperience(slot.id, updatedData, images);
 
-      console.log("Edit timeslot result:", result);
-
       if (!result) return;
 
       // if (toRemoveImages.length > 0) {
@@ -138,8 +136,8 @@ export const TimeSlot = ({
 
       if (result) {
         toast.success("Timeslot updated successfully!");
-        setSlotData(updatedData);
-        onUpdate?.(updatedData);
+        setSlotData(result.experience);
+        onUpdate?.(result.experience);
         setIsEditing(false);
 
         handleClose();
