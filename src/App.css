@@ -181,7 +181,7 @@ body {
 }
 
 .search-box button {
-  background: var(--accent, #aa00a2);
+  background: var(--text-primary, #aa00a2);
   color: white;
   border: none;
   padding: 12px 25px;
@@ -576,8 +576,35 @@ body {
   padding: 40px;
   text-align: center;
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-primary);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: var(--text-main, #002f6c);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.footer-links a:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+.footer-copyright {
+  opacity: 0.8;
 }
 
 /* Carousel styles */

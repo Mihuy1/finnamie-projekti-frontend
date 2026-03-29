@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
@@ -36,8 +37,8 @@ function Map({ activityType }) {
   const filteredSlots = !activityType
     ? timeslots
     : timeslots.filter((slot) => {
-        return slot.type === activityType;
-      });
+      return slot.type === activityType;
+    });
 
   return (
     <div style={{ height: "400px", width: "100%" }}>
@@ -48,6 +49,14 @@ function Map({ activityType }) {
         />
         {filteredSlots.length > 0 &&
           filteredSlots.map((slot) => {
+            const lat = parseFloat(slot.latitude_deg);
+            const lng = parseFloat(slot.longitude_deg);
+
+            if (isNaN(lat) || isNaN(lng)) {
+              console.warn(`Slot ID ${slot.id} puuttuvat koordinaatit.`, slot);
+              return null;
+            }
+
             const position = [slot.latitude_deg, slot.longitude_deg];
             const start = new Date(slot.start_time).toLocaleString("en-GB");
             const end = new Date(slot.end_time).toLocaleString("en-GB");

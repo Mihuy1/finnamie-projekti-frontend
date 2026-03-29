@@ -1,3 +1,4 @@
+// @ts-nocheck
 import "../styles/timeslot-styles.css";
 
 export const Reservation = ({

@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const Review = ({ review }) => {
   const isUnderFiveMinutesFromCreation = (created, updated) => {
     const createdAt = new Date(created);
