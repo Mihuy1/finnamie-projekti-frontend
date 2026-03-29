@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useNavigate } from "react-router-dom";
 import Map from "../components/Map";
 import "../App.css";
@@ -158,8 +159,8 @@ function Home() {
                 setFilteredMunicipalities(
                   location
                     ? municipalities.filter((m) =>
-                        m.toLowerCase().includes(location.toLowerCase()),
-                      )
+                      m.toLowerCase().includes(location.toLowerCase()),
+                    )
                     : municipalities,
                 );
                 setShowDropdown(true);
@@ -327,7 +328,26 @@ function Home() {
       </div>
 
       <footer className="footer">
-        <p>Finnamie</p>
+        <div className="footer-links">
+          <a
+            href="https://www.finnamie.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Finnamie
+          </a>
+          <a
+            href="https://www.finnamie.com/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Privacy Policy
+          </a>
+        </div>
+
+        <p className="footer-copyright">
+          &copy; {new Date().getFullYear()} Finnamie. All rights reserved.
+        </p>
       </footer>
     </div>
   );

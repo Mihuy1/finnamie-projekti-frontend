@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
+import { useEffect } from "react";
 
 function ReservationConfirmed() {
     const navigate = useNavigate();
@@ -9,9 +10,32 @@ function ReservationConfirmed() {
     const slot = state?.slot || {};
     const host = state?.host || {};
 
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
+    };
+
+    const formatTime = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    };
+
     const hostDisplayName = host.first_name
         ? `${host.first_name} ${host.last_name}`
         : (slot.host_first_name ? `${slot.host_first_name} ${slot.host_last_name}` : "Local Host");
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <div className="app">
@@ -27,6 +51,18 @@ function ReservationConfirmed() {
                         <div className="conf-row">
                             <strong>Activity</strong>
                             <span>{slot.name || "Local Activity"}</span>
+                        </div>
+
+                        <div className="conf-row">
+                            <strong>Date</strong>
+                            <span>{formatDate(slot.start_time)}</span>
+                        </div>
+
+                        <div className="conf-row">
+                            <strong>Time</strong>
+                            <span>
+                                {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                            </span>
                         </div>
 
                         <div className="conf-row">
@@ -61,7 +97,26 @@ function ReservationConfirmed() {
             </div>
 
             <footer className="footer">
-                <p>Finnamie</p>
+                <div className="footer-links">
+                    <a
+                        href="https://www.finnamie.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Finnamie
+                    </a>
+                    <a
+                        href="https://www.finnamie.com/privacy-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Privacy Policy
+                    </a>
+                </div>
+
+                <p className="footer-copyright">
+                    &copy; {new Date().getFullYear()} Finnamie. All rights reserved.
+                </p>
             </footer>
         </div>
     );
