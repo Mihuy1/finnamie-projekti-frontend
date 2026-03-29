@@ -212,6 +212,40 @@ export const deleteTimeSlotImageByIdAndUrl = async (timeslot_id, image_url) => {
   }
 };
 
+export const deleteExperienceImageByIdAndUrl = async (
+  experience_id,
+  image_url,
+) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL}media/upload/experiences/${experience_id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        body: JSON.stringify({ image_url: image_url }),
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+
+    if (!res.ok) {
+      const ct = res.headers.get("content-type") ?? "";
+      const payload = ct.includes("application/json")
+        ? await res.json()
+        : await res.text();
+      const message =
+        typeof payload === "string"
+          ? payload
+          : (payload?.error ?? payload?.message);
+
+      throw new Error(message || "Failed to delete image.");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting image for timeslot:", error);
+  }
+};
+
 export const deleteTimeSlotImage = async (timeslot_id) => {
   try {
     const res = await fetch(
@@ -251,6 +285,43 @@ export const uploadTimeSlotImage = async (timeslot_id, files) => {
 
   try {
     res = await fetch(`${BASE_URL}media/upload/timeslots/${timeslot_id}`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const ct = res.headers.get("content-type") ?? "";
+    const payload = ct.includes("application/json")
+      ? await res.json()
+      : await res.text();
+
+    if (!res.ok) {
+      const message =
+        typeof payload === "string"
+          ? payload
+          : (payload?.error ?? payload?.message);
+
+      throw new Error(message || "Upload failed");
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Error uploading image for timeslot:", error);
+    throw new Error("Network error. Please try again.");
+  }
+};
+export const uploadExperienceImage = async (experience_id, files) => {
+  console.log("file:", files);
+  const formData = new FormData();
+
+  for (const file of files) {
+    formData.append("images", file);
+  }
+
+  let res;
+
+  try {
+    res = await fetch(`${BASE_URL}media/upload/experiences/${experience_id}`, {
       method: "POST",
       credentials: "include",
       body: formData,

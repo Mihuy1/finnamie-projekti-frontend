@@ -4,8 +4,10 @@ import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
 import {
   deleteExperienceById,
+  deleteExperienceImageByIdAndUrl,
   deleteTimeSlotImageByIdAndUrl,
   updateExperience,
+  uploadExperienceImage,
   uploadTimeSlotImage,
 } from "../api/apiClient";
 import toast from "react-hot-toast";
@@ -118,26 +120,44 @@ export const TimeSlot = ({
 
       if (!result) return;
 
-      // if (toRemoveImages.length > 0) {
-      //   for (const img of toRemoveImages) {
-      //     img.url = img.url.replace(API_BASE_URL, "");
-      //     const res = await deleteTimeSlotImageByIdAndUrl(slot.id, img.url);
+      let updatedResult = result.experience;
 
-      //     if (!res) return;
-      //   }
-      // }
+      if (toRemoveImages.length > 0) {
+        for (const img of toRemoveImages) {
+          img.url = img.url.replace(API_BASE_URL, "");
+          const res = await deleteExperienceImageByIdAndUrl(slot.id, img.url);
 
-      // const newFiles = (images || []).filter((f) => f instanceof File);
+          updatedResult = {
+            ...updatedResult,
+            images: (updatedResult.images || []).filter(
+              (i) => i.url !== img.url,
+            ),
+          };
 
-      // if (newFiles.length > 0) {
-      //   const upload = await uploadTimeSlotImage(slot.id, newFiles);
-      //   if (!upload) return;
-      // }
+          if (!res) return;
+        }
+      }
+
+      const newFiles = (images || []).filter((f) => f instanceof File);
+
+      if (newFiles.length > 0) {
+        const upload = await uploadExperienceImage(slot.id, newFiles);
+        if (!upload || !upload.files) return;
+
+        const newImageObjects = upload.files.map((file) => ({
+          url: file.url,
+        }));
+
+        updatedResult = {
+          ...updatedResult,
+          images: [...(updatedResult.images || []), ...newImageObjects],
+        };
+      }
 
       if (result) {
         toast.success("Timeslot updated successfully!");
-        setSlotData(result.experience);
-        onUpdate?.(result.experience);
+        setSlotData(updatedResult);
+        onUpdate?.(updatedResult);
         setIsEditing(false);
 
         handleClose();
