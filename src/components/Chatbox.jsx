@@ -80,27 +80,13 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
               </button>
             </div>
           </div>
-          <div
-            style={{
-              width: "100%",
-              margin: "auto",
-              display: "flex",
-              height: "500px",
-            }}
-          >
+          <div className="chatbox-main">
             <ConversationList
               handleOpenClick={handleOpenConversation}
               convId={convId}
               messageReceiver={newReceiver}
             />
-            <div
-              style={{
-                width: "80%",
-                display: "flex",
-                flexDirection: "column",
-                maxHeight: "500px",
-              }}
-            >
+            <div className="message-history-wrapper">
               {openConversation && <MessageList conv_id={convId} />}
               <MessageInput conv_id={convId} receiver_id={receiver.id} />
             </div>

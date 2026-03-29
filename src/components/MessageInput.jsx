@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { socket } from "../socket";
+import "../styles/message-styles.css";
 
 export const MessageInput = ({ conv_id, receiver_id }) => {
   const message = useRef(null);
@@ -36,39 +37,15 @@ export const MessageInput = ({ conv_id, receiver_id }) => {
     }
   };
   return (
-    <div
-      style={{
-        display: "flex",
-        margin: "auto",
-        position: "absolute",
-        bottom: "8px",
-      }}
-    >
+    <div className="input-wrapper">
       <textarea
         onKeyDown={handleEnter}
         disabled={!conv_id}
         ref={message}
         placeholder={"Type a message.."}
-        style={{
-          margin: "4px",
-          height: "32px",
-          width: "256px",
-          resize: "none",
-          borderRadius: "4px",
-          scrollbarWidth: "none",
-        }}
+        className="input-textarea"
       ></textarea>
-      <p
-        onClick={send}
-        style={{
-          cursor: "pointer",
-          fontSize: "28px",
-          marginTop: "4px",
-          marginLeft: "4px",
-          marginBottom: "4px",
-          color: "#51a5ff",
-        }}
-      >
+      <p className="send-message-button" onClick={send}>
         ➤
       </p>
     </div>
