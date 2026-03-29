@@ -9,6 +9,7 @@ import { TimeSlot } from "../components/Timeslot";
 import { Chatbox } from "../components/Chatbox";
 import { useAuth } from "../auth/AuthContext";
 import { Review } from "../components/Review";
+import { useChatbox } from "../contexts/ChatboxContext";
 
 export const PublicProfile = () => {
   const { id } = useParams();
@@ -16,8 +17,8 @@ export const PublicProfile = () => {
   const [profile, setProfile] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [openChat, setOpenChat] = useState(false);
   const [reviews, setReviews] = useState([]);
+  const { isOpen, handleOpen } = useChatbox();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -103,19 +104,19 @@ export const PublicProfile = () => {
                   <button
                     className="profile-btn profile-btn-primary"
                     aria-label="Open chat"
-                    onClick={() => setOpenChat(true)}
+                    onClick={handleOpen}
                   >
                     Send a message
                   </button>
                 )}
-                {openChat && (
+                {isOpen && (
                   <Chatbox
-                    closeChat={() => setOpenChat(false)}
                     newReceiver={{
                       first_name: profile?.first_name,
                       last_name: profile?.last_name,
                       user_id: id,
                     }}
+                    loadMessages={true}
                   />
                 )}
                 <p>

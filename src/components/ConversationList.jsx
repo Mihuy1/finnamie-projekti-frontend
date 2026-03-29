@@ -3,12 +3,13 @@ import { useAuth } from "../auth/AuthContext";
 import { getConversations, startConversation } from "../api/apiClient";
 import { CListItem } from "./CListItem";
 
-// TODO:
-//  - avaa oikean keskustelun, kun avaa keskustelut vastaanottajan profiilista.
-export const ConversationList = ({ handleOpen, convId, messageReceiver }) => {
+export const ConversationList = ({
+  handleOpenClick,
+  convId,
+  messageReceiver,
+}) => {
   const [conversations, setConversations] = useState([]);
   const { user } = useAuth();
-
   useEffect(() => {
     if (user) {
       const getConvs = async () => {
@@ -47,7 +48,7 @@ export const ConversationList = ({ handleOpen, convId, messageReceiver }) => {
       {conversations &&
         conversations.map((c) => (
           <CListItem
-            handleOpen={handleOpen}
+            handleOpen={handleOpenClick}
             c={c}
             key={c.conv_id}
             isSelected={c.conv_id === convId}

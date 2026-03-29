@@ -2,11 +2,11 @@ import { useRef } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { socket } from "../socket";
 
-export const MessageInput = ({ conv_id, receiver_id, isOpen }) => {
-  const message = useRef();
+export const MessageInput = ({ conv_id, receiver_id }) => {
+  const message = useRef(null);
   const { user } = useAuth();
 
-  if (!isOpen) {
+  if (!conv_id) {
     return (
       <p style={{ margin: "auto", color: "black" }}>Select a conversation.</p>
     );
@@ -47,7 +47,7 @@ export const MessageInput = ({ conv_id, receiver_id, isOpen }) => {
     >
       <textarea
         onKeyDown={handleEnter}
-        disabled={!isOpen}
+        disabled={!conv_id}
         ref={message}
         placeholder={"Type a message.."}
         style={{

@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { logout } from "../api/apiClient";
-import { useState } from "react";
 import { Chatbox } from "./Chatbox";
+import { useChatbox } from "../contexts/ChatboxContext";
 
 export const Nav = () => {
   const { user } = useAuth();
-  const [openChat, setOpenChat] = useState(false);
+  const { isOpen, handleClose, handleOpen, toggle } = useChatbox();
 
   const handleLogout = async () => {
     console.log("Logout initiated");
@@ -42,10 +42,10 @@ export const Nav = () => {
             </Link>
             <a
               className="nav-conversations-link"
-              onClick={() => setOpenChat(prev => !prev)}
+              onClick={handleOpen}
               style={{
-                cursor: 'pointer',
-                alignItems: 'center',
+                cursor: "pointer",
+                alignItems: "center",
               }}
             >
               Conversations
@@ -58,7 +58,13 @@ export const Nav = () => {
           </>
         )}
       </nav>
-      {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}
+      {isOpen && (
+        <Chatbox
+          loadMessages={
+            false
+          } /* Don't open messages from a specific user when opening from Navbar*/
+        />
+      )}
     </header>
   );
 };

@@ -43,10 +43,6 @@ export const MessageList = ({ conv_id }) => {
     };
   }, []);
 
-  if (!conv_id) {
-    return <p>Loading messages..</p>;
-  }
-
   return (
     <div ref={scrollRef} className="message-wrapper">
       {fetchedMessages &&
