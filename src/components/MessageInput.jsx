@@ -14,7 +14,6 @@ export const MessageInput = ({ conv_id, receiver_id }) => {
 
   const send = (e) => {
     e.preventDefault();
-    // TODO: error handle
     if (message.current.value === "") return;
     try {
       const newMessage = {
