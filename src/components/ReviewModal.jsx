@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from "react";
 import { postReview, updateReview } from "../api/apiClient";
 import toast from "react-hot-toast";

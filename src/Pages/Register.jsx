@@ -28,6 +28,10 @@ export default function Register() {
 
   const navigate = useNavigate();
 
+  const [dobError, setDobError] = useState("");
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const [emailError, setEmailError] = useState("");
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.location-wrapper-host') && !event.target.closest('.activity-wrapper-host')) {
@@ -58,6 +62,20 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
+    const birthDate = new Date(dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    if (age < 18) {
+      toast.error("Registration failed: You must be 18 or older.");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
     if (password !== confirm) {
       toast.error("Passwords do not match.");
       return;
@@ -79,7 +97,12 @@ export default function Register() {
         {
           loading: "Registering account...",
           success: "Account created successfully!",
-          error: (err) => err?.message || "Registration failed.",
+          error: (err) => {
+            if (err.response?.status === 409 || err.message?.includes("already exists")) {
+              return "This email is already registered.";
+            }
+            return "Registration failed. Please try again.";
+          }
         },
       );
 
@@ -97,7 +120,29 @@ export default function Register() {
         }
       }
     } catch (err) {
-      console.error("Registration flow error:", err);
+      const statusCode = err.status || err.response?.status;
+
+      const errorMessage = (
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        ""
+      ).toLowerCase();
+
+      const isEmailTaken =
+        statusCode === 409 ||
+        errorMessage.includes("already exists") ||
+        errorMessage.includes("already in use") ||
+        errorMessage.includes("taken") ||
+        errorMessage.includes("unique violation");
+
+      if (isEmailTaken) {
+        setError("Email already in use. Please use another one or log in.");
+        toast.error("This email is already registered.");
+      } else {
+        setError("An unexpected error occurred. Please try again later.");
+        console.log("Debug info - Status:", statusCode, "Message:", errorMessage);
+      }
     }
   }
 
@@ -138,9 +183,18 @@ export default function Register() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setEmail(val);
+                if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                  setEmailError("Invalid email format");
+                } else {
+                  setEmailError("");
+                }
+              }}
               required
             />
+            {emailError && <span style={{ color: 'red', fontSize: '12px' }}>{emailError}</span>}
           </label>
 
           <label>
@@ -184,9 +238,28 @@ export default function Register() {
             <input
               type="date"
               value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
+              onChange={(e) => {
+                const selectedDate = e.target.value;
+                setDateOfBirth(selectedDate);
+
+                const birthDate = new Date(selectedDate);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                  age--;
+                }
+
+                if (age < 18) {
+                  setDobError("You must be at least 18 years old to register.");
+                } else {
+                  setDobError("");
+                }
+              }}
               required
             />
+            {dobError && <p style={{ color: 'red', fontSize: '12px', marginTop: '5px' }}>{dobError}</p>}
           </label>
 
           <label>

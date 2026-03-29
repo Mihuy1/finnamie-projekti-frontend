@@ -1,11 +1,12 @@
+// @ts-nocheck
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-  const TABS =[
-  { id: "users",label: "Users",icon: "👤" },
+const TABS = [
+  { id: "users", label: "Users", icon: "👤" },
   { id: "suggestions", label: "Suggestions", icon: "💡" },
-  { id: "activities",  label: "Activities",  icon: "🏃" },
-  { id: "timeslots",   label: "Timeslots",   icon: "🕐" },
+  { id: "activities", label: "Activities", icon: "🏃" },
+  { id: "timeslots", label: "Timeslots", icon: "🕐" },
 ];
 
 export const Admin = () => {
@@ -288,8 +289,8 @@ function ActivitiesSection({ activities, setActivities }) {
       <Modal open={showAdd} onClose={() => setShowAdd(false)} title="Add activity">
         {[
           { key: "name", label: "Name", placeholder: "" },
-          { key: "cat",  label: "Category", placeholder: "" },
-          { key: "dur",  label: "Duration (h)", placeholder: "", type: "number" },
+          { key: "cat", label: "Category", placeholder: "" },
+          { key: "dur", label: "Duration (h)", placeholder: "", type: "number" },
         ].map(({ key, label, placeholder, type }) => (
           <div className="form-row" key={key}>
             <label className="form-label">{label}</label>
