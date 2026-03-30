@@ -1,6 +1,8 @@
+// @ts-nocheck
 import { useState } from "react";
 import { postReview, updateReview } from "../api/apiClient";
 import toast from "react-hot-toast";
+import "../styles/review-modal-styles.css";
 
 export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
   const [rating, setRating] = useState(() => reservation?.score || 0);
@@ -46,34 +48,10 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 9999,
-      }}
-      onClick={closeModal}
-    >
+    <div className="review-modal-wrapper" onClick={closeModal}>
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: "12px",
-          padding: "2rem",
-          width: "400px",
-          maxWidth: "90%",
-          boxShadow: "0 5px 20px rgba(0,0,0,0.3)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
+        className="review-modal-content"
       >
         <h2>Leave a review</h2>
         <p>This review will be available publicly on the host's profile.</p>
@@ -94,27 +72,23 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
           ))}
         </div>
 
-        <div style={{ marginTop: "1rem", width: "100%" }}>
+        <div className="review-textarea-wrapper">
           <textarea
+            className="review-textarea"
             placeholder="Write your review..."
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
             rows={4}
-            style={{ width: "100%", resize: "none", padding: "0.5rem" }}
           />
         </div>
 
-        <div style={{ marginTop: "1.5rem", display: "flex", gap: "0.5rem" }}>
+        <div className="review-button-wrapper">
           <button
             onClick={handleSubmit}
+            className="review-button"
             style={{
               background: "#53c45b",
               color: "#fff",
-              border: "none",
-              padding: "0.6rem 1.2rem",
-              borderRadius: "8px",
-              fontWeight: "500",
-              cursor: "pointer",
             }}
             onMouseEnter={(e) => (e.target.style.opacity = "0.85")}
             onMouseLeave={(e) => (e.target.style.opacity = "1")}
@@ -124,14 +98,10 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
 
           <button
             onClick={() => closeModal(false)}
+            className="review-button"
             style={{
               background: "#f3f4f6",
               color: "#111",
-              border: "none",
-              padding: "0.6rem 1.2rem",
-              borderRadius: "8px",
-              fontWeight: "500",
-              cursor: "pointer",
             }}
             onMouseEnter={(e) => (e.target.style.background = "#e5e7eb")}
             onMouseLeave={(e) => (e.target.style.background = "#f3f4f6")}

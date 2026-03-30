@@ -50,29 +50,16 @@ export const TimeSlot = ({
   };
 
   const handleBookNow = () => {
-    const isDiscoverPage = location.pathname.includes("/discover");
-
-    if (isDiscoverPage) {
-      navigate("/book-activity", {
+    if (!user) {
+      navigate("/login", {
         state: {
-          initialCategory: slotData.name,
-          initialLocation: slotData.city,
+          redirectTo: "/reserve-activity",
+          bookingData: slotData,
+          from: location.pathname,
         },
       });
-      handleClose();
     } else {
-      if (!user) {
-        toast.error("Please login to book an activity");
-        navigate("/login", {
-          state: {
-            from: location.pathname,
-            redirectTo: "/reserve-activity",
-            bookingData: slotData,
-          },
-        });
-      } else {
-        navigate("/reserve-activity", { state: { slot: slotData } });
-      }
+      navigate("/reserve-activity", { state: { slot: slotData } });
     }
   };
 

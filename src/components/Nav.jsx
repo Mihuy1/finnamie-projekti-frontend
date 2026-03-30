@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { logout } from "../api/apiClient";
+import { Chatbox } from "./Chatbox";
+import { useChatbox } from "../contexts/ChatboxContext";
 
 export const Nav = () => {
   const { user } = useAuth();
+  const { isOpen, handleClose, handleOpen, toggle } = useChatbox();
 
   const handleLogout = async () => {
     console.log("Logout initiated");
@@ -37,12 +40,31 @@ export const Nav = () => {
             <Link to="/profile">
               {user.first_name} {user.last_name}
             </Link>
+            <a
+              className="nav-conversations-link"
+              onClick={handleOpen}
+              style={{
+                cursor: "pointer",
+                alignItems: "center",
+              }}
+            >
+              Conversations
+              <span className="nav-chat-dot"></span>
+            </a>
+            <Link to="/admin"> Admin page</Link>
             <a className="logout-link" onClick={handleLogout}>
               Logout
             </a>
           </>
         )}
       </nav>
+      {isOpen && (
+        <Chatbox
+          loadMessages={
+            false
+          } /* Don't open messages from a specific user when opening from Navbar*/
+        />
+      )}
     </header>
   );
 };

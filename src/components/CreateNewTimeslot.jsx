@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import Select from "react-select";
@@ -314,6 +315,23 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     styles={{
                       menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                       menu: (base) => ({ ...base, zIndex: 9999 }),
+                      placeholder: (base) => ({
+                        ...base,
+                        fontSize: '12px',
+                        color: '#999',
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        fontSize: '14px',
+                      }),
+                      singleValue: (base) => ({
+                        ...base,
+                        fontSize: '14px',
+                      }),
+                      control: (base) => ({
+                        ...base,
+                        minHeight: '40px',
+                      })
                     }}
                   />
                 </div>

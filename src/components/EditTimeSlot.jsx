@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import AsyncSelect from "react-select/async";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { loadOptions } from "../api/apiClient";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from "react";
 import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
 import { Link, useLocation } from "react-router-dom";
@@ -181,7 +182,7 @@ export default function BookActivity() {
             <div className="discover-filter-bar">
                 <div className="filter-group">
                     <label className="filter-label">Location</label>
-                    <div className="location-wrapper" style={{ position: 'relative', width: '100%' }}>
+                    <div className="location-wrapper-booking" style={{ position: 'relative', width: '100%' }}>
                         <input
                             type="text"
                             className="filter-input"
@@ -202,7 +203,7 @@ export default function BookActivity() {
                         {location && (
                             <button
                                 type="button"
-                                className="clear-location-btn"
+                                className="clear-location-btn-booking"
                                 onClick={() => {
                                     setLocation("");
                                     setShowLocationDropdown(false);
@@ -226,7 +227,6 @@ export default function BookActivity() {
                             </button>
                         )}
 
-                        {/* CUSTOM DROPDOWN VALIKKO */}
                         {showLocationDropdown && filteredMunicipalities.length > 0 && (
                             <ul className="custom-dropdown" >
                                 {filteredMunicipalities.map((m) => (

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useNavigate } from "react-router-dom";
 import Map from "../components/Map";
 import "../App.css";
@@ -18,7 +19,7 @@ function Home() {
   const [searchError, setSearchError] = useState(false);
   const [dateError, setDateError] = useState(false);
 
-  const mapSectionRef = useRef(null);
+  const calendarSectionRef = useRef(null);
   const searchSectionRef = useRef(null);
   const navigate = useNavigate();
 
@@ -30,13 +31,16 @@ function Home() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.location-wrapper') && !event.target.closest('.activity-wrapper')) {
+      if (
+        !event.target.closest(".location-wrapper") &&
+        !event.target.closest(".activity-wrapper")
+      ) {
         setShowDropdown(false);
         setShowActivityDropdown(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   /*useEffect(() => {
@@ -74,8 +78,8 @@ function Home() {
     setSearchError(false);
   };
 
-  const scrollToMap = () => {
-    mapSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToCalendar = () => {
+    calendarSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleSearch = () => {
@@ -85,7 +89,7 @@ function Home() {
     }
 
     setSearchError(false);
-    scrollToMap();
+    scrollToCalendar();
   };
 
   const nextMonth = () => {
@@ -111,25 +115,29 @@ function Home() {
   const handleFinalAction = () => {
     if (!location || selectedActivities.length === 0) {
       setSearchError(true);
-      searchSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      searchSectionRef.current?.scrollIntoView({ behavior: "smooth" });
       return;
     }
 
     if (!date || (Array.isArray(date) && date.length === 0)) {
       setDateError(true);
-      mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      calendarSectionRef.current?.scrollIntoView({ behavior: "smooth" });
       return;
     }
 
-    const selectedActivityObject = activities.find(a => a.id === selectedActivities[0]);
-    const initialCategory = selectedActivityObject ? selectedActivityObject.name : "All";
+    const selectedActivityObject = activities.find(
+      (a) => a.id === selectedActivities[0],
+    );
+    const initialCategory = selectedActivityObject
+      ? selectedActivityObject.name
+      : "All";
 
     navigate("/book-activity", {
       state: {
         initialLocation: location,
         initialDate: date,
-        initialCategory: initialCategory
-      }
+        initialCategory: initialCategory,
+      },
     });
   };
 
@@ -140,8 +148,7 @@ function Home() {
         <p>Find the perfect activity in your favorite location</p>
 
         <div className={`search-box ${searchError ? "search-box-error" : ""}`}>
-
-          <div className={`location-wrapper ${showDropdown ? 'open' : ''}`}>
+          <div className={`location-wrapper ${showDropdown ? "open" : ""}`}>
             <input
               type="text"
               placeholder="Location"
@@ -149,7 +156,13 @@ function Home() {
               value={location}
               onFocus={() => {
                 setShowActivityDropdown(false);
-                setFilteredMunicipalities(location ? municipalities.filter(m => m.toLowerCase().includes(location.toLowerCase())) : municipalities);
+                setFilteredMunicipalities(
+                  location
+                    ? municipalities.filter((m) =>
+                      m.toLowerCase().includes(location.toLowerCase()),
+                    )
+                    : municipalities,
+                );
                 setShowDropdown(true);
               }}
               onChange={(e) => {
@@ -162,7 +175,13 @@ function Home() {
             {showDropdown && filteredMunicipalities.length > 0 && (
               <ul className="custom-dropdown">
                 {filteredMunicipalities.map((m) => (
-                  <li key={m} onMouseDown={() => { setLocation(m); setShowDropdown(false); }}>
+                  <li
+                    key={m}
+                    onMouseDown={() => {
+                      setLocation(m);
+                      setShowDropdown(false);
+                    }}
+                  >
                     {m}
                   </li>
                 ))}
@@ -170,13 +189,22 @@ function Home() {
             )}
 
             {location && (
-              <button type="button" className="clear-location-btn" onClick={() => { setLocation(""); setShowDropdown(false); }}>
+              <button
+                type="button"
+                className="clear-location-btn"
+                onClick={() => {
+                  setLocation("");
+                  setShowDropdown(false);
+                }}
+              >
                 ✕
               </button>
             )}
           </div>
 
-          <div className={`activity-wrapper ${showActivityDropdown ? 'open' : ''}`}>
+          <div
+            className={`activity-wrapper ${showActivityDropdown ? "open" : ""}`}
+          >
             <input
               type="text"
               placeholder="Choose an activity"
@@ -208,11 +236,16 @@ function Home() {
             )}
           </div>
 
-          <button className="search-main-btn" onClick={handleSearch}>Search</button>
+          <button className="search-main-btn" onClick={handleSearch}>
+            Search
+          </button>
         </div>
 
         {searchError && (
-          <p className="error-text-small" style={{ textAlign: 'center', marginTop: '15px' }}>
+          <p
+            className="error-text-small"
+            style={{ textAlign: "center", marginTop: "15px" }}
+          >
             Please select location and activity to continue
           </p>
         )}
@@ -224,12 +257,18 @@ function Home() {
           <div className="step">
             <div className="step-number">1</div>
             <h3>Search</h3>
-            <p>Find a place or activity that fits you. Our discover page helps you find the best options.</p>
+            <p>
+              Find a place or activity that fits you. Our discover page helps
+              you find the best options.
+            </p>
           </div>
           <div className="step">
             <div className="step-number">2</div>
             <h3>Book</h3>
-            <p>Choose your visiting dates on the calendar to view availability and complete your booking online.</p>
+            <p>
+              Choose your visiting dates on the calendar to view availability
+              and complete your booking online.
+            </p>
           </div>
           <div className="step">
             <div className="step-number">3</div>
@@ -239,12 +278,14 @@ function Home() {
         </div>
       </section>
 
-      <section className="map-and-calendar" ref={mapSectionRef}>
+      <section className="map-and-calendar" ref={calendarSectionRef}>
         <div className="map-container">
           <Map activityType={activityType} />
         </div>
 
-        <div className={`calendar-container ${dateError ? "calendar-error-style" : ""}`}>
+        <div
+          className={`calendar-container ${dateError ? "calendar-error-style" : ""}`}
+        >
           <h2>Choose your date</h2>
           <p className="calendar-subtitle">
             Check availability for your selected dates
@@ -252,7 +293,9 @@ function Home() {
 
           <div className="calendar-nav">
             <button onClick={prevMonth}>&lsaquo;</button>
-            <span style={{ fontWeight: 700, color: "#002f6c", fontSize: "16px" }}>
+            <span
+              style={{ fontWeight: 700, color: "#002f6c", fontSize: "16px" }}
+            >
               {activeDate.toLocaleString("en-GB", {
                 month: "long",
                 year: "numeric",
@@ -272,7 +315,9 @@ function Home() {
             }
             showNavigation={false}
           />
-          {dateError && <p className="error-text-small">Please select dates to continue</p>}
+          {dateError && (
+            <p className="error-text-small">Please select dates to continue</p>
+          )}
         </div>
       </section>
 
@@ -283,9 +328,28 @@ function Home() {
       </div>
 
       <footer className="footer">
-        <p>Finnamie</p>
+        <div className="footer-links">
+          <a
+            href="https://www.finnamie.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Finnamie
+          </a>
+          <a
+            href="https://www.finnamie.com/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Privacy Policy
+          </a>
+        </div>
+
+        <p className="footer-copyright">
+          &copy; {new Date().getFullYear()} Finnamie. All rights reserved.
+        </p>
       </footer>
-    </div >
+    </div>
   );
 }
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from "react";
 import { getActivities, getAllExperiencesWithHost } from "../api/apiClient";
 import { Link, useLocation } from "react-router-dom";

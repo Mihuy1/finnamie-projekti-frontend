@@ -14,7 +14,7 @@ import configureLeaflet from "../utils/leaflet-config";
 import { formatDateForInput, formatDateTimeDisplay } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
-import { Chatbox } from "../components/Chatbox";
+// import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 import { useUserProfile } from "../hooks/useUserProfile";
 import toast from "react-hot-toast";
@@ -81,6 +81,27 @@ export const Profile = () => {
   const [reservations, setReservations] = useState([]);
 
   const [reservation, setReservation] = useState({});
+
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [showExpDropdown, setShowExpDropdown] = useState(false);
+  const [filteredCountries, setFilteredCountries] = useState([]);
+
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+
+  const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.guest-wrapper')) {
+        setShowCountryDropdown(false);
+        setShowGenderDropdown(false);
+        setShowExpDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const getCountries = async () => {
@@ -322,6 +343,14 @@ export const Profile = () => {
   const handleActivitySuggestionSubmit = async (e) => {
     e.preventDefault();
 
+    if (!newActivitySuggestionForm.new_activity_suggestion.trim()) {
+      setAttemptedSubmit(true);
+      toast.error("Please enter an activity name");
+      return;
+    }
+
+    setAttemptedSubmit(false);
+
     await toast.promise(
       createActivitySuggestion(
         newActivitySuggestionForm.new_activity_suggestion,
@@ -421,14 +450,14 @@ export const Profile = () => {
                 {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
               </p>
             )}
-            <button
+            {/*<button
               className="profile-btn profile-btn-primary"
               aria-label="Open chat"
               onClick={() => setOpenChat(true)}
             >
               Conversations
             </button>
-            {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}
+            {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}*/}
           </div>
         </div>
 
@@ -469,26 +498,36 @@ export const Profile = () => {
 
           <label>
             Country
-            <select
-              name="country"
-              value={profileForm.country}
-              onChange={handleProfileInputChange}
-              disabled={!isEditing}
-            >
-              {loadingCountries ? (
-                <option value="" disabled>
-                  Loading countries...
-                </option>
-              ) : (
-                <>
-                  {countries.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </>
+            <div className="guest-wrapper">
+              <input
+                type="text"
+                className="guest-input"
+                value={profileForm.country || ""}
+                disabled={!isEditing}
+                onFocus={() => {
+                  if (!isEditing) return;
+                  setFilteredCountries(profileForm.country ? countries.filter(c => c.toLowerCase().includes(profileForm.country.toLowerCase())) : countries);
+                  setShowCountryDropdown(true);
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setProfileForm(prev => ({ ...prev, country: val }));
+                  setFilteredCountries(countries.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                }}
+              />
+              {isEditing && profileForm.country && (
+                <button type="button" className="guest-clear-btn" onClick={() => setProfileForm(prev => ({ ...prev, country: "" }))}>✕</button>
               )}
-            </select>
+              {showCountryDropdown && isEditing && (
+                <ul className="guest-dropdown">
+                  {filteredCountries.map((c) => (
+                    <li key={c} onMouseDown={() => { setProfileForm(prev => ({ ...prev, country: c })); setShowCountryDropdown(false); }}>
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </label>
 
           {isHost && (
@@ -517,16 +556,25 @@ export const Profile = () => {
 
           <label>
             Gender
-            <select
-              name="gender"
-              value={profileForm.gender}
-              onChange={handleProfileInputChange}
-              disabled={!isEditing}
-            >
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="other">Other</option>
-            </select>
+            <div className="guest-wrapper">
+              <input
+                type="text"
+                className="guest-input"
+                value={profileForm.gender ? profileForm.gender.charAt(0).toUpperCase() + profileForm.gender.slice(1) : "Not specified"}
+                readOnly
+                disabled={!isEditing}
+                onClick={() => isEditing && setShowGenderDropdown(!showGenderDropdown)}
+              />
+              {showGenderDropdown && isEditing && (
+                <ul className="guest-dropdown">
+                  {["female", "male", "other"].map((g) => (
+                    <li key={g} onMouseDown={() => { setProfileForm(prev => ({ ...prev, gender: g })); setShowGenderDropdown(false); }}>
+                      {g.charAt(0).toUpperCase() + g.slice(1)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </label>
 
           {isHost && (
@@ -574,17 +622,25 @@ export const Profile = () => {
 
               <label>
                 Experience length
-                <select
-                  name="experience_length"
-                  className="profile-select"
-                  value={profileForm.experience_length || "Both"}
-                  onChange={handleProfileInputChange}
-                  disabled={!isEditing}
-                >
-                  <option value="Half-day">Half-day</option>
-                  <option value="Full-day">Full-day</option>
-                  <option value="Both">Both</option>
-                </select>
+                <div className="guest-wrapper">
+                  <input
+                    type="text"
+                    className="guest-input"
+                    value={profileForm.experience_length || "Both"}
+                    readOnly
+                    disabled={!isEditing}
+                    onClick={() => isEditing && setShowExpDropdown(!showExpDropdown)}
+                  />
+                  {showExpDropdown && isEditing && (
+                    <ul className="guest-dropdown">
+                      {["Half-day", "Full-day", "Both"].map((exp) => (
+                        <li key={exp} onMouseDown={() => { setProfileForm(prev => ({ ...prev, experience_length: exp })); setShowExpDropdown(false); }}>
+                          {exp}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </label>
 
               <label>
@@ -671,8 +727,12 @@ export const Profile = () => {
                 <input
                   type="text"
                   name="new_activity_suggestion"
+                  className={attemptedSubmit && !newActivitySuggestionForm.new_activity_suggestion.trim() ? "input-error" : ""}
                   value={newActivitySuggestionForm.new_activity_suggestion}
-                  onChange={handleActivitySuggestionInput}
+                  onChange={(e) => {
+                    handleActivitySuggestionInput(e);
+                    if (attemptedSubmit) setAttemptedSubmit(false);
+                  }}
                   placeholder="New Activity..."
                 />
               </label>

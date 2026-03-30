@@ -4,15 +4,32 @@ import { MessageInput } from "./MessageInput";
 import { MessageList } from "./MessageList";
 import { ConversationList } from "./ConversationList";
 import "../styles/message-styles.css";
+import { getConversationId } from "../api/apiClient";
+import { useChatbox } from "../contexts/ChatboxContext";
 
-export const Chatbox = ({ closeChat, newReceiver = null }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const Chatbox = ({ newReceiver = null, loadMessages }) => {
+  const { handleClose } = useChatbox();
+  const [openConversation, setOpenConversation] = useState(loadMessages);
   const [receiver, setReceiver] = useState({
     first_name: null,
     last_name: null,
     id: null,
   });
   const [convId, setConvId] = useState("");
+
+  useEffect(() => {
+    if (newReceiver) {
+      const getConvId = async () => {
+        try {
+          const data = await getConversationId(newReceiver.user_id);
+          data && setConvId(data.conv_id);
+        } catch (err) {
+          console.log(err);
+        }
+      };
+      getConvId();
+    }
+  }, [newReceiver]);
 
   // init and cleanup
   useEffect(() => {
@@ -27,14 +44,14 @@ export const Chatbox = ({ closeChat, newReceiver = null }) => {
     if (conv_id !== convId) {
       socket.emit("join conversation", conv_id);
       setConvId(conv_id);
-      setIsOpen(true);
+      setOpenConversation(true);
     } else {
       socket.emit("leave conversation", conv_id);
       setConvId("");
-      setIsOpen(false);
+      setOpenConversation(false);
     }
-    if (isOpen && convId !== conv_id) setIsOpen(true);
-    else setIsOpen(!isOpen);
+    if (openConversation && convId !== conv_id) setOpenConversation(true);
+    else setOpenConversation(!openConversation);
 
     setReceiver({
       first_name,
@@ -57,39 +74,21 @@ export const Chatbox = ({ closeChat, newReceiver = null }) => {
               <button
                 className="chat-close"
                 aria-label="Close chat"
-                onClick={() => closeChat()}
+                onClick={handleClose}
               >
                 ✕
               </button>
             </div>
           </div>
-          <div
-            style={{
-              width: "100%",
-              margin: "auto",
-              display: "flex",
-              height: "500px",
-            }}
-          >
+          <div className="chatbox-main">
             <ConversationList
-              handleOpen={handleOpenConversation}
+              handleOpenClick={handleOpenConversation}
               convId={convId}
               messageReceiver={newReceiver}
             />
-            <div
-              style={{
-                width: "80%",
-                display: "flex",
-                flexDirection: "column",
-                maxHeight: "500px",
-              }}
-            >
-              {isOpen && <MessageList receiver={receiver} conv_id={convId} />}
-              <MessageInput
-                conv_id={convId}
-                receiver_id={receiver.id}
-                isOpen={isOpen}
-              />
+            <div className="message-history-wrapper">
+              {openConversation && <MessageList conv_id={convId} />}
+              <MessageInput conv_id={convId} receiver_id={receiver.id} />
             </div>
           </div>
         </div>

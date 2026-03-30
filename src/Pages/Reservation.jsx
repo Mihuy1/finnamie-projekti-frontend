@@ -41,6 +41,10 @@ export default function Reservation() {
         fetchHost();
     }, [slot?.host_id]);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     if (!slot) {
         return <Navigate to="/book-activity" replace />;
     }

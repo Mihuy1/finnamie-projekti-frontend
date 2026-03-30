@@ -418,6 +418,19 @@ export const getConversations = async () => {
   }
 };
 
+export const getConversationId = async (receiverId) => {
+  try {
+    const res = await fetch(`${BASE_URL}conversations/conv-id/${receiverId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 export const getMessagesByConvId = async (id) => {
   try {
     const res = await fetch(`${BASE_URL}conversations/${id}`, {

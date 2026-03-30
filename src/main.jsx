@@ -5,13 +5,16 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthProvider.jsx";
 import { Toaster } from "react-hot-toast";
+import { ChatboxProvider } from "./contexts/ChatboxProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <Toaster />
-        <App />
+        <ChatboxProvider>
+          <Toaster />
+          <App />
+        </ChatboxProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
