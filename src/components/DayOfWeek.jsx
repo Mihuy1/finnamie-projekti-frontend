@@ -23,7 +23,6 @@ export const DayOfWeek = ({ selectedDays, setSelectedDays }) => {
     <div className="day-selector-container">
       <div className="day-circles-row">
         {daysConfig.map((day) => {
-          // Check if this specific day value is currently selected
           const isActive = selectedDays[day.value] !== null;
 
           return (

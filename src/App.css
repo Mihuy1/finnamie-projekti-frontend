@@ -1871,6 +1871,7 @@ input.activity-input-host {
   display: flex;
   gap: 15px;
   margin-top: 30px;
+  justify-content: space-between;
 }
 
 .book-now-btn {
@@ -2342,6 +2343,11 @@ input.activity-input-host {
   gap: 14px;
 }
 
+.profile-timeslots strong {
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
 .profile-timeslot-list {
   display: flex;
   flex-direction: column;
@@ -2647,6 +2653,7 @@ input.activity-input-host {
 
 .delete-timeslot-btn {
   background: rgba(204, 9, 9);
+  border: none;
   color: white;
   padding: 14px 28px;
   border-radius: 999px;

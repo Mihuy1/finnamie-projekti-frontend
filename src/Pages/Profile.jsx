@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   createActivitySuggestion,
-  createExperience,
   getProfile,
   getReservations,
   loadCountries,
@@ -12,11 +11,7 @@ import isEmail from "validator/lib/isEmail";
 import Select from "react-select";
 import "leaflet/dist/leaflet.css";
 import configureLeaflet from "../utils/leaflet-config";
-import {
-  formatDateForInput,
-  formatDateTimeDisplay,
-  formatDateTimeForInput,
-} from "../utils/date-utils";
+import { formatDateForInput, formatDateTimeDisplay } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
 import { Chatbox } from "../components/Chatbox";
@@ -707,9 +702,12 @@ export const Profile = () => {
                   >
                     <div className="profile-timeslot-summary">
                       <div className="profile-timeslot-summary-main">
-                        <h3>{slot.city || "Unknown City"}</h3>
+                        <h3>{slot.title || "Unknown Title"}</h3>
+                        <p>{slot.city}</p>
+
                         <p>
-                          {slot.rule.start_date} - {slot.rule.end_date}
+                          {new Date(slot.rule.start_date).toLocaleDateString()}{" "}
+                          - {new Date(slot.rule.end_date).toLocaleDateString()}
                         </p>
                         <p>
                           {slot.rule.start_time.slice(0, 5)} -{" "}
@@ -721,11 +719,11 @@ export const Profile = () => {
                         <span className="profile-timeslot-pill">
                           {slot.type === "halfday" ? "Half Day" : "Full Day"}
                         </span>
-                        <span
+                        {/* <span
                           className={`profile-timeslot-pill status-${(slot.res_status || "unknown").toLowerCase()}`}
                         >
                           {slot.res_status || "Unknown"}
-                        </span>
+                        </span> */}
                         <span className="profile-timeslot-chevron">
                           View details
                         </span>

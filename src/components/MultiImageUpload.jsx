@@ -87,21 +87,23 @@ export const MultiImageUpload = ({
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        className="clear-all-btn profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
-        onClick={() => {
-          setToRemoveImages((prev) => [
-            ...prev,
-            ...files
-              .filter((f) => !f.isObjectUrl)
-              .map((f) => ({ url: f.preview, slotId })),
-          ]);
-          setFiles([]);
-        }}
-      >
-        Clear All
-      </button>
+      {files.length > 0 && (
+        <button
+          type="button"
+          className="clear-all-btn profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
+          onClick={() => {
+            setToRemoveImages((prev) => [
+              ...prev,
+              ...files
+                .filter((f) => !f.isObjectUrl)
+                .map((f) => ({ url: f.preview, slotId })),
+            ]);
+            setFiles([]);
+          }}
+        >
+          Clear All
+        </button>
+      )}
     </section>
   );
 };

@@ -5,14 +5,11 @@ import { EditTimeSlot } from "./EditTimeSlot";
 import {
   deleteExperienceById,
   deleteExperienceImageByIdAndUrl,
-  deleteTimeSlotImageByIdAndUrl,
   updateExperience,
   uploadExperienceImage,
-  uploadTimeSlotImage,
 } from "../api/apiClient";
 import toast from "react-hot-toast";
 import configureLeaflet from "../utils/leaflet-config";
-import { formatDateTimeDisplay } from "../utils/date-utils";
 import { Carousel } from "./Carousel";
 import { ConfirmModal } from "./ConfirmModal";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -46,24 +43,6 @@ export const TimeSlot = ({
     if (path.startsWith("/")) return API_BASE_URL + path;
     return API_BASE_URL + "/" + path;
   };
-
-  // // fetch images for this timeslot
-  // useEffect(() => {
-  //   if (images.length > 0) return;
-  //   const fetchImages = async () => {
-  //     try {
-  //       const res = await getTimeSlotImage(slot.id);
-
-  //       if (res) {
-  //         setImages(res.map((img) => img.url));
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching timeslot images:", error);
-  //     }
-  //   };
-
-  //   fetchImages();
-  // }, [slot.id]);
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -220,23 +199,26 @@ export const TimeSlot = ({
                 <span className="profile-timeslot-pill">
                   {slotData.type === "halfday" ? "Half Day" : "Full Day"}
                 </span>
-                <span
+                {/* <span
                   className={`profile-timeslot-pill status-${(slotData.res_status || "unknown").toLowerCase()}`}
                 >
                   {slotData.res_status || "Unknown"}
-                </span>
+                </span> */}
               </div>
 
-              <h2>{slotData.city || "Unknown City"}</h2>
+              <h3>{slotData.title || "Unknown Title"}</h3>
+              <p style={{ marginBottom: "0.5rem" }}>{slotData.city}</p>
 
               <div className="profile-timeslot-detail-grid">
                 <div>
                   <strong>Start</strong>
-                  <p>{formatDateTimeDisplay(slotData.rule.start_time)}</p>
+                  <p>{new Date(slot.rule.start_date).toLocaleDateString()}</p>
+                  <p>{slot.rule.start_time.slice(0, 5)}</p>
                 </div>
                 <div>
                   <strong>End</strong>
-                  <p>{formatDateTimeDisplay(slotData.rule.end_time)}</p>
+                  <p>{new Date(slot.rule.end_date).toLocaleDateString()}</p>
+                  <p>{slot.rule.end_time.slice(0, 5)}</p>
                 </div>
               </div>
 
@@ -257,13 +239,13 @@ export const TimeSlot = ({
               {slotData.description && (
                 <>
                   <hr />
-                  <h3>Description</h3>
+                  <strong>Description</strong>
                   <p className="modal-description">{slotData.description}</p>
                 </>
               )}
 
               <hr />
-              <h3>Location</h3>
+              <strong>Location</strong>
               {slotData.address && (
                 <p className="modal-description">{slotData.address}</p>
               )}
