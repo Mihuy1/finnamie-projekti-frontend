@@ -1,17 +1,19 @@
-// @ts-nocheck
 import { useState, useMemo } from "react";
 import AsyncSelect from "react-select/async";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { loadOptions } from "../api/apiClient";
 import Select from "react-select";
-import { formatDateTimeForInput } from "../utils/date-utils";
 import { MultiImageUpload } from "./MultiImageUpload";
+import { DayOfWeek } from "./DayOfWeek";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
   map.setView(center, 14);
   return null;
 };
+
+const API_BASE_URL = "http://localhost:3000";
+const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
 export const EditTimeSlot = ({
   slot,
@@ -24,8 +26,8 @@ export const EditTimeSlot = ({
     () => ({
       ...slot,
       address: slot.address || "",
-      start_time: formatDateTimeForInput(slot.start_time),
-      end_time: formatDateTimeForInput(slot.end_time),
+      start_time: slot.rule.start_time,
+      end_time: slot.rule.end_time,
       activities: slot.activities || [],
     }),
     [slot],
@@ -36,24 +38,54 @@ export const EditTimeSlot = ({
   const [toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
 
-  const API_BASE_URL = "http://localhost:3000";
-  const FALLBACK_IMAGE = "https://placehold.co/600x400";
+  const bitmaskToState = (bitmask) => {
+    // Create an array of 7 elements
+    return Array.from({ length: 7 }, (_, i) => {
+      // Check if the bit at position 'i' is set in the bitmask
+      // (1 << i) creates the value for that day (1, 2, 4, 8, 16, 32, 64)
+      const isSelected = (bitmask & (1 << i)) !== 0;
+
+      // If selected, return the index (0-6), otherwise return null
+      return isSelected ? i : null;
+    });
+  };
+
+  const [selectedDays, setSelectedDays] = useState(
+    bitmaskToState(slot.rule.weekdays_bitmask),
+  );
 
   const preselectedImageUrls = useMemo(
     () =>
       (images || []).map((path) => {
-        if (!path) return FALLBACK_IMAGE;
-        if (path.startsWith("http://") || path.startsWith("https://"))
-          return path;
-        if (path.startsWith("/")) return API_BASE_URL + path;
-        return API_BASE_URL + "/" + path;
+        if (!path.url) return FALLBACK_IMAGE;
+        if (path.url.startsWith("http://") || path.url.startsWith("https://"))
+          return path.url;
+        if (path.url.startsWith("/")) return API_BASE_URL + path.url;
+        return API_BASE_URL + "/" + path.url;
       }),
     [images],
   );
 
+  const calculateBitmask = (daysArray) => {
+    return daysArray
+      .filter((day) => day !== null)
+      .reduce((acc, index) => acc + (1 << index), 0);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRuleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      rule: {
+        ...prev.rule,
+        [name]: value,
+      },
+    }));
   };
 
   const handleAddressChange = (selected) => {
@@ -71,7 +103,19 @@ export const EditTimeSlot = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData, selectedImages, toRemoveImages);
+
+    const dataToSend = {
+      ...formData,
+      rule: {
+        ...formData.rule,
+        weekdays_bitmask: calculateBitmask(selectedDays),
+      },
+      activity_ids: formData.activities.map((a) => a.id),
+    };
+
+    delete dataToSend.activities;
+
+    onSave(dataToSend, selectedImages, toRemoveImages);
   };
 
   return (
@@ -92,6 +136,17 @@ export const EditTimeSlot = ({
           >
             <div className="modal-body-timeslot">
               <label>
+                Title
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title || ""}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g. Morning Paddleboarding"
+                />
+              </label>
+              <label>
                 City
                 <input
                   type="text"
@@ -104,23 +159,44 @@ export const EditTimeSlot = ({
               </label>
 
               <label>
-                Start Time
+                Start Date
                 <input
-                  type="datetime-local"
-                  name="start_time"
-                  value={formatDateTimeForInput(formData.start_time)}
-                  onChange={handleInputChange}
+                  type="date"
+                  name="start_date"
+                  value={formData.rule.start_date || ""}
+                  onChange={handleRuleInputChange}
                   required
                 />
               </label>
 
               <label>
+                End Date
+                <input
+                  type="date"
+                  name="end_date"
+                  value={formData.rule.end_date || ""}
+                  onChange={handleRuleInputChange}
+                  required
+                />
+              </label>
+
+              <label>
+                Start Time
+                <input
+                  type="time"
+                  name="start_time"
+                  value={formData.rule.start_time || ""}
+                  onChange={handleRuleInputChange}
+                  required
+                />
+              </label>
+              <label>
                 End Time
                 <input
-                  type="datetime-local"
+                  type="time"
                   name="end_time"
-                  value={formatDateTimeForInput(formData.end_time)}
-                  onChange={handleInputChange}
+                  value={formData.rule.end_time || ""}
+                  onChange={handleRuleInputChange}
                   required
                 />
               </label>
@@ -138,7 +214,7 @@ export const EditTimeSlot = ({
                 </select>
               </label>
 
-              <label>
+              {/* <label>
                 Reservation Status
                 <select
                   name="res_status"
@@ -151,7 +227,7 @@ export const EditTimeSlot = ({
                   <option value="reserved">Reserved</option>
                   <option value="pending">Pending</option>
                 </select>
-              </label>
+              </label> */}
 
               <label>
                 Activities
@@ -173,6 +249,28 @@ export const EditTimeSlot = ({
                   placeholder="Select activities..."
                 />
               </label>
+
+              <label>
+                Max Participants
+                <input
+                  type="number"
+                  name="max_participants"
+                  value={formData.rule.max_participants || ""}
+                  onChange={handleRuleInputChange}
+                  min={1}
+                  placeholder="e.g. 10"
+                  max={100}
+                />
+              </label>
+
+              <label>
+                Days of the week
+                <DayOfWeek
+                  selectedDays={selectedDays}
+                  setSelectedDays={setSelectedDays}
+                />
+              </label>
+              <p> bitmask value: {calculateBitmask(selectedDays)} </p>
 
               <label className="profile-full-width">
                 Description

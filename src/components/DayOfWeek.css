@@ -1,0 +1,62 @@
+/* DayOfWeek.css */
+
+.day-selector-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.day-selector-label {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.day-circles-row {
+  display: flex;
+  gap: 12px; /* Space between circles */
+}
+
+/* The base button style */
+.day-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid #6b21a8; /* Your purple color */
+  background-color: transparent;
+  color: #6b21a8;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+/* Hover effect for better UX */
+.day-button:hover {
+  background-color: #f3e8ff;
+}
+
+/* Active / Selected state */
+.day-button.active {
+  background-color: #6b21a8;
+  color: #ffffff;
+}
+
+/* Bitmask info text */
+.bitmask-display {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.bitmask-number {
+  font-weight: bold;
+  color: #6b21a8;
+}

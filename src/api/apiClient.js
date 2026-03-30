@@ -1,6 +1,93 @@
 const BASE_URL = "http://localhost:3000/api/";
 const GEOAPIFY_KEY = "b37952a659224430b7545612f420ab9c";
 
+export const getAllExperiencesWithHost = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}experiences/withHost`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("error fetching all experiences with host:", error);
+  }
+};
+
+export const getExperienceByHostId = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}experiences/host`, {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("error getExperienceByHostId:", error);
+    throw error;
+  }
+};
+
+export const createExperience = async (data, images) => {
+  const formData = new FormData();
+
+  for (const key in data) {
+    const value = data[key];
+
+    if (value === undefined || value === null) continue;
+
+    if (Array.isArray(value)) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, String(value));
+    }
+  }
+
+  if (images) {
+    for (const file of images) {
+      formData.append("images", file);
+    }
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}experiences/host`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Failed to create experience");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Create Experience error:", error);
+    throw error;
+  }
+};
+
+export const deleteExperienceById = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}experiences/host/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("delete experience:", error);
+    throw error;
+  }
+};
+
 export const getAllTimeSlots = async () => {
   try {
     const res = await fetch(`${BASE_URL}timeslots/available`, {
@@ -125,6 +212,40 @@ export const deleteTimeSlotImageByIdAndUrl = async (timeslot_id, image_url) => {
   }
 };
 
+export const deleteExperienceImageByIdAndUrl = async (
+  experience_id,
+  image_url,
+) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL}media/upload/experiences/${experience_id}`,
+      {
+        method: "DELETE",
+        credentials: "include",
+        body: JSON.stringify({ image_url: image_url }),
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+
+    if (!res.ok) {
+      const ct = res.headers.get("content-type") ?? "";
+      const payload = ct.includes("application/json")
+        ? await res.json()
+        : await res.text();
+      const message =
+        typeof payload === "string"
+          ? payload
+          : (payload?.error ?? payload?.message);
+
+      throw new Error(message || "Failed to delete image.");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting image for timeslot:", error);
+  }
+};
+
 export const deleteTimeSlotImage = async (timeslot_id) => {
   try {
     const res = await fetch(
@@ -187,6 +308,73 @@ export const uploadTimeSlotImage = async (timeslot_id, files) => {
   } catch (error) {
     console.error("Error uploading image for timeslot:", error);
     throw new Error("Network error. Please try again.");
+  }
+};
+export const uploadExperienceImage = async (experience_id, files) => {
+  console.log("file:", files);
+  const formData = new FormData();
+
+  for (const file of files) {
+    formData.append("images", file);
+  }
+
+  let res;
+
+  try {
+    res = await fetch(`${BASE_URL}media/upload/experiences/${experience_id}`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const ct = res.headers.get("content-type") ?? "";
+    const payload = ct.includes("application/json")
+      ? await res.json()
+      : await res.text();
+
+    if (!res.ok) {
+      const message =
+        typeof payload === "string"
+          ? payload
+          : (payload?.error ?? payload?.message);
+
+      throw new Error(message || "Upload failed");
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Error uploading image for timeslot:", error);
+    throw new Error("Network error. Please try again.");
+  }
+};
+
+export const updateExperience = async (id, data, images) => {
+  const formData = new FormData();
+
+  for (const key in data) {
+    const value = data[key];
+
+    if (Array.isArray(value) || typeof value === "object")
+      formData.append(key, JSON.stringify(value));
+    else formData.append(key, String(value));
+  }
+
+  if (images) {
+    for (const image of images) {
+      formData.append("images", image);
+    }
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}experiences/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      body: formData,
+    });
+
+    return await res.json();
+  } catch (error) {
+    console.error("Update Experience error:", error);
   }
 };
 

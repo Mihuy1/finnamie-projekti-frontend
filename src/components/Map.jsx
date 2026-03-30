@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-import { getAllTimeSlots } from "../api/apiClient";
+import { getAllExperiencesWithHost, getAllTimeSlots } from "../api/apiClient";
 
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -23,8 +23,9 @@ function Map({ activityType }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const slots = await getAllTimeSlots();
+        const slots = await getAllExperiencesWithHost();
         if (slots) {
+          console.log("slots:", slots);
           setTimeslots(slots);
         }
       } catch (err) {
@@ -58,14 +59,16 @@ function Map({ activityType }) {
             }
 
             const position = [slot.latitude_deg, slot.longitude_deg];
-            const start = new Date(slot.start_time).toLocaleString("en-GB");
-            const end = new Date(slot.end_time).toLocaleString("en-GB");
+            const start = new Date(slot.rule.start_date).toLocaleString(
+              "en-GB",
+            );
+            const end = new Date(slot.rule.end_date).toLocaleString("en-GB");
             return (
               <Marker position={position} key={slot.id}>
                 <Popup>
                   <p>City: {slot.city}</p>
-                  <p>Start: {start}</p>
-                  <p>End: {end}</p>
+                  <p>Start: {slot.rule.start_time}</p>
+                  <p>End: {slot.rule.end_time}</p>
                 </Popup>
               </Marker>
             );

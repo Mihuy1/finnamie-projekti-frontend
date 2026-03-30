@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
-import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
+import { getActivities, getAllExperiencesWithHost } from "../api/apiClient";
 import { Link, useLocation } from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
 
@@ -40,18 +40,18 @@ export default function Discover() {
       name: "Traditional Smoke Sauna",
       category: "Wellness",
       city: "Helsinki",
-      image_url: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format",
+      image_url:
+        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format",
       experience_length: "Half-day",
     },
   ];
-
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [actData, slotData] = await Promise.all([
           getActivities(),
-          getAllTimeSlotsWithHost()
+          getAllExperiencesWithHost(),
         ]);
 
         const finalActivities = actData?.length > 0 ? actData : placeholders;
@@ -72,17 +72,19 @@ export default function Discover() {
     let result = [...source];
 
     if (location) {
-      result = result.filter(item =>
-        item.city?.toLowerCase().includes(location.toLowerCase())
+      result = result.filter((item) =>
+        item.city?.toLowerCase().includes(location.toLowerCase()),
       );
     }
 
     if (selectedCategory !== "All") {
-      result = result.filter(item => {
+      result = result.filter((item) => {
         if (item.activities) {
-          return item.activities.some(act => act.name === selectedCategory);
+          return item.activities.some((act) => act.name === selectedCategory);
         }
-        return item.category === selectedCategory || item.name === selectedCategory;
+        return (
+          item.category === selectedCategory || item.name === selectedCategory
+        );
       });
     }
 
@@ -93,7 +95,7 @@ export default function Discover() {
       const end = new Date(d[1] || d[0]);
       end.setHours(23, 59, 59, 999);
 
-      result = result.filter(slot => {
+      result = result.filter((slot) => {
         const slotTime = new Date(slot.start_time);
         return slotTime >= start && slotTime <= end;
       });
@@ -111,12 +113,17 @@ export default function Discover() {
   return (
     <section className="discover-page">
       <div className="navigation-header">
-        <Link to="/" className="back-link">← Back to Booking</Link>
+        <Link to="/" className="back-link">
+          ← Back to Booking
+        </Link>
       </div>
 
       <header className="discover-header">
         <h1>Available Activities</h1>
-        <p>Explore experiences in {location || "Finland"} for your selected dates.</p>
+        <p>
+          Explore experiences in {location || "Finland"} for your selected
+          dates.
+        </p>
       </header>
 
       <div className="filter-container">
@@ -126,7 +133,7 @@ export default function Discover() {
         >
           All
         </button>
-        {[...new Set(activities.map(act => act.name))].sort().map(name => (
+        {[...new Set(activities.map((act) => act.name))].sort().map((name) => (
           <button
             key={name}
             className={`filter-btn ${selectedCategory === name ? "active" : ""}`}
@@ -146,11 +153,16 @@ export default function Discover() {
               onClick={() => setSelectedSlot(item)}
             >
               <div className="card-image">
-                <img src={resolveImage(item.images?.[0]?.url || item.image_url)} alt={item.name} />
+                <img
+                  src={resolveImage(item.images?.[0]?.url || item.image_url)}
+                  alt={item.name}
+                />
                 <span className="duration-badge">{item.experience_length}</span>
               </div>
               <div className="card-content">
-                <span className="host-tag">{item.first_name} {item.last_name}</span>
+                <span className="host-tag">
+                  {item.first_name} {item.last_name}
+                </span>
                 <span className="location-tag">📍 {item.city}</span>
                 <h3>{item.name}</h3>
                 <p className="category-text">{item.category}</p>
@@ -158,7 +170,9 @@ export default function Discover() {
             </div>
           ))
         ) : (
-          <div className="no-results">No activities found for these filters.</div>
+          <div className="no-results">
+            No activities found for these filters.
+          </div>
         )}
       </div>
 
@@ -168,6 +182,8 @@ export default function Discover() {
           activities={activities}
           canEdit={false}
           onClose={() => setSelectedSlot(null)}
+          onDelete={() => {}}
+          onUpdate={() => {}}
         />
       )}
     </section>

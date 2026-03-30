@@ -47,16 +47,16 @@ export default function HostRegister() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        !event.target.closest('.location-wrapper') &&
-        !event.target.closest('.activity-wrapper')
+        !event.target.closest(".location-wrapper") &&
+        !event.target.closest(".activity-wrapper")
       ) {
         setShowCountryDropdown(false);
         setShowGenderDropdown(false);
         setShowActivityDropdown(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -296,7 +296,9 @@ export default function HostRegister() {
           </label>
           <label>
             <span className="required">Country</span>
-            <div className={`location-wrapper-host ${showCountryDropdown ? 'open' : ''}`}>
+            <div
+              className={`location-wrapper-host ${showCountryDropdown ? "open" : ""}`}
+            >
               <input
                 type="text"
                 placeholder={loadingCountries ? "Loading..." : "Select country"}
@@ -305,13 +307,23 @@ export default function HostRegister() {
                 onFocus={() => {
                   setShowGenderDropdown(false);
                   setShowActivityDropdown(false);
-                  setFilteredCountries(country ? countries.filter(c => c.toLowerCase().includes(country.toLowerCase())) : countries);
+                  setFilteredCountries(
+                    country
+                      ? countries.filter((c) =>
+                          c.toLowerCase().includes(country.toLowerCase()),
+                        )
+                      : countries,
+                  );
                   setShowCountryDropdown(true);
                 }}
                 onChange={(e) => {
                   const val = e.target.value;
                   setCountry(val);
-                  setFilteredCountries(countries.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                  setFilteredCountries(
+                    countries.filter((c) =>
+                      c.toLowerCase().includes(val.toLowerCase()),
+                    ),
+                  );
                 }}
               />
               {country && (
@@ -330,7 +342,13 @@ export default function HostRegister() {
               {showCountryDropdown && (
                 <ul className="custom-dropdown">
                   {filteredCountries.map((c) => (
-                    <li key={c} onMouseDown={() => { setCountry(c); setShowCountryDropdown(false); }}>
+                    <li
+                      key={c}
+                      onMouseDown={() => {
+                        setCountry(c);
+                        setShowCountryDropdown(false);
+                      }}
+                    >
                       {c}
                     </li>
                   ))}
@@ -352,11 +370,15 @@ export default function HostRegister() {
 
         <label>
           <span className="required">Gender</span>
-          <div className={`activity-wrapper-host ${showGenderDropdown ? 'open' : ''}`}>
+          <div
+            className={`activity-wrapper-host ${showGenderDropdown ? "open" : ""}`}
+          >
             <input
               type="text"
               className="activity-input-host"
-              value={gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : ""}
+              value={
+                gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : ""
+              }
               placeholder="Select gender"
               readOnly
               onClick={() => {
@@ -368,7 +390,13 @@ export default function HostRegister() {
             {showGenderDropdown && (
               <ul className="custom-dropdown">
                 {["female", "male", "other"].map((g) => (
-                  <li key={g} onMouseDown={() => { setGender(g); setShowGenderDropdown(false); }}>
+                  <li
+                    key={g}
+                    onMouseDown={() => {
+                      setGender(g);
+                      setShowGenderDropdown(false);
+                    }}
+                  >
                     {g.charAt(0).toUpperCase() + g.slice(1)}
                   </li>
                 ))}
@@ -376,12 +404,17 @@ export default function HostRegister() {
             )}
           </div>
         </label>
-        <h2><span className="required">Activities you offer</span></h2>
+        <h2>
+          <span className="required">Activities you offer</span>
+        </h2>
         <p className="field-description">
           Select the types of activities you can provide to travelers.
         </p>
 
-        <div className={`activity-wrapper-host ${showActivityDropdown ? 'open' : ''}`} style={{ marginBottom: '20px' }}>
+        <div
+          className={`activity-wrapper-host ${showActivityDropdown ? "open" : ""}`}
+          style={{ marginBottom: "20px" }}
+        >
           <input
             type="text"
             className="activity-input-host"
@@ -401,7 +434,10 @@ export default function HostRegister() {
                   <li
                     key={activity.id}
                     onMouseDown={() => {
-                      setSelectedActivities([...selectedActivities, activity.id]);
+                      setSelectedActivities([
+                        ...selectedActivities,
+                        activity.id,
+                      ]);
                       setShowActivityDropdown(false);
                     }}
                   >
@@ -416,7 +452,8 @@ export default function HostRegister() {
           <div className="selected-tags">
             {selectedActivities.map((activityId) => (
               <span key={activityId} className="tag">
-                {activities.find((a) => a.id === activityId)?.name ?? activityId}
+                {activities.find((a) => a.id === activityId)?.name ??
+                  activityId}
                 <button
                   type="button"
                   onClick={() => removeActivity(activityId)}

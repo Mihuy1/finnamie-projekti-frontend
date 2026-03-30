@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
   getActivities,
+  getExperienceByHostId,
   getProfile,
   getSuggestionActivitiesByHostId,
-  getTimeSlotsByHostId,
 } from "../api/apiClient";
 import { formatDateForInput } from "../utils/date-utils";
 
@@ -44,9 +44,12 @@ export const useUserProfile = (user, loading) => {
 
           try {
             const [hostTimeslots, suggestions] = await Promise.all([
-              getTimeSlotsByHostId(user.id),
+              // getTimeSlotsByHostId(user.id),
+              getExperienceByHostId(),
               getSuggestionActivitiesByHostId(),
             ]);
+
+            console.log("hostTimeslots", hostTimeslots);
 
             setTimeSlots(hostTimeslots || []);
             activitiesSuggestionData = Array.isArray(suggestions)

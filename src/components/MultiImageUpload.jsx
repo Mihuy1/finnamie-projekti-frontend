@@ -9,7 +9,7 @@ const mapPreselectedToFiles = (preselectedImages = []) =>
   }));
 
 export const MultiImageUpload = ({
-  slotId,
+  slotId = null,
   preselectedImages = [],
   onChange,
   setToRemoveImages,
@@ -74,7 +74,7 @@ export const MultiImageUpload = ({
               className="preview-remove-btn"
               onClick={() => {
                 setFiles((prev) => prev.filter((_, i) => i !== index));
-                if (!file.isObjectUrl) {
+                if (!file.isObjectUrl && slotId !== null) {
                   setToRemoveImages((prev) => [
                     ...prev,
                     { url: file.preview, slotId },
@@ -87,21 +87,23 @@ export const MultiImageUpload = ({
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        className="clear-all-btn profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
-        onClick={() => {
-          setToRemoveImages((prev) => [
-            ...prev,
-            ...files
-              .filter((f) => !f.isObjectUrl)
-              .map((f) => ({ url: f.preview, slotId })),
-          ]);
-          setFiles([]);
-        }}
-      >
-        Clear All
-      </button>
+      {files.length > 0 && (
+        <button
+          type="button"
+          className="clear-all-btn profile-btn profile-btn-secondary profile-timeslot-edit-trigger"
+          onClick={() => {
+            setToRemoveImages((prev) => [
+              ...prev,
+              ...files
+                .filter((f) => !f.isObjectUrl)
+                .map((f) => ({ url: f.preview, slotId })),
+            ]);
+            setFiles([]);
+          }}
+        >
+          Clear All
+        </button>
+      )}
     </section>
   );
 };

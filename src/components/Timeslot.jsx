@@ -1,17 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
 import {
-  deleteTimeslot,
-  deleteTimeSlotImageByIdAndUrl,
-  getTimeSlotImage,
-  updateTimeSlot,
-  uploadTimeSlotImage,
+  deleteExperienceById,
+  deleteExperienceImageByIdAndUrl,
+  updateExperience,
+  uploadExperienceImage,
 } from "../api/apiClient";
 import toast from "react-hot-toast";
 import configureLeaflet from "../utils/leaflet-config";
-import { formatDateTimeDisplay } from "../utils/date-utils";
 import { Carousel } from "./Carousel";
 import { ConfirmModal } from "./ConfirmModal";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -34,7 +32,6 @@ export const TimeSlot = ({
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
-  const [images, setImages] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const API_BASE_URL = "http://localhost:3000";
@@ -47,24 +44,6 @@ export const TimeSlot = ({
     return API_BASE_URL + "/" + path;
   };
 
-  // fetch images for this timeslot
-  useEffect(() => {
-    if (images.length > 0) return;
-    const fetchImages = async () => {
-      try {
-        const res = await getTimeSlotImage(slot.id);
-
-        if (res) {
-          setImages(res.map((img) => img.url));
-        }
-      } catch (error) {
-        console.error("Error fetching timeslot images:", error);
-      }
-    };
-
-    fetchImages();
-  }, [slot.id]);
-
   const handleClose = () => {
     setIsModalOpen(false);
     onClose?.();
@@ -76,8 +55,8 @@ export const TimeSlot = ({
         state: {
           redirectTo: "/reserve-activity",
           bookingData: slotData,
-          from: location.pathname
-        }
+          from: location.pathname,
+        },
       });
     } else {
       navigate("/reserve-activity", { state: { slot: slotData } });
@@ -86,7 +65,7 @@ export const TimeSlot = ({
 
   const handleDelete = async (timeslotId) => {
     try {
-      const res = await deleteTimeslot(timeslotId);
+      const res = await deleteExperienceById(timeslotId);
 
       if (!res.error) {
         toast.success("Timeslot deleted successfully!");
@@ -101,24 +80,25 @@ export const TimeSlot = ({
     }
   };
 
-  const handleSave = async (updatedData, images, toRemoveImages) => {
+  const handleEdit = async (updatedData, images, toRemoveImages) => {
     try {
-      const dataToSend = {
-        ...updatedData,
-        activity_ids: (updatedData.activities || []).map((a) => a.id),
-      };
-
-      // Clean up for API
-      delete dataToSend.activities;
-
-      const result = await updateTimeSlot(slot.id, dataToSend);
+      const result = await updateExperience(slot.id, updatedData, images);
 
       if (!result) return;
+
+      let updatedResult = result.experience;
 
       if (toRemoveImages.length > 0) {
         for (const img of toRemoveImages) {
           img.url = img.url.replace(API_BASE_URL, "");
-          const res = await deleteTimeSlotImageByIdAndUrl(slot.id, img.url);
+          const res = await deleteExperienceImageByIdAndUrl(slot.id, img.url);
+
+          updatedResult = {
+            ...updatedResult,
+            images: (updatedResult.images || []).filter(
+              (i) => i.url !== img.url,
+            ),
+          };
 
           if (!res) return;
         }
@@ -127,14 +107,23 @@ export const TimeSlot = ({
       const newFiles = (images || []).filter((f) => f instanceof File);
 
       if (newFiles.length > 0) {
-        const upload = await uploadTimeSlotImage(slot.id, newFiles);
-        if (!upload) return;
+        const upload = await uploadExperienceImage(slot.id, newFiles);
+        if (!upload || !upload.files) return;
+
+        const newImageObjects = upload.files.map((file) => ({
+          url: file.url,
+        }));
+
+        updatedResult = {
+          ...updatedResult,
+          images: [...(updatedResult.images || []), ...newImageObjects],
+        };
       }
 
       if (result) {
         toast.success("Timeslot updated successfully!");
-        setSlotData(updatedData);
-        onUpdate?.(updatedData);
+        setSlotData(updatedResult);
+        onUpdate?.(updatedResult);
         setIsEditing(false);
 
         handleClose();
@@ -150,9 +139,9 @@ export const TimeSlot = ({
         <EditTimeSlot
           slot={slotData}
           activities={activities}
-          images={images}
+          images={slotData.images}
           onCancel={() => handleClose()}
-          onSave={handleSave}
+          onSave={handleEdit}
         />
       </div>
     );
@@ -184,9 +173,11 @@ export const TimeSlot = ({
               ×
             </button>
 
-            {images && images.length > 0 && (
+            {slot.images && (
               <div className="modal-image">
-                <Carousel images={images.map((img) => resolveImage(img))} />
+                <Carousel
+                  images={slot.images.map((img) => resolveImage(img.url))}
+                />
               </div>
             )}
 
@@ -195,23 +186,26 @@ export const TimeSlot = ({
                 <span className="profile-timeslot-pill">
                   {slotData.type === "halfday" ? "Half Day" : "Full Day"}
                 </span>
-                <span
+                {/* <span
                   className={`profile-timeslot-pill status-${(slotData.res_status || "unknown").toLowerCase()}`}
                 >
                   {slotData.res_status || "Unknown"}
-                </span>
+                </span> */}
               </div>
 
-              <h2>{slotData.city || "Unknown City"}</h2>
+              <h3>{slotData.title || "Unknown Title"}</h3>
+              <p style={{ marginBottom: "0.5rem" }}>{slotData.city}</p>
 
               <div className="profile-timeslot-detail-grid">
                 <div>
                   <strong>Start</strong>
-                  <p>{formatDateTimeDisplay(slotData.start_time)}</p>
+                  <p>{new Date(slot.rule.start_date).toLocaleDateString()}</p>
+                  <p>{slot.rule.start_time.slice(0, 5)}</p>
                 </div>
                 <div>
                   <strong>End</strong>
-                  <p>{formatDateTimeDisplay(slotData.end_time)}</p>
+                  <p>{new Date(slot.rule.end_date).toLocaleDateString()}</p>
+                  <p>{slot.rule.end_time.slice(0, 5)}</p>
                 </div>
               </div>
 
@@ -232,13 +226,13 @@ export const TimeSlot = ({
               {slotData.description && (
                 <>
                   <hr />
-                  <h3>Description</h3>
+                  <strong>Description</strong>
                   <p className="modal-description">{slotData.description}</p>
                 </>
               )}
 
               <hr />
-              <h3>Location</h3>
+              <strong>Location</strong>
               {slotData.address && (
                 <p className="modal-description">{slotData.address}</p>
               )}
@@ -266,7 +260,7 @@ export const TimeSlot = ({
               </div>
 
               {canEdit ? (
-                <div className="modal-actions">
+                <div className="modal-actions-timeslot">
                   <button
                     type="button"
                     className="profile-btn profile-btn-secondary"
@@ -289,10 +283,7 @@ export const TimeSlot = ({
                 </div>
               ) : (
                 <div className="modal-actions">
-                  <button
-                    onClick={handleBookNow}
-                    className="book-now-btn"
-                  >
+                  <button onClick={handleBookNow} className="book-now-btn">
                     {location.pathname.includes("/discover")
                       ? "View available times"
                       : "Book this activity"}

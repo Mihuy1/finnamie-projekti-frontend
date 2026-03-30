@@ -762,19 +762,28 @@ export const Profile = () => {
                   >
                     <div className="profile-timeslot-summary">
                       <div className="profile-timeslot-summary-main">
-                        <h3>{slot.city || "Unknown City"}</h3>
-                        <p>{formatDateTimeDisplay(slot.start_time)}</p>
+                        <h3>{slot.title || "Unknown Title"}</h3>
+                        <p>{slot.city}</p>
+
+                        <p>
+                          {new Date(slot.rule.start_date).toLocaleDateString()}{" "}
+                          - {new Date(slot.rule.end_date).toLocaleDateString()}
+                        </p>
+                        <p>
+                          {slot.rule.start_time.slice(0, 5)} -{" "}
+                          {slot.rule.end_time.slice(0, 5)}
+                        </p>
                       </div>
 
                       <div className="profile-timeslot-summary-meta">
                         <span className="profile-timeslot-pill">
                           {slot.type === "halfday" ? "Half Day" : "Full Day"}
                         </span>
-                        <span
+                        {/* <span
                           className={`profile-timeslot-pill status-${(slot.res_status || "unknown").toLowerCase()}`}
                         >
                           {slot.res_status || "Unknown"}
-                        </span>
+                        </span> */}
                         <span className="profile-timeslot-chevron">
                           View details
                         </span>
@@ -830,7 +839,9 @@ export const Profile = () => {
                     <Reservation
                       key={res.reservation_id}
                       inPast={new Date() >= new Date(res.res_date)}
-                      formattedDate={formatDateTimeDisplay(res.res_date).split(",")}
+                      formattedDate={formatDateTimeDisplay(res.res_date).split(
+                        ",",
+                      )}
                       reservation={res}
                       handleModalOpen={handleModalOpen}
                     />
