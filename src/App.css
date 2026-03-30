@@ -2072,7 +2072,7 @@ input.activity-input-host {
   font-size: 16px;
   line-height: 1.6;
   color: #444;
-  margin: 20px 0;
+  /* margin: 20px 0; */
 }
 
 .modal-actions-timeslot {
@@ -2254,6 +2254,10 @@ input.activity-input-host {
 }
 
 /* Profile */
+
+.timeslot-modal-header p {
+  color: #34495e;
+}
 
 .profile-select {
   width: 100%;

@@ -82,7 +82,7 @@ export const TimeSlot = ({
 
   const handleEdit = async (updatedData, images, toRemoveImages) => {
     try {
-      const result = await updateExperience(slot.id, updatedData, images);
+      const result = await updateExperience(slotData.id, updatedData, images);
 
       if (!result) return;
 
@@ -91,7 +91,10 @@ export const TimeSlot = ({
       if (toRemoveImages.length > 0) {
         for (const img of toRemoveImages) {
           img.url = img.url.replace(API_BASE_URL, "");
-          const res = await deleteExperienceImageByIdAndUrl(slot.id, img.url);
+          const res = await deleteExperienceImageByIdAndUrl(
+            slotData.id,
+            img.url,
+          );
 
           updatedResult = {
             ...updatedResult,
@@ -107,7 +110,7 @@ export const TimeSlot = ({
       const newFiles = (images || []).filter((f) => f instanceof File);
 
       if (newFiles.length > 0) {
-        const upload = await uploadExperienceImage(slot.id, newFiles);
+        const upload = await uploadExperienceImage(slotData.id, newFiles);
         if (!upload || !upload.files) return;
 
         const newImageObjects = upload.files.map((file) => ({
@@ -155,7 +158,7 @@ export const TimeSlot = ({
           title="Delete Timeslot"
           confirmText="Delete"
           declineText="Cancel"
-          onConfirm={() => handleDelete(slot.id)}
+          onConfirm={() => handleDelete(slotData.id)}
           onDecline={() => {
             setIsModalOpen(true);
             setConfirmDelete(false);
@@ -173,10 +176,10 @@ export const TimeSlot = ({
               ×
             </button>
 
-            {slot.images && (
+            {slotData.images && (
               <div className="modal-image">
                 <Carousel
-                  images={slot.images.map((img) => resolveImage(img.url))}
+                  images={slotData.images.map((img) => resolveImage(img.url))}
                 />
               </div>
             )}
@@ -193,19 +196,23 @@ export const TimeSlot = ({
                 </span> */}
               </div>
 
-              <h3>{slotData.title || "Unknown Title"}</h3>
-              <p style={{ marginBottom: "0.5rem" }}>{slotData.city}</p>
+              <div className="timeslot-modal-header">
+                <h3>{slotData.title || "Unknown Title"}</h3>
+                <p style={{ marginBottom: "0.5rem" }}>{slotData.city}</p>
+              </div>
 
               <div className="profile-timeslot-detail-grid">
                 <div>
                   <strong>Start</strong>
-                  <p>{new Date(slot.rule.start_date).toLocaleDateString()}</p>
-                  <p>{slot.rule.start_time.slice(0, 5)}</p>
+                  <p>
+                    {new Date(slotData.rule.start_date).toLocaleDateString()}
+                  </p>
+                  <p>{slotData.rule.start_time.slice(0, 5)}</p>
                 </div>
                 <div>
                   <strong>End</strong>
-                  <p>{new Date(slot.rule.end_date).toLocaleDateString()}</p>
-                  <p>{slot.rule.end_time.slice(0, 5)}</p>
+                  <p>{new Date(slotData.rule.end_date).toLocaleDateString()}</p>
+                  <p>{slotData.rule.end_time.slice(0, 5)}</p>
                 </div>
               </div>
 
