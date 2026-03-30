@@ -2075,7 +2075,7 @@ input.activity-input-host {
   margin: 20px 0;
 }
 
-.modal-actions {
+.modal-actions-timeslot {
   display: flex;
   gap: 15px;
   margin-top: 30px;

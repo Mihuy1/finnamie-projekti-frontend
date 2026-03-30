@@ -260,7 +260,7 @@ export const TimeSlot = ({
               </div>
 
               {canEdit ? (
-                <div className="modal-actions">
+                <div className="modal-actions-timeslot">
                   <button
                     type="button"
                     className="profile-btn profile-btn-secondary"
