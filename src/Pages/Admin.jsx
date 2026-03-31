@@ -1,6 +1,16 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  acceptActivitySuggestion,
+  deleteActivity,
+  deleteUser,
+  getActivities,
+  getAllActivitySuggestions,
+  getAllUsers,
+  rejectActivitySuggestion,
+} from "../api/apiClient";
+import toast from "react-hot-toast";
 
 const TABS = [
   { id: "users", label: "Users", icon: "👤" },
@@ -19,10 +29,28 @@ export const Admin = () => {
 
   const pendingCount = suggestions.filter((s) => s.status === "pending").length;
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const usersRes = await getAllUsers();
+      const activitiesRes = await getActivities();
+      const activitiesSuggestionsRes = await getAllActivitySuggestions();
+
+      console.log("activities sugestions:", activitiesSuggestionsRes);
+
+      setUsers(usersRes);
+      setActivities(activitiesRes);
+      setSuggestions(activitiesSuggestionsRes);
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="admin">
       <div className="admin-sidebar">
-        <Link to="/" className="admin-back-btn">← Back</Link>
+        <Link to="/" className="admin-back-btn">
+          ← Back
+        </Link>
         <div className="admin-sidebar-title">Admin</div>
         {TABS.map((tab) => (
           <div
@@ -44,10 +72,16 @@ export const Admin = () => {
           <UsersSection users={users} setUsers={setUsers} />
         )}
         {activeTab === "suggestions" && (
-          <SuggestionsSection suggestions={suggestions} setSuggestions={setSuggestions} />
+          <SuggestionsSection
+            suggestions={suggestions}
+            setSuggestions={setSuggestions}
+          />
         )}
         {activeTab === "activities" && (
-          <ActivitiesSection activities={activities} setActivities={setActivities} />
+          <ActivitiesSection
+            activities={activities}
+            setActivities={setActivities}
+          />
         )}
         {activeTab === "timeslots" && (
           <TimeslotsSection timeslots={timeslots} setTimeslots={setTimeslots} />
@@ -57,20 +91,27 @@ export const Admin = () => {
   );
 };
 
-
-
 function initials(name) {
-  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 function formatTime(iso) {
   const d = new Date(iso);
-  const date = d.toLocaleDateString("fi-FI", { day: "numeric", month: "numeric" });
-  const time = d.toLocaleTimeString("fi-FI", { hour: "2-digit", minute: "2-digit" });
+  const date = d.toLocaleDateString("fi-FI", {
+    day: "numeric",
+    month: "numeric",
+  });
+  const time = d.toLocaleTimeString("fi-FI", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   return { date, time };
 }
-
-
 
 function Modal({ open, onClose, title, desc, children }) {
   if (!open) return null;
@@ -85,12 +126,24 @@ function Modal({ open, onClose, title, desc, children }) {
   );
 }
 
-function ConfirmModal({ open, onClose, onConfirm, title, desc }) {
+function ConfirmModal({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  desc,
+  confirmButtonText = "Delete",
+  confirmButtonColor = "danger",
+}) {
   return (
     <Modal open={open} onClose={onClose} title={title} desc={desc}>
       <div className="modal-actions">
-        <button className="btn" onClick={onClose}>Cancel</button>
-        <button className="btn btn-danger" onClick={onConfirm}>Delete</button>
+        <button className="btn" onClick={onClose}>
+          Cancel
+        </button>
+        <button className={`btn btn-${confirmButtonColor}`} onClick={onConfirm}>
+          {confirmButtonText}
+        </button>
       </div>
     </Modal>
   );
@@ -102,11 +155,24 @@ function UsersSection({ users, setUsers }) {
   const [query, setQuery] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const filtered = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(query.toLowerCase()) ||
-      u.email.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = users.filter((u) => {
+    const searchText =
+      `${u.first_name || ""} ${u.last_name || ""} ${u.email || ""}`.toLowerCase();
+    return searchText.includes(query.toLowerCase());
+  });
+
+  const removeUser = async (id) => {
+    await toast.promise(deleteUser(id), {
+      loading: "Deleting user...",
+      success: (res) => res?.message || "User deleted successfully",
+      error: (error) => {
+        if (error.status === 404) return "User not found";
+        return error?.message || "Failed to delete user";
+      },
+    });
+
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+  };
 
   return (
     <>
@@ -140,18 +206,38 @@ function UsersSection({ users, setUsers }) {
               <tr key={u.id}>
                 <td>
                   <div className="user-cell">
-                    <div className="avatar">{initials(u.name)}</div>
-                    <span>{u.name}</span>
+                    {u.image_url === null ? (
+                      <>
+                        <div className="avatar">{initials(u.first_name)}</div>
+                      </>
+                    ) : (
+                      <div className="avatar">
+                        <img
+                          className="avatar-img"
+                          src={`http://localhost:3000${u.image_url}`}
+                          alt="Profile avatar"
+                          // onClick={handleImageClick}
+                        />
+                      </div>
+                    )}
+                    <span>
+                      {u.first_name} {u.last_name}{" "}
+                    </span>
                   </div>
                 </td>
                 <td className="td-muted">{u.email}</td>
                 <td>
-                  <span className={`pill ${u.role === "Admin" ? "pill-admin" : "pill-user"}`}>
+                  <span
+                    className={`pill ${u.role === "Admin" ? "pill-admin" : "pill-user"}`}
+                  >
                     {u.role}
                   </span>
                 </td>
                 <td>
-                  <button className="btn btn-danger" onClick={() => setDeleteTarget(u)}>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => setDeleteTarget(u)}
+                  >
                     Delete
                   </button>
                 </td>
@@ -164,12 +250,13 @@ function UsersSection({ users, setUsers }) {
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+        onConfirm={async () => {
+          await removeUser(deleteTarget.id);
           setDeleteTarget(null);
         }}
         title="Confirm delete"
         desc={`Are you sure you want to delete user ${deleteTarget?.name}?`}
+        confirmButtonText="Delete"
       />
     </>
   );
@@ -177,11 +264,35 @@ function UsersSection({ users, setUsers }) {
 
 // Suggestions section
 
-const STATUS_LABEL = { pending: "Pending", accepted: "Accepted", rejected: "Rejected" };
-
 function SuggestionsSection({ suggestions, setSuggestions }) {
-  const decide = (id, status) => {
-    setSuggestions((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
+  const [rejectedSuggestion, setRejectedSuggestion] = useState();
+  const [acceptedSuggestion, setAcceptedSuggestion] = useState();
+
+  const acceptSuggestion = async (id, name) => {
+    await toast.promise(acceptActivitySuggestion(id, name), {
+      loading: `Accepting ${name}...`,
+      success: (res) => res?.message || "Activity Suggestion accepted",
+      error: (error) => {
+        if (error?.status === 409) return "Activity already exists";
+        if (error?.status === 404) return "Activity suggestion not found";
+        return error?.message || "Failed to accept activity";
+      },
+    });
+
+    setSuggestions((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const rejectSuggestion = async (id, name) => {
+    await toast.promise(rejectActivitySuggestion(id), {
+      loading: `Rejecting ${name}...`,
+      success: (res) => res?.message || "Activity Suggestion rejected",
+      error: (error) => {
+        if (error?.status === 404) return "Activity Suggestion not found";
+        return error?.message || "Failed to reject Activity Suggestion";
+      },
+    });
+
+    setSuggestions((prev) => prev.filter((s) => s.id !== id));
   };
 
   return (
@@ -195,7 +306,6 @@ function SuggestionsSection({ suggestions, setSuggestions }) {
             <tr>
               <th>Suggestion</th>
               <th>Submitted by</th>
-              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -203,31 +313,61 @@ function SuggestionsSection({ suggestions, setSuggestions }) {
             {suggestions.map((s) => (
               <tr key={s.id}>
                 <td className="td-bold">{s.name}</td>
-                <td className="td-muted">{s.user}</td>
-                <td>
-                  <span className={`pill pill-${s.status}`}>
-                    {STATUS_LABEL[s.status]}
-                  </span>
+                <td className="td-muted">
+                  {s.first_name} {s.last_name}
                 </td>
+
                 <td>
-                  {s.status === "pending" ? (
-                    <div className="btn-row">
-                      <button className="btn btn-success" onClick={() => decide(s.id, "accepted")}>
-                        Accept
-                      </button>
-                      <button className="btn btn-danger" onClick={() => decide(s.id, "rejected")}>
-                        Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="td-dash">—</span>
-                  )}
+                  <div className="btn-row">
+                    <button
+                      className="btn btn-success"
+                      onClick={() => setAcceptedSuggestion(s)}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => setRejectedSuggestion(s)}
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        open={!!rejectedSuggestion}
+        onClose={() => setRejectedSuggestion(null)}
+        onConfirm={async () => {
+          await rejectSuggestion(
+            rejectedSuggestion.id,
+            rejectedSuggestion.name,
+          );
+          setRejectedSuggestion(null);
+        }}
+        title="Confirm Reject"
+        desc={`Are you sure you want to reject suggestion ${rejectedSuggestion?.name}?`}
+        confirmButtonText="Reject"
+      />
+      <ConfirmModal
+        open={!!acceptedSuggestion}
+        onClose={() => setAcceptedSuggestion(null)}
+        onConfirm={async () => {
+          await acceptSuggestion(
+            acceptedSuggestion.id,
+            acceptedSuggestion.name,
+          );
+          setAcceptedSuggestion(null);
+        }}
+        title="Confirm Accept"
+        desc={`Are you sure you want to accept suggestion ${acceptedSuggestion?.name}?`}
+        confirmButtonText="Accept"
+        confirmButtonColor="success"
+      />
     </>
   );
 }
@@ -243,10 +383,28 @@ function ActivitiesSection({ activities, setActivities }) {
     if (!form.name.trim()) return;
     setActivities((prev) => [
       ...prev,
-      { id: Date.now(), name: form.name, cat: form.cat || "—", dur: (form.dur || 60) + " h" },
+      {
+        id: Date.now(),
+        name: form.name,
+        cat: form.cat || "—",
+        dur: (form.dur || 60) + " h",
+      },
     ]);
     setForm({ name: "", cat: "", dur: "" });
     setShowAdd(false);
+  };
+
+  const removeActivity = async (id) => {
+    await toast.promise(deleteActivity(id), {
+      loading: "Deleting activity...",
+      success: (res) => res?.message || "Activity deleted successfully",
+      error: (error) => {
+        if (error?.status === 404) return "Activity not found";
+        return "Error deleting activity";
+      },
+    });
+
+    setActivities((prev) => prev.filter((a) => a.id !== id));
   };
 
   return (
@@ -256,7 +414,9 @@ function ActivitiesSection({ activities, setActivities }) {
 
       <div className="admin-top-bar">
         <span />
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add</button>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+          + Add
+        </button>
       </div>
 
       <div className="table-card">
@@ -264,8 +424,6 @@ function ActivitiesSection({ activities, setActivities }) {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Category</th>
-              <th>Duration</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -273,10 +431,11 @@ function ActivitiesSection({ activities, setActivities }) {
             {activities.map((a) => (
               <tr key={a.id}>
                 <td style={{ fontWeight: 500 }}>{a.name}</td>
-                <td className="td-muted">{a.cat}</td>
-                <td className="td-muted">{a.dur}</td>
                 <td>
-                  <button className="btn btn-danger" onClick={() => setDeleteTarget(a)}>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => setDeleteTarget(a)}
+                  >
                     Delete
                   </button>
                 </td>
@@ -286,11 +445,20 @@ function ActivitiesSection({ activities, setActivities }) {
         </table>
       </div>
 
-      <Modal open={showAdd} onClose={() => setShowAdd(false)} title="Add activity">
+      <Modal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        title="Add activity"
+      >
         {[
           { key: "name", label: "Name", placeholder: "" },
           { key: "cat", label: "Category", placeholder: "" },
-          { key: "dur", label: "Duration (h)", placeholder: "", type: "number" },
+          {
+            key: "dur",
+            label: "Duration (h)",
+            placeholder: "",
+            type: "number",
+          },
         ].map(({ key, label, placeholder, type }) => (
           <div className="form-row" key={key}>
             <label className="form-label">{label}</label>
@@ -299,21 +467,27 @@ function ActivitiesSection({ activities, setActivities }) {
               type={type || "text"}
               placeholder={placeholder}
               value={form[key]}
-              onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, [key]: e.target.value }))
+              }
             />
           </div>
         ))}
         <div className="modal-actions">
-          <button className="btn" onClick={() => setShowAdd(false)}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSave}>Save</button>
+          <button className="btn" onClick={() => setShowAdd(false)}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={handleSave}>
+            Save
+          </button>
         </div>
       </Modal>
 
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          setActivities((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+        onConfirm={async () => {
+          await removeActivity(deleteTarget.id);
           setDeleteTarget(null);
         }}
         title="Confirm delete"
@@ -337,7 +511,7 @@ function TimeslotsSection({ timeslots, setTimeslots }) {
 
   const handleSaveEdit = () => {
     setTimeslots((prev) =>
-      prev.map((t) => (t.id === editTarget.id ? { ...t, ...editForm } : t))
+      prev.map((t) => (t.id === editTarget.id ? { ...t, ...editForm } : t)),
     );
     setEditTarget(null);
   };
@@ -364,18 +538,29 @@ function TimeslotsSection({ timeslots, setTimeslots }) {
               const full = t.booked >= t.max;
               return (
                 <tr key={t.id}>
-                  <td>{date} <strong>{time}</strong></td>
+                  <td>
+                    {date} <strong>{time}</strong>
+                  </td>
                   <td>{t.act}</td>
                   <td className="td-muted">{t.instructor}</td>
                   <td>
-                    <span className={`pill ${full ? "pill-full" : "pill-open"}`}>
+                    <span
+                      className={`pill ${full ? "pill-full" : "pill-open"}`}
+                    >
                       {t.booked}/{t.max}
                     </span>
                   </td>
                   <td>
                     <div className="btn-row">
-                      <button className="btn" onClick={() => openEdit(t)}>Edit</button>
-                      <button className="btn btn-danger" onClick={() => setDeleteTarget(t)}>Delete</button>
+                      <button className="btn" onClick={() => openEdit(t)}>
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => setDeleteTarget(t)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -385,14 +570,20 @@ function TimeslotsSection({ timeslots, setTimeslots }) {
         </table>
       </div>
 
-      <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit timeslot">
+      <Modal
+        open={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        title="Edit timeslot"
+      >
         <div className="form-row">
           <label className="form-label">Time</label>
           <input
             className="form-input"
             type="datetime-local"
             value={editForm.time}
-            onChange={(e) => setEditForm((f) => ({ ...f, time: e.target.value }))}
+            onChange={(e) =>
+              setEditForm((f) => ({ ...f, time: e.target.value }))
+            }
           />
         </div>
         <div className="form-row">
@@ -400,12 +591,18 @@ function TimeslotsSection({ timeslots, setTimeslots }) {
           <input
             className="form-input"
             value={editForm.instructor}
-            onChange={(e) => setEditForm((f) => ({ ...f, instructor: e.target.value }))}
+            onChange={(e) =>
+              setEditForm((f) => ({ ...f, instructor: e.target.value }))
+            }
           />
         </div>
         <div className="modal-actions">
-          <button className="btn" onClick={() => setEditTarget(null)}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSaveEdit}>Save</button>
+          <button className="btn" onClick={() => setEditTarget(null)}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={handleSaveEdit}>
+            Save
+          </button>
         </div>
       </Modal>
 
