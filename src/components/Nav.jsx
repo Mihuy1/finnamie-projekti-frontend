@@ -1,23 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { logout } from "../api/apiClient";
 import { Chatbox } from "./Chatbox";
 import { useChatbox } from "../contexts/ChatboxContext";
 
 export const Nav = () => {
-  const { user } = useAuth();
-  const { isOpen, handleClose, handleOpen, toggle } = useChatbox();
+  const { user, setUser } = useAuth();
+  const { isOpen, handleClose, handleOpen } = useChatbox();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
-    console.log("Logout initiated");
     try {
       await logout();
-      localStorage.removeItem("token");
-      // jos logouttaa, kun on profiilisivulla niin profiili jää auki
-      // onko haluttu toiminnallisuus?
-      window.location.reload();
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+      handleClose();
+      navigate("/", { replace: true });
     }
   };
 
@@ -51,7 +52,7 @@ export const Nav = () => {
               Conversations
               <span className="nav-chat-dot"></span>
             </a>
-            <Link to="/admin"> Admin page</Link>
+            {user.role === "admin" && <Link to="/admin"> Admin page</Link>}
             <a className="logout-link" onClick={handleLogout}>
               Logout
             </a>
