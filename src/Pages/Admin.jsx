@@ -75,6 +75,7 @@ export const Admin = () => {
           <SuggestionsSection
             suggestions={suggestions}
             setSuggestions={setSuggestions}
+            setActivities={setActivities}
           />
         )}
         {activeTab === "activities" && (
@@ -264,7 +265,7 @@ function UsersSection({ users, setUsers }) {
 
 // Suggestions section
 
-function SuggestionsSection({ suggestions, setSuggestions }) {
+function SuggestionsSection({ suggestions, setSuggestions, setActivities }) {
   const [rejectedSuggestion, setRejectedSuggestion] = useState();
   const [acceptedSuggestion, setAcceptedSuggestion] = useState();
 
@@ -278,6 +279,11 @@ function SuggestionsSection({ suggestions, setSuggestions }) {
         return error?.message || "Failed to accept activity";
       },
     });
+
+    const updatedActivities = await getActivities();
+    if (Array.isArray(updatedActivities)) {
+      setActivities(updatedActivities);
+    }
 
     setSuggestions((prev) => prev.filter((s) => s.id !== id));
   };
