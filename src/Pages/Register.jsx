@@ -32,6 +32,35 @@ export default function Register() {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [emailError, setEmailError] = useState("");
 
+  const [strength, setStrength] = useState("");
+  const [strengthColor, setStrengthColor] = useState("");
+
+  const handlePasswordChange = (val) => {
+    setPassword(val);
+
+    if (!val) {
+      setStrength("");
+      return;
+    }
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    if (score <= 1) {
+      setStrength("Weak");
+      setStrengthColor("#ff4d4d");
+    } else if (score === 2 || score === 3) {
+      setStrength("Moderate");
+      setStrengthColor("#ffa500");
+    } else {
+      setStrength("Strong");
+      setStrengthColor("#27ae60");
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.location-wrapper-host') && !event.target.closest('.activity-wrapper-host')) {
@@ -78,6 +107,11 @@ export default function Register() {
 
     if (password !== confirm) {
       toast.error("Passwords do not match.");
+      return;
+    }
+
+    if (strength === "Weak") {
+      toast.error("Password is too weak. Please use at least 8 characters and numbers.");
       return;
     }
 
@@ -293,9 +327,20 @@ export default function Register() {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => handlePasswordChange(e.target.value)}
               required
             />
+            {strength && (
+              <div style={{
+                fontSize: "12px",
+                fontWeight: "bold",
+                color: strengthColor,
+                marginTop: "4px",
+                textAlign: "right"
+              }}>
+                {strength}
+              </div>
+            )}
           </label>
 
           <label>

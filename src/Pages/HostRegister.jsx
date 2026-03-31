@@ -41,6 +41,8 @@ export default function HostRegister() {
   const [countries, setCountries] = useState([]);
   const { refresh } = useAuth();
   const [phoneError, setPhoneError] = useState("");
+  const [strength, setStrength] = useState("");
+  const [strengthColor, setStrengthColor] = useState("");
 
   const navigate = useNavigate();
 
@@ -98,6 +100,32 @@ export default function HostRegister() {
     e.target.value = "";
   };
 
+  const handlePasswordChange = (val) => {
+    setPassword(val);
+
+    if (!val) {
+      setStrength("");
+      return;
+    }
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    if (score <= 1) {
+      setStrength("Weak");
+      setStrengthColor("#ff4d4d");
+    } else if (score === 2 || score === 3) {
+      setStrength("Moderate");
+      setStrengthColor("#ffa500");
+    } else {
+      setStrength("Strong");
+      setStrengthColor("#27ae60");
+    }
+  };
+
   const handlePhoneNumberInputChange = (value) => {
     const normalized = value || "";
     setPhoneNumber(normalized);
@@ -123,6 +151,12 @@ export default function HostRegister() {
     e.preventDefault();
 
     setError("");
+
+    if (strength === "Weak") {
+      setError("Password is too weak. Use at least 8 characters, including numbers or capital letters.");
+      toast.error("Password is too weak.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -235,9 +269,20 @@ export default function HostRegister() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => handlePasswordChange(e.target.value)}
             required
           />
+          {strength && (
+            <div style={{
+              fontSize: "12px",
+              fontWeight: "bold",
+              color: strengthColor,
+              marginTop: "4px",
+              textAlign: "right"
+            }}>
+              {strength}
+            </div>
+          )}
         </label>
 
         <label>
@@ -310,8 +355,8 @@ export default function HostRegister() {
                   setFilteredCountries(
                     country
                       ? countries.filter((c) =>
-                          c.toLowerCase().includes(country.toLowerCase()),
-                        )
+                        c.toLowerCase().includes(country.toLowerCase()),
+                      )
                       : countries,
                   );
                   setShowCountryDropdown(true);
