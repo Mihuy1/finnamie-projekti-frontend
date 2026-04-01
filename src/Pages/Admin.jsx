@@ -5,20 +5,32 @@ import {
   acceptActivitySuggestion,
   createActivity,
   deleteActivity,
+  deleteExperienceById,
+  deleteExperienceImageByIdAndUrl,
   deleteUser,
   getActivities,
   getAllActivitySuggestions,
   getAllExperiencesWithHost,
   getAllUsers,
   rejectActivitySuggestion,
+  updateActivityNameById,
+  updateExperience,
+  uploadExperienceImage,
 } from "../api/apiClient";
+import {
+  formatLocalDateRange,
+  formatLocalTimeRange,
+} from "../utils/date-utils";
 import toast from "react-hot-toast";
+import { EditTimeSlot } from "../components/EditTimeSlot";
+
+const API_BASE_URL = "http://localhost:3000";
 
 const TABS = [
   { id: "users", label: "Users", icon: "👤" },
-  { id: "suggestions", label: "Suggestions", icon: "💡" },
   { id: "activities", label: "Activities", icon: "🏃" },
-  { id: "timeslots", label: "Timeslots", icon: "🕐" },
+  { id: "suggestions", label: "Suggestions", icon: "💡" },
+  { id: "experiences", label: "Experiences", icon: "🕐" },
 ];
 
 const sortByName = (items = []) =>
@@ -34,7 +46,7 @@ export const Admin = () => {
   const [users, setUsers] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [activities, setActivities] = useState([]);
-  const [timeslots, setTimeslots] = useState([]);
+  const [experiences, setExperiences] = useState([]);
 
   const pendingCount = suggestions.filter((s) => s.status === "pending").length;
 
@@ -48,7 +60,7 @@ export const Admin = () => {
       setUsers(usersRes);
       setActivities(sortByName(activitiesRes));
       setSuggestions(activitiesSuggestionsRes);
-      setTimeslots(experiences);
+      setExperiences(Array.isArray(experiences) ? experiences : []);
     };
 
     fetchData();
@@ -93,8 +105,11 @@ export const Admin = () => {
             setActivities={setActivities}
           />
         )}
-        {activeTab === "timeslots" && (
-          <TimeslotsSection timeslots={timeslots} setTimeslots={setTimeslots} />
+        {activeTab === "experiences" && (
+          <ExperiencesSection
+            experiences={experiences}
+            setExperiences={setExperiences}
+          />
         )}
       </div>
     </div>
@@ -108,19 +123,6 @@ function initials(name) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
-}
-
-function formatTime(iso) {
-  const d = new Date(iso);
-  const date = d.toLocaleDateString("fi-FI", {
-    day: "numeric",
-    month: "numeric",
-  });
-  const time = d.toLocaleTimeString("fi-FI", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return { date, time };
 }
 
 function Modal({ open, onClose, title, desc, children }) {
@@ -392,6 +394,8 @@ function SuggestionsSection({ suggestions, setSuggestions, setActivities }) {
 function ActivitiesSection({ activities, setActivities }) {
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({ name: "" });
 
   const handleSave = async () => {
@@ -432,6 +436,26 @@ function ActivitiesSection({ activities, setActivities }) {
     setActivities((prev) => prev.filter((a) => a.id !== id));
   };
 
+  const editActivity = async () => {
+    await toast.promise(
+      updateActivityNameById(editTarget.id, editTarget.name || ""),
+      {
+        loading: "Updating activity name...",
+        success: (res) => res?.message || "Activity name updated!",
+        error: (err) => {
+          return err?.message || "Failed to update activity";
+        },
+      },
+    );
+
+    setActivities((prev) =>
+      prev.map((a) => (a.id === editTarget.id ? editTarget : a)),
+    );
+
+    setEditTarget(null);
+    setIsEditing(false);
+  };
+
   return (
     <>
       <div className="admin-page-title">Activities</div>
@@ -457,12 +481,23 @@ function ActivitiesSection({ activities, setActivities }) {
               <tr key={a.id}>
                 <td style={{ fontWeight: 500 }}>{a.name}</td>
                 <td>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => setDeleteTarget(a)}
-                  >
-                    Delete
-                  </button>
+                  <div className="btn-row">
+                    <button
+                      className="btn"
+                      onClick={() => {
+                        setEditTarget(a);
+                        setIsEditing(true);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => setDeleteTarget(a)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -501,6 +536,35 @@ function ActivitiesSection({ activities, setActivities }) {
         </div>
       </Modal>
 
+      <Modal
+        open={isEditing}
+        onClose={() => setIsEditing(false)}
+        title="Edit activity"
+      >
+        <div className="form-row">
+          <label className="form-label">Name</label>
+          <input
+            className="form-input"
+            type={"text"}
+            value={editTarget?.name}
+            onChange={(e) =>
+              setEditTarget((prev) => ({
+                ...prev,
+                name: e.target.value,
+              }))
+            }
+          />
+        </div>
+        <div className="modal-actions">
+          <button className="btn" onClick={() => setIsEditing(false)}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={editActivity}>
+            Edit
+          </button>
+        </div>
+      </Modal>
+
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -515,67 +579,180 @@ function ActivitiesSection({ activities, setActivities }) {
   );
 }
 
-// Timeslots section
+// Experiences sections
 
-function TimeslotsSection({ timeslots, setTimeslots }) {
-  const [editTarget, setEditTarget] = useState(null);
+function ExperiencesSection({ experiences, setExperiences }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [editForm, setEditForm] = useState({ time: "", instructor: "" });
+  const [selectedExperience, setSelectedExperience] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const openEdit = (ts) => {
-    setEditTarget(ts);
-    setEditForm({ time: ts.time, instructor: ts.instructor });
-  };
-
-  const handleSaveEdit = () => {
-    setTimeslots((prev) =>
-      prev.map((t) => (t.id === editTarget.id ? { ...t, ...editForm } : t)),
+  const removeExperience = async (id) => {
+    await toast.promise(
+      (async () => {
+        const res = await deleteExperienceById(id);
+        if (res?.error || res?.success === false) {
+          throw new Error(
+            res?.message || res?.error || "Failed to delete experience",
+          );
+        }
+        return res;
+      })(),
+      {
+        loading: "Deleting experience...",
+        success: (res) => res?.message || "Experience deleted successfully",
+        error: (error) => error?.message || "Failed to delete experience",
+      },
     );
-    setEditTarget(null);
+
+    setExperiences((prev) => prev.filter((e) => e.id !== id));
   };
+
+  const handleUpdateExperience = async (
+    updatedData,
+    images,
+    toRemoveImages,
+  ) => {
+    const result = await toast.promise(
+      updateExperience(selectedExperience.id, updatedData, images),
+      {
+        loading: "Updating experience...",
+        success: (res) => res?.message || "Experience updated successfully",
+        error: (err) => {
+          return err?.message || "Failed to update experience";
+        },
+      },
+    );
+
+    console.log(result);
+
+    let updatedResult = result.experience;
+
+    if (toRemoveImages.length > 0) {
+      for (const img of toRemoveImages) {
+        img.url = img.url.replace(API_BASE_URL, "");
+        const res = await deleteExperienceImageByIdAndUrl(
+          selectedExperience.id,
+          img.url,
+
+          (updatedResult = {
+            ...updatedResult,
+            images: (updatedResult.images || []).filter(
+              (i) => i.url !== img.url,
+            ),
+          }),
+        );
+        if (!res) return;
+      }
+    }
+
+    const newFiles = (images || []).filter((f) => f instanceof File);
+
+    if (newFiles.length > 0) {
+      const upload = await uploadExperienceImage(
+        selectedExperience.id,
+        newFiles,
+      );
+      if (!upload || !upload.files) return;
+
+      const newImageObjects = upload.files.map((file) => ({
+        url: file.url,
+      }));
+
+      updatedResult = {
+        ...updatedResult,
+        images: [...(updatedResult.images || []), ...newImageObjects],
+      };
+    }
+
+    setIsEditing(false);
+    setSelectedExperience(null);
+    setExperiences((prev) =>
+      prev.map((e) => (e.id === updatedResult.id ? updatedResult : e)),
+    );
+
+    console.log("updatedResult:", updatedResult);
+  };
+
+  if (isEditing && selectedExperience) {
+    return (
+      <EditTimeSlot
+        slot={selectedExperience}
+        images={selectedExperience.images}
+        onCancel={() => {
+          setIsEditing(false);
+          setSelectedExperience(null);
+        }}
+        onSave={handleUpdateExperience}
+      />
+    );
+  }
 
   return (
     <>
-      <div className="admin-page-title">Schedules</div>
-      <div className="admin-page-sub">All timeslots</div>
+      <div className="admin-page-title">Experiences</div>
+      <div className="admin-page-sub">All published experiences</div>
 
       <div className="table-card">
         <table className="admin-table">
           <thead>
             <tr>
+              <th>Title</th>
+              <th>Date</th>
               <th>Time</th>
-              <th>Activity</th>
+              <th>Type</th>
               <th>Host</th>
-              <th>Bookings</th>
+              <th>Activity</th>
+              <th>City</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {timeslots.map((t) => {
-              const { date, time } = formatTime(t.time);
-              const full = t.booked >= t.max;
+            {experiences.map((e) => {
+              const hostName =
+                [e.first_name, e.last_name].filter(Boolean).join(" ") ||
+                e.host_id ||
+                "-";
+              const startDate = e.rule?.start_date;
+              const endDate = e.rule?.end_date;
+              const startTime = e.rule?.start_time;
+              const endTime = e.rule?.end_time;
+
+              const dateRange = formatLocalDateRange(startDate, endDate);
+              const timeRange = formatLocalTimeRange(
+                startDate,
+                startTime,
+                endDate,
+                endTime,
+              );
+
+              const activities = e.activities.map((a) => a.name);
+
               return (
-                <tr key={t.id}>
-                  <td>
-                    {date} <strong>{time}</strong>
+                <tr key={e.id}>
+                  <td style={{ fontWeight: 500 }}>{e.title || "Untitled"}</td>
+                  <td className="td-muted">{dateRange}</td>
+                  <td className="td-muted">{timeRange}</td>
+                  <td className="td-muted">
+                    {e.type || e.experience_length || "-"}
                   </td>
-                  <td>{t.act}</td>
-                  <td className="td-muted">{t.instructor}</td>
-                  <td>
-                    <span
-                      className={`pill ${full ? "pill-full" : "pill-open"}`}
-                    >
-                      {t.booked}/{t.max}
-                    </span>
-                  </td>
+                  <td className="td-muted">{hostName}</td>
+                  <td className="td-muted">{activities.join(", ")}</td>
+
+                  <td className="td-muted">{e.city || "-"}</td>
                   <td>
                     <div className="btn-row">
-                      <button className="btn" onClick={() => openEdit(t)}>
+                      <button
+                        className="btn"
+                        onClick={() => {
+                          setSelectedExperience(e);
+                          setIsEditing(true);
+                        }}
+                      >
                         Edit
                       </button>
                       <button
                         className="btn btn-danger"
-                        onClick={() => setDeleteTarget(t)}
+                        onClick={() => setDeleteTarget(e)}
                       >
                         Delete
                       </button>
@@ -588,51 +765,15 @@ function TimeslotsSection({ timeslots, setTimeslots }) {
         </table>
       </div>
 
-      <Modal
-        open={!!editTarget}
-        onClose={() => setEditTarget(null)}
-        title="Edit timeslot"
-      >
-        <div className="form-row">
-          <label className="form-label">Time</label>
-          <input
-            className="form-input"
-            type="datetime-local"
-            value={editForm.time}
-            onChange={(e) =>
-              setEditForm((f) => ({ ...f, time: e.target.value }))
-            }
-          />
-        </div>
-        <div className="form-row">
-          <label className="form-label">Instructor</label>
-          <input
-            className="form-input"
-            value={editForm.instructor}
-            onChange={(e) =>
-              setEditForm((f) => ({ ...f, instructor: e.target.value }))
-            }
-          />
-        </div>
-        <div className="modal-actions">
-          <button className="btn" onClick={() => setEditTarget(null)}>
-            Cancel
-          </button>
-          <button className="btn btn-primary" onClick={handleSaveEdit}>
-            Save
-          </button>
-        </div>
-      </Modal>
-
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          setTimeslots((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+        onConfirm={async () => {
+          await removeExperience(deleteTarget.id);
           setDeleteTarget(null);
         }}
         title="Confirm delete"
-        desc="Are you sure you want to delete this timeslot?"
+        desc={`Are you sure you want to delete experience ${deleteTarget?.title || ""}?`}
       />
     </>
   );

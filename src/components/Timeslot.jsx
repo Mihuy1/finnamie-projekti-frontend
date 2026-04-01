@@ -82,7 +82,16 @@ export const TimeSlot = ({
 
   const handleEdit = async (updatedData, images, toRemoveImages) => {
     try {
-      const result = await updateExperience(slotData.id, updatedData, images);
+      const result = await toast.promise(
+        updateExperience(slotData.id, updatedData, images),
+        {
+          loading: "Updating experience...",
+          success: (res) => res?.message || "Experience updated successfully",
+          error: (err) => {
+            return err?.message || "Failed to update experience";
+          },
+        },
+      );
 
       if (!result) return;
 
@@ -123,14 +132,11 @@ export const TimeSlot = ({
         };
       }
 
-      if (result) {
-        toast.success("Timeslot updated successfully!");
-        setSlotData(updatedResult);
-        onUpdate?.(updatedResult);
-        setIsEditing(false);
+      setSlotData(updatedResult);
+      onUpdate?.(updatedResult);
+      setIsEditing(false);
 
-        handleClose();
-      }
+      handleClose();
     } catch (error) {
       console.error("Error saving timeslot:", error);
     }

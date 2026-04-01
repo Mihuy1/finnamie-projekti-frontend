@@ -125,7 +125,7 @@ export const EditTimeSlot = ({
         onClick={(e) => e.stopPropagation()}
       >
         <button className="close-modal" onClick={onCancel}>
-          x
+          ×
         </button>
         <div className="profile-timeslot-edit-form">
           <h3 className="profile-timeslot-edit-title">Edit Timeslot</h3>

@@ -81,7 +81,17 @@ export const deleteExperienceById = async (id) => {
       },
     });
 
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong during experience deletion";
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
   } catch (error) {
     console.error("delete experience:", error);
     throw error;
@@ -372,7 +382,18 @@ export const updateExperience = async (id, data, images) => {
       body: formData,
     });
 
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while updating experience";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
   } catch (error) {
     console.error("Update Experience error:", error);
   }
