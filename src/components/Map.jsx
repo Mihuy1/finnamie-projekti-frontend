@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { Markers } from "./Markers";
 
 import { getAllExperiencesWithHost, getAllTimeSlots } from "../api/apiClient";
 
@@ -19,6 +20,7 @@ L.Icon.Default.mergeOptions({
 
 function Map({ activityType }) {
   const [timeslots, setTimeslots] = useState([]);
+  const mapCenter = [60.31, 24.54];
 
   useEffect(() => {
     async function fetchData() {
@@ -48,6 +50,7 @@ function Map({ activityType }) {
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <Markers center={mapCenter} />
         {filteredSlots.length > 0 &&
           filteredSlots.map((slot) => {
             const lat = parseFloat(slot.latitude_deg);

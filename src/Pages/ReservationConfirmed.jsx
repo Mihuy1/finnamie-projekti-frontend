@@ -115,7 +115,7 @@ function ReservationConfirmed() {
                 </div>
 
                 <p className="footer-copyright">
-                    &copy; {new Date().getFullYear()} Finnamie. All rights reserved.
+                    &copy; {new Date().getFullYear()} Finnamie.
                 </p>
             </footer>
         </div>
