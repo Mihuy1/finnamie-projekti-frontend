@@ -42,7 +42,7 @@ export const Nav = () => {
             </Link>
             <a
               className="nav-conversations-link"
-              onClick={handleOpen}
+              onClick={toggle}
               style={{
                 cursor: "pointer",
                 alignItems: "center",
@@ -62,7 +62,7 @@ export const Nav = () => {
         <Chatbox
           loadMessages={
             false
-          } /* Don't open messages from a specific user when opening from Navbar*/
+          }
         />
       )}
     </header>

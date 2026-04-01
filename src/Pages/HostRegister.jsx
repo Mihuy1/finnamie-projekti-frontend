@@ -45,6 +45,7 @@ export default function HostRegister() {
   const [strengthColor, setStrengthColor] = useState("");
 
   const navigate = useNavigate();
+  const maxDob = new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -168,6 +169,22 @@ export default function HostRegister() {
       return;
     }
 
+    const birthDate = new Date(dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+
+    if (age < 18) {
+      setError("You must be at least 18 years old to register as a host.");
+      toast.error("Age limit: 18 years.");
+      return;
+    }
+
     if (selectedActivities.length === 0) {
       setError("Please select at least one activity.");
       return;
@@ -182,40 +199,70 @@ export default function HostRegister() {
             ? "Full-day"
             : undefined;
 
-    const res = await toast.promise(
-      register({
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        password,
-        confirmPassword,
-        role: "host",
-        country,
-        date_of_birth: dateOfBirth,
-        gender: gender,
-        phone_number: phoneNumber,
-        street_address: streetAddress,
-        postal_code: postalCode,
-        city,
-        description: description || undefined,
-        experience_length,
-        activity_ids: selectedActivities,
-      }),
-      {
-        loading: "Registration pending...",
-        success: "Registration successful!",
-        error: (err) => err?.message || "Registration failed.",
-      },
-    );
+    try {
+      const res = await toast.promise(
+        register({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          password,
+          confirmPassword,
+          role: "host",
+          country,
+          date_of_birth: dateOfBirth,
+          gender: gender,
+          phone_number: phoneNumber,
+          street_address: streetAddress,
+          postal_code: postalCode,
+          city,
+          description: description || undefined,
+          experience_length,
+          activity_ids: selectedActivities,
+        }),
+        {
+          loading: "Registration pending...",
+          success: "Registration successful!",
+          error: (err) => {
+            const msg = err.response?.data?.message || err.message || "";
+            if (err.response?.status === 409 || msg.toLowerCase().includes("already exists")) {
+              return "Email is already in use.";
+            }
+            return "Registration failed.";
+          }
+        },
+      );
 
-    if (res?.userId) {
-      await postLogin(email, password);
+      if (res?.userId) {
+        await postLogin(email, password);
+        await refresh();
+        setTimeout(() => {
+          navigate("/profile");
+        }, 1000);
+      }
+    } catch (err) {
+      const statusCode = err.status || err.response?.status;
 
-      await refresh();
+      const errorMessage = (
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        ""
+      ).toLowerCase();
 
-      setTimeout(() => {
-        navigate("/profile");
-      }, 1000);
+      const isEmailTaken =
+        statusCode === 409 ||
+        errorMessage.includes("already exists") ||
+        errorMessage.includes("already in use") ||
+        errorMessage.includes("taken") ||
+        errorMessage.includes("unique violation");
+
+      if (isEmailTaken) {
+        setError("Email already in use. Please use another one or log in.");
+        toast.error("This email is already registered.");
+      } else {
+        setError("An unexpected error occurred. Please try again later.");
+        console.log("Debug info - Status:", statusCode, "Message:", errorMessage);
+      }
     }
   }
 
@@ -407,6 +454,7 @@ export default function HostRegister() {
           <span className="required">Date of birth</span>
           <input
             type="date"
+            max={maxDob}
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
             required

@@ -343,7 +343,7 @@ body {
 .calendar-container {
   background: white;
   border-radius: 24px;
-  padding: 40px;
+  padding: 80px;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.03);
   height: auto !important;
