@@ -6,7 +6,7 @@ import { useChatbox } from "../contexts/ChatboxContext";
 
 export const Nav = () => {
   const { user, setUser } = useAuth();
-  const { isOpen, handleClose, handleOpen } = useChatbox();
+  const { isOpen, handleClose, handleOpen, toggle } = useChatbox();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -59,13 +59,7 @@ export const Nav = () => {
           </>
         )}
       </nav>
-      {isOpen && (
-        <Chatbox
-          loadMessages={
-            false
-          }
-        />
-      )}
+      {isOpen && <Chatbox loadMessages={false} />}
     </header>
   );
 };
