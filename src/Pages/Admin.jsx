@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   acceptActivitySuggestion,
+  createActivity,
   deleteActivity,
   deleteUser,
   getActivities,
   getAllActivitySuggestions,
+  getAllExperiencesWithHost,
   getAllUsers,
   rejectActivitySuggestion,
 } from "../api/apiClient";
@@ -18,6 +20,13 @@ const TABS = [
   { id: "activities", label: "Activities", icon: "🏃" },
   { id: "timeslots", label: "Timeslots", icon: "🕐" },
 ];
+
+const sortByName = (items = []) =>
+  [...items].sort((a, b) =>
+    (a?.name || "").localeCompare(b?.name || "", "en", {
+      sensitivity: "base",
+    }),
+  );
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -34,12 +43,12 @@ export const Admin = () => {
       const usersRes = await getAllUsers();
       const activitiesRes = await getActivities();
       const activitiesSuggestionsRes = await getAllActivitySuggestions();
-
-      console.log("activities sugestions:", activitiesSuggestionsRes);
+      const experiences = await getAllExperiencesWithHost();
 
       setUsers(usersRes);
-      setActivities(activitiesRes);
+      setActivities(sortByName(activitiesRes));
       setSuggestions(activitiesSuggestionsRes);
+      setTimeslots(experiences);
     };
 
     fetchData();
@@ -282,7 +291,7 @@ function SuggestionsSection({ suggestions, setSuggestions, setActivities }) {
 
     const updatedActivities = await getActivities();
     if (Array.isArray(updatedActivities)) {
-      setActivities(updatedActivities);
+      setActivities(sortByName(updatedActivities));
     }
 
     setSuggestions((prev) => prev.filter((s) => s.id !== id));
@@ -383,20 +392,27 @@ function SuggestionsSection({ suggestions, setSuggestions, setActivities }) {
 function ActivitiesSection({ activities, setActivities }) {
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [form, setForm] = useState({ name: "", cat: "", dur: "" });
+  const [form, setForm] = useState({ name: "" });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) return;
-    setActivities((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        name: form.name,
-        cat: form.cat || "—",
-        dur: (form.dur || 60) + " h",
+
+    const result = await toast.promise(createActivity(form.name), {
+      loading: "Creating activity...",
+      success: (res) => res.message || "Activity created successfully!",
+      error: (err) => {
+        if (err?.status === 409)
+          return err.message || "Something went wrong during activity creation";
+
+        return err?.message || "Something went wrong while creating activity";
       },
-    ]);
-    setForm({ name: "", cat: "", dur: "" });
+    });
+
+    setActivities((prev) =>
+      sortByName([...prev, { id: result.id, name: form.name }]),
+    );
+
+    setForm({ name: "" });
     setShowAdd(false);
   };
 
@@ -405,8 +421,11 @@ function ActivitiesSection({ activities, setActivities }) {
       loading: "Deleting activity...",
       success: (res) => res?.message || "Activity deleted successfully",
       error: (error) => {
-        if (error?.status === 404) return "Activity not found";
-        return "Error deleting activity";
+        if (error?.status === 404) return error.message || "Activity not found";
+        if (error?.status === 409)
+          return error.message || "Activity cannot be removed.";
+        if (error?.status === 500) return error.message || "500 error";
+        return error?.message || "Error deleting activity";
       },
     });
 
@@ -456,29 +475,22 @@ function ActivitiesSection({ activities, setActivities }) {
         onClose={() => setShowAdd(false)}
         title="Add activity"
       >
-        {[
-          { key: "name", label: "Name", placeholder: "" },
-          { key: "cat", label: "Category", placeholder: "" },
-          {
-            key: "dur",
-            label: "Duration (h)",
-            placeholder: "",
-            type: "number",
-          },
-        ].map(({ key, label, placeholder, type }) => (
-          <div className="form-row" key={key}>
-            <label className="form-label">{label}</label>
-            <input
-              className="form-input"
-              type={type || "text"}
-              placeholder={placeholder}
-              value={form[key]}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, [key]: e.target.value }))
-              }
-            />
-          </div>
-        ))}
+        {[{ key: "name", label: "Name", placeholder: "" }].map(
+          ({ key, label, placeholder, type }) => (
+            <div className="form-row" key={key}>
+              <label className="form-label">{label}</label>
+              <input
+                className="form-input"
+                type={type || "text"}
+                placeholder={placeholder}
+                value={form[key]}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, [key]: e.target.value }))
+                }
+              />
+            </div>
+          ),
+        )}
         <div className="modal-actions">
           <button className="btn" onClick={() => setShowAdd(false)}>
             Cancel
@@ -533,7 +545,7 @@ function TimeslotsSection({ timeslots, setTimeslots }) {
             <tr>
               <th>Time</th>
               <th>Activity</th>
-              <th>Instructor</th>
+              <th>Host</th>
               <th>Bookings</th>
               <th>Actions</th>
             </tr>

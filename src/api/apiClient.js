@@ -555,6 +555,59 @@ export const getActivities = async () => {
   }
 };
 
+export const updateActivityNameById = async (id, name) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while updating activity";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const createActivity = async (name) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while creating activity";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const deleteActivity = async (id) => {
   try {
     const res = await fetch(`${BASE_URL}activities/${id}`, {
@@ -571,7 +624,7 @@ export const deleteActivity = async (id) => {
           ? data
           : data.message || "Something went wrong while deleting activity";
 
-      throw Object.assign(message, { status: res.status });
+      throw Object.assign(new Error(message), { status: res.status });
     }
 
     return data;
