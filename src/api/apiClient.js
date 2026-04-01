@@ -81,7 +81,17 @@ export const deleteExperienceById = async (id) => {
       },
     });
 
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong during experience deletion";
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
   } catch (error) {
     console.error("delete experience:", error);
     throw error;
@@ -372,7 +382,18 @@ export const updateExperience = async (id, data, images) => {
       body: formData,
     });
 
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while updating experience";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
   } catch (error) {
     console.error("Update Experience error:", error);
   }
@@ -498,6 +519,49 @@ export const getPublicUserInfo = async (id) => {
   }
 };
 
+export const getAllUsers = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}users/`, {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch users.");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const deleteUser = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}users/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while deleting user";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getActivities = async () => {
   try {
     const res = await fetch(`${BASE_URL}activities`, {
@@ -506,6 +570,85 @@ export const getActivities = async () => {
     });
 
     return await res.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const updateActivityNameById = async (id, name) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/${id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while updating activity";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const createActivity = async (name) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while creating activity";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const deleteActivity = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data.message || "Something went wrong while deleting activity";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
   } catch (error) {
     console.error(error);
     throw error;
@@ -561,6 +704,60 @@ export const createActivitySuggestion = async (name) => {
     return data;
   } catch (error) {
     console.error("error creating new activity suggestion:", error);
+    throw error;
+  }
+};
+
+export const acceptActivitySuggestion = async (id, name) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/suggestions/accept/${id}`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : (data?.message ??
+            "Something went wrong while accepting suggestion");
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const rejectActivitySuggestion = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}activities/suggestions/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : (data?.message ??
+            "Something went wrong while rejecting suggestion");
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
     throw error;
   }
 };

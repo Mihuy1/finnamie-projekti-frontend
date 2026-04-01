@@ -1,13 +1,44 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  acceptActivitySuggestion,
+  createActivity,
+  deleteActivity,
+  deleteExperienceById,
+  deleteExperienceImageByIdAndUrl,
+  deleteUser,
+  getActivities,
+  getAllActivitySuggestions,
+  getAllExperiencesWithHost,
+  getAllUsers,
+  rejectActivitySuggestion,
+  updateActivityNameById,
+  updateExperience,
+  uploadExperienceImage,
+} from "../api/apiClient";
+import {
+  formatLocalDateRange,
+  formatLocalTimeRange,
+} from "../utils/date-utils";
+import toast from "react-hot-toast";
+import { EditTimeSlot } from "../components/EditTimeSlot";
+
+const API_BASE_URL = "http://localhost:3000";
 
 const TABS = [
   { id: "users", label: "Users", icon: "👤" },
-  { id: "suggestions", label: "Suggestions", icon: "💡" },
   { id: "activities", label: "Activities", icon: "🏃" },
-  { id: "timeslots", label: "Timeslots", icon: "🕐" },
+  { id: "suggestions", label: "Suggestions", icon: "💡" },
+  { id: "experiences", label: "Experiences", icon: "🕐" },
 ];
+
+const sortByName = (items = []) =>
+  [...items].sort((a, b) =>
+    (a?.name || "").localeCompare(b?.name || "", "en", {
+      sensitivity: "base",
+    }),
+  );
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState("users");
@@ -15,14 +46,32 @@ export const Admin = () => {
   const [users, setUsers] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [activities, setActivities] = useState([]);
-  const [timeslots, setTimeslots] = useState([]);
+  const [experiences, setExperiences] = useState([]);
 
   const pendingCount = suggestions.filter((s) => s.status === "pending").length;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const usersRes = await getAllUsers();
+      const activitiesRes = await getActivities();
+      const activitiesSuggestionsRes = await getAllActivitySuggestions();
+      const experiences = await getAllExperiencesWithHost();
+
+      setUsers(usersRes);
+      setActivities(sortByName(activitiesRes));
+      setSuggestions(activitiesSuggestionsRes);
+      setExperiences(Array.isArray(experiences) ? experiences : []);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="admin">
       <div className="admin-sidebar">
-        <Link to="/" className="admin-back-btn">← Back</Link>
+        <Link to="/" className="admin-back-btn">
+          ← Back
+        </Link>
         <div className="admin-sidebar-title">Admin</div>
         {TABS.map((tab) => (
           <div
@@ -44,33 +93,37 @@ export const Admin = () => {
           <UsersSection users={users} setUsers={setUsers} />
         )}
         {activeTab === "suggestions" && (
-          <SuggestionsSection suggestions={suggestions} setSuggestions={setSuggestions} />
+          <SuggestionsSection
+            suggestions={suggestions}
+            setSuggestions={setSuggestions}
+            setActivities={setActivities}
+          />
         )}
         {activeTab === "activities" && (
-          <ActivitiesSection activities={activities} setActivities={setActivities} />
+          <ActivitiesSection
+            activities={activities}
+            setActivities={setActivities}
+          />
         )}
-        {activeTab === "timeslots" && (
-          <TimeslotsSection timeslots={timeslots} setTimeslots={setTimeslots} />
+        {activeTab === "experiences" && (
+          <ExperiencesSection
+            experiences={experiences}
+            setExperiences={setExperiences}
+          />
         )}
       </div>
     </div>
   );
 };
 
-
-
 function initials(name) {
-  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
-
-function formatTime(iso) {
-  const d = new Date(iso);
-  const date = d.toLocaleDateString("fi-FI", { day: "numeric", month: "numeric" });
-  const time = d.toLocaleTimeString("fi-FI", { hour: "2-digit", minute: "2-digit" });
-  return { date, time };
-}
-
-
 
 function Modal({ open, onClose, title, desc, children }) {
   if (!open) return null;
@@ -85,12 +138,24 @@ function Modal({ open, onClose, title, desc, children }) {
   );
 }
 
-function ConfirmModal({ open, onClose, onConfirm, title, desc }) {
+function ConfirmModal({
+  open,
+  onClose,
+  onConfirm,
+  title,
+  desc,
+  confirmButtonText = "Delete",
+  confirmButtonColor = "danger",
+}) {
   return (
     <Modal open={open} onClose={onClose} title={title} desc={desc}>
       <div className="modal-actions">
-        <button className="btn" onClick={onClose}>Cancel</button>
-        <button className="btn btn-danger" onClick={onConfirm}>Delete</button>
+        <button className="btn" onClick={onClose}>
+          Cancel
+        </button>
+        <button className={`btn btn-${confirmButtonColor}`} onClick={onConfirm}>
+          {confirmButtonText}
+        </button>
       </div>
     </Modal>
   );
@@ -102,11 +167,24 @@ function UsersSection({ users, setUsers }) {
   const [query, setQuery] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const filtered = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(query.toLowerCase()) ||
-      u.email.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = users.filter((u) => {
+    const searchText =
+      `${u.first_name || ""} ${u.last_name || ""} ${u.email || ""}`.toLowerCase();
+    return searchText.includes(query.toLowerCase());
+  });
+
+  const removeUser = async (id) => {
+    await toast.promise(deleteUser(id), {
+      loading: "Deleting user...",
+      success: (res) => res?.message || "User deleted successfully",
+      error: (error) => {
+        if (error.status === 404) return "User not found";
+        return error?.message || "Failed to delete user";
+      },
+    });
+
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+  };
 
   return (
     <>
@@ -140,18 +218,38 @@ function UsersSection({ users, setUsers }) {
               <tr key={u.id}>
                 <td>
                   <div className="user-cell">
-                    <div className="avatar">{initials(u.name)}</div>
-                    <span>{u.name}</span>
+                    {u.image_url === null ? (
+                      <>
+                        <div className="avatar">{initials(u.first_name)}</div>
+                      </>
+                    ) : (
+                      <div className="avatar">
+                        <img
+                          className="avatar-img"
+                          src={`http://localhost:3000${u.image_url}`}
+                          alt="Profile avatar"
+                          // onClick={handleImageClick}
+                        />
+                      </div>
+                    )}
+                    <span>
+                      {u.first_name} {u.last_name}{" "}
+                    </span>
                   </div>
                 </td>
                 <td className="td-muted">{u.email}</td>
                 <td>
-                  <span className={`pill ${u.role === "Admin" ? "pill-admin" : "pill-user"}`}>
+                  <span
+                    className={`pill ${u.role === "Admin" ? "pill-admin" : "pill-user"}`}
+                  >
                     {u.role}
                   </span>
                 </td>
                 <td>
-                  <button className="btn btn-danger" onClick={() => setDeleteTarget(u)}>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => setDeleteTarget(u)}
+                  >
                     Delete
                   </button>
                 </td>
@@ -164,12 +262,13 @@ function UsersSection({ users, setUsers }) {
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+        onConfirm={async () => {
+          await removeUser(deleteTarget.id);
           setDeleteTarget(null);
         }}
         title="Confirm delete"
         desc={`Are you sure you want to delete user ${deleteTarget?.name}?`}
+        confirmButtonText="Delete"
       />
     </>
   );
@@ -177,11 +276,40 @@ function UsersSection({ users, setUsers }) {
 
 // Suggestions section
 
-const STATUS_LABEL = { pending: "Pending", accepted: "Accepted", rejected: "Rejected" };
+function SuggestionsSection({ suggestions, setSuggestions, setActivities }) {
+  const [rejectedSuggestion, setRejectedSuggestion] = useState();
+  const [acceptedSuggestion, setAcceptedSuggestion] = useState();
 
-function SuggestionsSection({ suggestions, setSuggestions }) {
-  const decide = (id, status) => {
-    setSuggestions((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
+  const acceptSuggestion = async (id, name) => {
+    await toast.promise(acceptActivitySuggestion(id, name), {
+      loading: `Accepting ${name}...`,
+      success: (res) => res?.message || "Activity Suggestion accepted",
+      error: (error) => {
+        if (error?.status === 409) return "Activity already exists";
+        if (error?.status === 404) return "Activity suggestion not found";
+        return error?.message || "Failed to accept activity";
+      },
+    });
+
+    const updatedActivities = await getActivities();
+    if (Array.isArray(updatedActivities)) {
+      setActivities(sortByName(updatedActivities));
+    }
+
+    setSuggestions((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const rejectSuggestion = async (id, name) => {
+    await toast.promise(rejectActivitySuggestion(id), {
+      loading: `Rejecting ${name}...`,
+      success: (res) => res?.message || "Activity Suggestion rejected",
+      error: (error) => {
+        if (error?.status === 404) return "Activity Suggestion not found";
+        return error?.message || "Failed to reject Activity Suggestion";
+      },
+    });
+
+    setSuggestions((prev) => prev.filter((s) => s.id !== id));
   };
 
   return (
@@ -195,7 +323,6 @@ function SuggestionsSection({ suggestions, setSuggestions }) {
             <tr>
               <th>Suggestion</th>
               <th>Submitted by</th>
-              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -203,31 +330,61 @@ function SuggestionsSection({ suggestions, setSuggestions }) {
             {suggestions.map((s) => (
               <tr key={s.id}>
                 <td className="td-bold">{s.name}</td>
-                <td className="td-muted">{s.user}</td>
-                <td>
-                  <span className={`pill pill-${s.status}`}>
-                    {STATUS_LABEL[s.status]}
-                  </span>
+                <td className="td-muted">
+                  {s.first_name} {s.last_name}
                 </td>
+
                 <td>
-                  {s.status === "pending" ? (
-                    <div className="btn-row">
-                      <button className="btn btn-success" onClick={() => decide(s.id, "accepted")}>
-                        Accept
-                      </button>
-                      <button className="btn btn-danger" onClick={() => decide(s.id, "rejected")}>
-                        Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="td-dash">—</span>
-                  )}
+                  <div className="btn-row">
+                    <button
+                      className="btn btn-success"
+                      onClick={() => setAcceptedSuggestion(s)}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => setRejectedSuggestion(s)}
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        open={!!rejectedSuggestion}
+        onClose={() => setRejectedSuggestion(null)}
+        onConfirm={async () => {
+          await rejectSuggestion(
+            rejectedSuggestion.id,
+            rejectedSuggestion.name,
+          );
+          setRejectedSuggestion(null);
+        }}
+        title="Confirm Reject"
+        desc={`Are you sure you want to reject suggestion ${rejectedSuggestion?.name}?`}
+        confirmButtonText="Reject"
+      />
+      <ConfirmModal
+        open={!!acceptedSuggestion}
+        onClose={() => setAcceptedSuggestion(null)}
+        onConfirm={async () => {
+          await acceptSuggestion(
+            acceptedSuggestion.id,
+            acceptedSuggestion.name,
+          );
+          setAcceptedSuggestion(null);
+        }}
+        title="Confirm Accept"
+        desc={`Are you sure you want to accept suggestion ${acceptedSuggestion?.name}?`}
+        confirmButtonText="Accept"
+        confirmButtonColor="success"
+      />
     </>
   );
 }
@@ -237,16 +394,66 @@ function SuggestionsSection({ suggestions, setSuggestions }) {
 function ActivitiesSection({ activities, setActivities }) {
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [form, setForm] = useState({ name: "", cat: "", dur: "" });
+  const [editTarget, setEditTarget] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState({ name: "" });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) return;
-    setActivities((prev) => [
-      ...prev,
-      { id: Date.now(), name: form.name, cat: form.cat || "—", dur: (form.dur || 60) + " h" },
-    ]);
-    setForm({ name: "", cat: "", dur: "" });
+
+    const result = await toast.promise(createActivity(form.name), {
+      loading: "Creating activity...",
+      success: (res) => res.message || "Activity created successfully!",
+      error: (err) => {
+        if (err?.status === 409)
+          return err.message || "Something went wrong during activity creation";
+
+        return err?.message || "Something went wrong while creating activity";
+      },
+    });
+
+    setActivities((prev) =>
+      sortByName([...prev, { id: result.id, name: form.name }]),
+    );
+
+    setForm({ name: "" });
     setShowAdd(false);
+  };
+
+  const removeActivity = async (id) => {
+    await toast.promise(deleteActivity(id), {
+      loading: "Deleting activity...",
+      success: (res) => res?.message || "Activity deleted successfully",
+      error: (error) => {
+        if (error?.status === 404) return error.message || "Activity not found";
+        if (error?.status === 409)
+          return error.message || "Activity cannot be removed.";
+        if (error?.status === 500) return error.message || "500 error";
+        return error?.message || "Error deleting activity";
+      },
+    });
+
+    setActivities((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const editActivity = async () => {
+    await toast.promise(
+      updateActivityNameById(editTarget.id, editTarget.name || ""),
+      {
+        loading: "Updating activity name...",
+        success: (res) => res?.message || "Activity name updated!",
+        error: (err) => {
+          return err?.message || "Failed to update activity";
+        },
+      },
+    );
+
+    setActivities((prev) =>
+      prev.map((a) => (a.id === editTarget.id ? editTarget : a)),
+    );
+
+    setEditTarget(null);
+    setIsEditing(false);
   };
 
   return (
@@ -256,7 +463,9 @@ function ActivitiesSection({ activities, setActivities }) {
 
       <div className="admin-top-bar">
         <span />
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add</button>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+          + Add
+        </button>
       </div>
 
       <div className="table-card">
@@ -264,8 +473,6 @@ function ActivitiesSection({ activities, setActivities }) {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Category</th>
-              <th>Duration</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -273,12 +480,24 @@ function ActivitiesSection({ activities, setActivities }) {
             {activities.map((a) => (
               <tr key={a.id}>
                 <td style={{ fontWeight: 500 }}>{a.name}</td>
-                <td className="td-muted">{a.cat}</td>
-                <td className="td-muted">{a.dur}</td>
                 <td>
-                  <button className="btn btn-danger" onClick={() => setDeleteTarget(a)}>
-                    Delete
-                  </button>
+                  <div className="btn-row">
+                    <button
+                      className="btn"
+                      onClick={() => {
+                        setEditTarget(a);
+                        setIsEditing(true);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => setDeleteTarget(a)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -286,34 +505,71 @@ function ActivitiesSection({ activities, setActivities }) {
         </table>
       </div>
 
-      <Modal open={showAdd} onClose={() => setShowAdd(false)} title="Add activity">
-        {[
-          { key: "name", label: "Name", placeholder: "" },
-          { key: "cat", label: "Category", placeholder: "" },
-          { key: "dur", label: "Duration (h)", placeholder: "", type: "number" },
-        ].map(({ key, label, placeholder, type }) => (
-          <div className="form-row" key={key}>
-            <label className="form-label">{label}</label>
-            <input
-              className="form-input"
-              type={type || "text"}
-              placeholder={placeholder}
-              value={form[key]}
-              onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-            />
-          </div>
-        ))}
+      <Modal
+        open={showAdd}
+        onClose={() => setShowAdd(false)}
+        title="Add activity"
+      >
+        {[{ key: "name", label: "Name", placeholder: "" }].map(
+          ({ key, label, placeholder, type }) => (
+            <div className="form-row" key={key}>
+              <label className="form-label">{label}</label>
+              <input
+                className="form-input"
+                type={type || "text"}
+                placeholder={placeholder}
+                value={form[key]}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, [key]: e.target.value }))
+                }
+              />
+            </div>
+          ),
+        )}
         <div className="modal-actions">
-          <button className="btn" onClick={() => setShowAdd(false)}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSave}>Save</button>
+          <button className="btn" onClick={() => setShowAdd(false)}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={handleSave}>
+            Save
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={isEditing}
+        onClose={() => setIsEditing(false)}
+        title="Edit activity"
+      >
+        <div className="form-row">
+          <label className="form-label">Name</label>
+          <input
+            className="form-input"
+            type={"text"}
+            value={editTarget?.name}
+            onChange={(e) =>
+              setEditTarget((prev) => ({
+                ...prev,
+                name: e.target.value,
+              }))
+            }
+          />
+        </div>
+        <div className="modal-actions">
+          <button className="btn" onClick={() => setIsEditing(false)}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={editActivity}>
+            Edit
+          </button>
         </div>
       </Modal>
 
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          setActivities((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+        onConfirm={async () => {
+          await removeActivity(deleteTarget.id);
           setDeleteTarget(null);
         }}
         title="Confirm delete"
@@ -323,59 +579,183 @@ function ActivitiesSection({ activities, setActivities }) {
   );
 }
 
-// Timeslots section
+// Experiences sections
 
-function TimeslotsSection({ timeslots, setTimeslots }) {
-  const [editTarget, setEditTarget] = useState(null);
+function ExperiencesSection({ experiences, setExperiences }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [editForm, setEditForm] = useState({ time: "", instructor: "" });
+  const [selectedExperience, setSelectedExperience] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const openEdit = (ts) => {
-    setEditTarget(ts);
-    setEditForm({ time: ts.time, instructor: ts.instructor });
-  };
-
-  const handleSaveEdit = () => {
-    setTimeslots((prev) =>
-      prev.map((t) => (t.id === editTarget.id ? { ...t, ...editForm } : t))
+  const removeExperience = async (id) => {
+    await toast.promise(
+      (async () => {
+        const res = await deleteExperienceById(id);
+        if (res?.error || res?.success === false) {
+          throw new Error(
+            res?.message || res?.error || "Failed to delete experience",
+          );
+        }
+        return res;
+      })(),
+      {
+        loading: "Deleting experience...",
+        success: (res) => res?.message || "Experience deleted successfully",
+        error: (error) => error?.message || "Failed to delete experience",
+      },
     );
-    setEditTarget(null);
+
+    setExperiences((prev) => prev.filter((e) => e.id !== id));
   };
+
+  const handleUpdateExperience = async (
+    updatedData,
+    images,
+    toRemoveImages,
+  ) => {
+    const result = await toast.promise(
+      updateExperience(selectedExperience.id, updatedData, images),
+      {
+        loading: "Updating experience...",
+        success: (res) => res?.message || "Experience updated successfully",
+        error: (err) => {
+          return err?.message || "Failed to update experience";
+        },
+      },
+    );
+
+    console.log(result);
+
+    let updatedResult = result.experience;
+
+    if (toRemoveImages.length > 0) {
+      for (const img of toRemoveImages) {
+        img.url = img.url.replace(API_BASE_URL, "");
+        const res = await deleteExperienceImageByIdAndUrl(
+          selectedExperience.id,
+          img.url,
+
+          (updatedResult = {
+            ...updatedResult,
+            images: (updatedResult.images || []).filter(
+              (i) => i.url !== img.url,
+            ),
+          }),
+        );
+        if (!res) return;
+      }
+    }
+
+    const newFiles = (images || []).filter((f) => f instanceof File);
+
+    if (newFiles.length > 0) {
+      const upload = await uploadExperienceImage(
+        selectedExperience.id,
+        newFiles,
+      );
+      if (!upload || !upload.files) return;
+
+      const newImageObjects = upload.files.map((file) => ({
+        url: file.url,
+      }));
+
+      updatedResult = {
+        ...updatedResult,
+        images: [...(updatedResult.images || []), ...newImageObjects],
+      };
+    }
+
+    setIsEditing(false);
+    setSelectedExperience(null);
+    setExperiences((prev) =>
+      prev.map((e) => (e.id === updatedResult.id ? updatedResult : e)),
+    );
+
+    console.log("updatedResult:", updatedResult);
+  };
+
+  if (isEditing && selectedExperience) {
+    return (
+      <EditTimeSlot
+        slot={selectedExperience}
+        images={selectedExperience.images}
+        onCancel={() => {
+          setIsEditing(false);
+          setSelectedExperience(null);
+        }}
+        onSave={handleUpdateExperience}
+      />
+    );
+  }
 
   return (
     <>
-      <div className="admin-page-title">Schedules</div>
-      <div className="admin-page-sub">All timeslots</div>
+      <div className="admin-page-title">Experiences</div>
+      <div className="admin-page-sub">All published experiences</div>
 
       <div className="table-card">
         <table className="admin-table">
           <thead>
             <tr>
+              <th>Title</th>
+              <th>Date</th>
               <th>Time</th>
+              <th>Type</th>
+              <th>Host</th>
               <th>Activity</th>
-              <th>Instructor</th>
-              <th>Bookings</th>
+              <th>City</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {timeslots.map((t) => {
-              const { date, time } = formatTime(t.time);
-              const full = t.booked >= t.max;
+            {experiences.map((e) => {
+              const hostName =
+                [e.first_name, e.last_name].filter(Boolean).join(" ") ||
+                e.host_id ||
+                "-";
+              const startDate = e.rule?.start_date;
+              const endDate = e.rule?.end_date;
+              const startTime = e.rule?.start_time;
+              const endTime = e.rule?.end_time;
+
+              const dateRange = formatLocalDateRange(startDate, endDate);
+              const timeRange = formatLocalTimeRange(
+                startDate,
+                startTime,
+                endDate,
+                endTime,
+              );
+
+              const activities = e.activities.map((a) => a.name);
+
               return (
-                <tr key={t.id}>
-                  <td>{date} <strong>{time}</strong></td>
-                  <td>{t.act}</td>
-                  <td className="td-muted">{t.instructor}</td>
-                  <td>
-                    <span className={`pill ${full ? "pill-full" : "pill-open"}`}>
-                      {t.booked}/{t.max}
-                    </span>
+                <tr key={e.id}>
+                  <td style={{ fontWeight: 500 }}>{e.title || "Untitled"}</td>
+                  <td className="td-muted">{dateRange}</td>
+                  <td className="td-muted">{timeRange}</td>
+                  <td className="td-muted">
+                    {e.type || e.experience_length || "-"}
                   </td>
+                  <td className="td-muted">{hostName}</td>
+                  <td className="td-muted">{activities.join(", ")}</td>
+
+                  <td className="td-muted">{e.city || "-"}</td>
                   <td>
                     <div className="btn-row">
-                      <button className="btn" onClick={() => openEdit(t)}>Edit</button>
-                      <button className="btn btn-danger" onClick={() => setDeleteTarget(t)}>Delete</button>
+                      <button
+                        className="btn"
+                        onClick={() => {
+                          setSelectedExperience(e);
+                          setIsEditing(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => setDeleteTarget(e)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -385,39 +765,15 @@ function TimeslotsSection({ timeslots, setTimeslots }) {
         </table>
       </div>
 
-      <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit timeslot">
-        <div className="form-row">
-          <label className="form-label">Time</label>
-          <input
-            className="form-input"
-            type="datetime-local"
-            value={editForm.time}
-            onChange={(e) => setEditForm((f) => ({ ...f, time: e.target.value }))}
-          />
-        </div>
-        <div className="form-row">
-          <label className="form-label">Instructor</label>
-          <input
-            className="form-input"
-            value={editForm.instructor}
-            onChange={(e) => setEditForm((f) => ({ ...f, instructor: e.target.value }))}
-          />
-        </div>
-        <div className="modal-actions">
-          <button className="btn" onClick={() => setEditTarget(null)}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSaveEdit}>Save</button>
-        </div>
-      </Modal>
-
       <ConfirmModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={() => {
-          setTimeslots((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+        onConfirm={async () => {
+          await removeExperience(deleteTarget.id);
           setDeleteTarget(null);
         }}
         title="Confirm delete"
-        desc="Are you sure you want to delete this timeslot?"
+        desc={`Are you sure you want to delete experience ${deleteTarget?.title || ""}?`}
       />
     </>
   );
