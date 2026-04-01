@@ -1,15 +1,15 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
-import { getActivities, getAllTimeSlotsWithHost } from "../api/apiClient";
+import { getActivities, getAllExperiencesWithHost } from "../api/apiClient";
 import { Link, useLocation } from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
 import { municipalities } from '../data/municipalities';
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
-
 export default function BookActivity() {
     const { state } = useLocation();
+
     const [activities, setActivities] = useState([]);
     const [timeSlots, setTimeSlots] = useState([]);
     const [filteredActivities, setFilteredActivities] = useState([]);
@@ -74,19 +74,16 @@ export default function BookActivity() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await getActivities();
+                const [actData, slotData] = await Promise.all([
+                    getActivities(),
+                    getAllExperiencesWithHost(),
+                ]);
 
-                const timeslotData = await getAllTimeSlotsWithHost();
-
-                setTimeSlots(timeslotData);
-                const finalData = data && data.length > 0 ? data : placeholders;
-                setActivities(finalData);
-                setFilteredActivities(timeslotData);
-                console.log("timeslots with host:", timeslotData);
+                setActivities(actData?.length > 0 ? actData : placeholders);
+                setTimeSlots(slotData || []);
             } catch (error) {
-                console.error(error);
+                console.error("Haku epäonnistui:", error);
                 setActivities(placeholders);
-                setFilteredActivities(placeholders);
             } finally {
                 setLoading(false);
             }
@@ -94,6 +91,38 @@ export default function BookActivity() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        let source = timeSlots.length > 0 ? timeSlots : placeholders;
+        let result = [...source];
+
+        if (location) {
+            result = result.filter((item) =>
+                item.city?.toLowerCase().includes(location.toLowerCase())
+            );
+        }
+
+        if (selectedCategory !== "All") {
+            result = result.filter((item) => {
+                if (item.activities) {
+                    return item.activities.some((act) => act.name === selectedCategory);
+                }
+                return item.category === selectedCategory || item.name === selectedCategory;
+            });
+        }
+
+        if (date && (Array.isArray(date) ? date.length > 0 : date)) {
+            const d = Array.isArray(date) ? date : [date];
+            const start = new Date(d[0]); start.setHours(0, 0, 0, 0);
+            const end = new Date(d[1] || d[0]); end.setHours(23, 59, 59, 999);
+
+            result = result.filter((slot) => {
+                const slotTime = new Date(slot.start_time);
+                return slotTime >= start && slotTime <= end;
+            });
+        }
+
+        setFilteredActivities(result);
+    }, [location, selectedCategory, date, timeSlots]);
 
     useEffect(() => {
         if (selectedSlot) {
@@ -108,41 +137,6 @@ export default function BookActivity() {
             document.body.style.paddingRight = "unset";
         };
     }, [selectedSlot]);
-
-    useEffect(() => {
-        let source = timeSlots.length > 0 ? timeSlots : placeholders;
-        let result = [...source];
-
-        if (location) {
-            result = result.filter(item =>
-                item.city?.toLowerCase().includes(location.toLowerCase())
-            );
-        }
-
-        if (selectedCategory !== "All") {
-            result = result.filter(slot => {
-                if (slot.activities && Array.isArray(slot.activities)) {
-                    return slot.activities.some(act => act.name === selectedCategory);
-                }
-                return slot.category === selectedCategory || slot.name === selectedCategory;
-            });
-        }
-
-        if (date && (Array.isArray(date) ? date.length > 0 : date)) {
-            const d = Array.isArray(date) ? date : [date];
-            const searchStart = new Date(d[0]);
-            searchStart.setHours(0, 0, 0, 0);
-            const searchEnd = new Date(d[1] || d[0]);
-            searchEnd.setHours(23, 59, 59, 999);
-
-            result = result.filter(slot => {
-                const slotStart = new Date(slot.start_time);
-                return slotStart >= searchStart && slotStart <= searchEnd;
-            });
-        }
-
-        setFilteredActivities(result);
-    }, [location, selectedCategory, date, timeSlots]);
 
     const handleSlotClick = (activity) => {
         setSelectedSlot(activity);
@@ -336,31 +330,33 @@ export default function BookActivity() {
 
             <div className="activity-grid">
                 {filteredActivities.length > 0 ? (
-                    filteredActivities.map((activity) => (
+                    filteredActivities.map((item) => (
                         <div
-                            key={activity.id}
+                            key={item.id}
                             className="activity-card"
-                            onClick={() => handleSlotClick(activity)}
+                            onClick={() => handleSlotClick(item)}
                         >
                             <div className="card-image">
                                 <img
-                                    src={resolveImage(activity.images[0]?.url)}
-                                    alt={activity.name}
+                                    src={resolveImage(item.images?.[0]?.url || item.image_url)}
+                                    alt={item.title || item.name}
                                 />
                                 <span className="duration-badge">
-                                    {activity.experience_length}
+                                    {item.experience_length}
                                 </span>
                             </div>
+
                             <span className="profile-timeslot-pill discover">
-                                {activity.type === "halfday" ? "Half Day" : "Full Day"}
+                                {item.type === "halfday" ? "Half Day" : "Full Day"}
                             </span>
+
                             <div className="card-content">
                                 <span className="host-tag">
-                                    {activity.first_name} {activity.last_name}
+                                    {item.first_name} {item.last_name}
                                 </span>
-                                <span className="location-tag">📍 {activity.city}</span>
-                                <h3>{activity.name}</h3>
-                                <p className="category-text">{activity.category}</p>
+                                <span className="location-tag">📍 {item.city}</span>
+                                <h3>{item.title || item.name}</h3>
+                                <p className="category-text">{item.category}</p>
                             </div>
                         </div>
                     ))

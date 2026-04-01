@@ -620,6 +620,14 @@ body {
   text-decoration: underline;
 }
 
+.footer-links a:not(:last-child)::after {
+  content: "|";
+  margin: 0 10px;
+  color: #ccc;
+  text-decoration: none;
+  display: inline-block;
+}
+
 .footer-copyright {
   opacity: 0.8;
 }

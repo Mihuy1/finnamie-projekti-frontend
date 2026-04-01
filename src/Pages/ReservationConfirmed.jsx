@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
 import { useEffect } from "react";
@@ -10,9 +11,24 @@ function ReservationConfirmed() {
     const slot = state?.slot || {};
     const host = state?.host || {};
 
-    const formatDate = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
+    const getStartTime = () => {
+        if (slot.rule?.start_date) {
+            return `${slot.rule.start_date}T${slot.rule.start_time}`;
+        }
+        return slot.start_time;
+    };
+
+    const getEndTime = () => {
+        if (slot.rule?.end_date) {
+            return `${slot.rule.end_date}T${slot.rule.end_time}`;
+        }
+        return slot.end_time;
+    };
+
+    const formatDate = (dateInput) => {
+        if (!dateInput) return "";
+        const date = new Date(dateInput);
+        if (isNaN(date)) return "Date not found";
         return date.toLocaleDateString("en-GB", {
             day: "numeric",
             month: "long",
@@ -20,9 +36,10 @@ function ReservationConfirmed() {
         });
     };
 
-    const formatTime = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
+    const formatTime = (dateInput) => {
+        if (!dateInput) return "";
+        const date = new Date(dateInput);
+        if (isNaN(date)) return "";
         return date.toLocaleTimeString("en-GB", {
             hour: "2-digit",
             minute: "2-digit"
@@ -50,24 +67,26 @@ function ReservationConfirmed() {
 
                         <div className="conf-row">
                             <strong>Activity</strong>
-                            <span>{slot.name || "Local Activity"}</span>
+                            <span>{slot.title || slot.name || "Local Activity"}</span>
                         </div>
 
                         <div className="conf-row">
                             <strong>Date</strong>
-                            <span>{formatDate(slot.start_time)}</span>
+                            <span>{formatDate(getStartTime())}</span>
                         </div>
 
                         <div className="conf-row">
                             <strong>Time</strong>
                             <span>
-                                {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                                {formatTime(getStartTime())} - {formatTime(getEndTime())}
                             </span>
                         </div>
 
                         <div className="conf-row">
                             <strong>Location</strong>
-                            <span>{slot.address ? `${slot.address}, ${slot.city}` : slot.city}</span>
+                            <span>
+                                {slot.address ? `${slot.address}, ${slot.city}` : slot.city}
+                            </span>
                         </div>
 
                         <div className="conf-row">
@@ -106,6 +125,13 @@ function ReservationConfirmed() {
                         Finnamie
                     </a>
                     <a
+                        href="https://www.instagram.com/finnamie_finnishlife/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Instagram
+                    </a>
+                    <a
                         href="https://www.finnamie.com/privacy-policy"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -115,7 +141,7 @@ function ReservationConfirmed() {
                 </div>
 
                 <p className="footer-copyright">
-                    &copy; {new Date().getFullYear()} Finnamie.
+                    &copy; {new Date().getFullYear()} Finnamie
                 </p>
             </footer>
         </div>
