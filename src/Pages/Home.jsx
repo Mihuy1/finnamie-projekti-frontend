@@ -337,6 +337,13 @@ function Home() {
             Finnamie
           </a>
           <a
+            href="https://www.instagram.com/finnamie_finnishlife/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+          <a
             href="https://www.finnamie.com/privacy-policy"
             target="_blank"
             rel="noopener noreferrer"
@@ -346,7 +353,7 @@ function Home() {
         </div>
 
         <p className="footer-copyright">
-          &copy; {new Date().getFullYear()} Finnamie.
+          &copy; {new Date().getFullYear()} Finnamie
         </p>
       </footer>
     </div>

@@ -106,24 +106,38 @@ export default function Reservation() {
           <section className="res-section">
             <h3>2. Activity Details</h3>
             <div className="activity-summary-card">
-              <h2>{slot.name}</h2>
+              <h2>{slot.title || slot.name}</h2>
+
               <div className="detail-row">
                 <span>📍 Location:</span>
                 <span>
-                  {slot.address}, {slot.city}
+                  {slot.address || "Address not provided"}, {slot.city}
                 </span>
               </div>
+
               <div className="detail-row">
                 <span>📅 Starts:</span>
-                <span>{formatDateTimeDisplay(slot.start_time)}</span>
+                <span>
+                  {slot.rule?.start_date
+                    ? formatDateTimeDisplay(`${slot.rule.start_date}T${slot.rule.start_time}`)
+                    : formatDateTimeDisplay(slot.start_time)}
+                </span>
               </div>
+
               <div className="detail-row">
                 <span>🏁 Ends:</span>
-                <span>{formatDateTimeDisplay(slot.end_time)}</span>
+                <span>
+                  {slot.rule?.end_date
+                    ? formatDateTimeDisplay(`${slot.rule.end_date}T${slot.rule.end_time}`)
+                    : formatDateTimeDisplay(slot.end_time)}
+                </span>
               </div>
+
               <div className="detail-row">
                 <span>⌛ Duration:</span>
-                <span>{slot.type || "Flexible"}</span>
+                <span style={{ textTransform: 'capitalize' }}>
+                  {slot.type || "Flexible"}
+                </span>
               </div>
             </div>
           </section>
