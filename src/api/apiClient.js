@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const BASE_URL = "http://localhost:3000/api/";
 const GEOAPIFY_KEY = "b37952a659224430b7545612f420ab9c";
 
@@ -103,6 +105,18 @@ export const getAllTimeSlots = async () => {
     const res = await fetch(`${BASE_URL}timeslots/available`, {
       credentials: "include",
     });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const getTimeslotsByRuleId = async (ruleId) => {
+  try {
+    const res = await fetch(`${BASE_URL}timeslots/rule/${ruleId}`, {
+      credentials: "include",
+    });
+
     return await res.json();
   } catch (e) {
     console.error(e);

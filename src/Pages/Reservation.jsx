@@ -2,9 +2,13 @@ import { useState } from "react";
 import { useLocation, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import toast from "react-hot-toast";
-import { formatDateTimeDisplay } from "../utils/date-utils";
 import { useEffect } from "react";
-import { getPublicUserInfo, getProfile } from "../api/apiClient";
+import {
+  getPublicUserInfo,
+  getProfile,
+  getTimeslotsByRuleId,
+} from "../api/apiClient";
+import TimeslotSelector from "../components/TimeslotSelector";
 
 export default function Reservation() {
   const { state } = useLocation();
@@ -16,16 +20,26 @@ export default function Reservation() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hostData, setHostData] = useState(null);
+  const [timeslots, setTimeslots] = useState();
 
   const [profile, setProfile] = useState(null);
+
+  const [selectedTimeslotId, setSelectedTimeslotId] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       const data = await getProfile();
       setProfile(data);
     };
+
+    const fetchTimeslots = async () => {
+      const data = await getTimeslotsByRuleId(slot?.rule.rule_id);
+      setTimeslots(data);
+    };
+
     fetchProfile();
-  }, []);
+    fetchTimeslots();
+  }, [slot]);
 
   useEffect(() => {
     const fetchHost = async () => {
@@ -79,6 +93,22 @@ export default function Reservation() {
     }
   };
 
+  const formatTimeString = (timeStr) => {
+    if (!timeStr) return;
+
+    const [hours, minutes] = timeStr.split(":").map(Number);
+
+    const date = new Date();
+    date.setHours(hours, minutes, 0);
+
+    return date.toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  if (!timeslots) return;
+
   return (
     <div className="reservation-container">
       <header className="reservation-header">
@@ -117,25 +147,17 @@ export default function Reservation() {
 
               <div className="detail-row">
                 <span>📅 Starts:</span>
-                <span>
-                  {slot.rule?.start_date
-                    ? formatDateTimeDisplay(`${slot.rule.start_date}T${slot.rule.start_time}`)
-                    : formatDateTimeDisplay(slot.start_time)}
-                </span>
+                <span>{formatTimeString(slot.rule?.start_time)}</span>
               </div>
 
               <div className="detail-row">
                 <span>🏁 Ends:</span>
-                <span>
-                  {slot.rule?.end_date
-                    ? formatDateTimeDisplay(`${slot.rule.end_date}T${slot.rule.end_time}`)
-                    : formatDateTimeDisplay(slot.end_time)}
-                </span>
+                <span>{formatTimeString(slot.rule?.end_time)}</span>
               </div>
 
               <div className="detail-row">
                 <span>⌛ Duration:</span>
-                <span style={{ textTransform: 'capitalize' }}>
+                <span style={{ textTransform: "capitalize" }}>
                   {slot.type || "Flexible"}
                 </span>
               </div>
@@ -178,8 +200,24 @@ export default function Reservation() {
             </div>
           </section>
 
+          <section className="timeslot-section">
+            <h3>4. Select Date</h3>
+            <div className="timeslot-list">
+              {timeslots && timeslots.length > 0 ? (
+                <TimeslotSelector
+                  timeslots={timeslots}
+                  selectedId={selectedTimeslotId}
+                  setSelectedId={setSelectedTimeslotId}
+                  experience={slot}
+                />
+              ) : (
+                <p>No available timeslots</p>
+              )}
+            </div>
+          </section>
+
           <section className="res-section">
-            <h3>3. Payment Method</h3>
+            <h3>5. Payment Method</h3>
             <div className="payment-options">
               <label
                 className={`payment-card ${paymentMethod === "card" ? "selected" : ""}`}
