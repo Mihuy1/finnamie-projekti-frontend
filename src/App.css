@@ -3542,6 +3542,10 @@ input.activity-input-host {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
+.timeslot-section h3 {
+  margin-bottom: 1rem;
+}
+
 .res-section h3 {
   margin-top: 0;
   margin-bottom: 20px;

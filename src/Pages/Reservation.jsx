@@ -56,7 +56,13 @@ export default function Reservation() {
   }, [slot?.host_id]);
 
   useEffect(() => {
+    // Reset body overflow that may have been set by modal
+    document.body.style.overflow = "unset";
     window.scrollTo(0, 0);
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, []);
 
   if (!slot) {
@@ -70,6 +76,11 @@ export default function Reservation() {
   const handleConfirm = async () => {
     if (!paymentMethod) {
       toast.error("Please select a payment method");
+      return;
+    }
+
+    if (!selectedTimeslotId) {
+      toast.error("Please select a date.");
       return;
     }
 
@@ -107,7 +118,7 @@ export default function Reservation() {
     });
   };
 
-  if (!timeslots) return;
+  if (!timeslots) return <p>Loading Timeslots...</p>;
 
   return (
     <div className="reservation-container">
@@ -209,6 +220,7 @@ export default function Reservation() {
                   selectedId={selectedTimeslotId}
                   setSelectedId={setSelectedTimeslotId}
                   experience={slot}
+                  required
                 />
               ) : (
                 <p>No available timeslots</p>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
@@ -33,6 +33,13 @@ export const TimeSlot = ({
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  // Reset body overflow when component unmounts or modal closes
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
