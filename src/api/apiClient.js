@@ -1042,6 +1042,33 @@ export const getReservations = async () => {
   }
 };
 
+export const createReservation = async (timeslot_id) => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/${timeslot_id}`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while creating reservation";
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
 export const getReviewsByHostId = async (hostId) => {
   try {
     const res = await fetch(`${BASE_URL}reviews/host/${hostId}`, {

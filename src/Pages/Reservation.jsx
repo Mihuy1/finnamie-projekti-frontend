@@ -7,6 +7,7 @@ import {
   getPublicUserInfo,
   getProfile,
   getTimeslotsByRuleId,
+  createReservation,
 } from "../api/apiClient";
 import TimeslotSelector from "../components/TimeslotSelector";
 
@@ -86,7 +87,15 @@ export default function Reservation() {
 
     setIsSubmitting(true);
     try {
-      toast.success("Reservation confirmed!");
+      // toast.success("Reservation confirmed!");
+
+      await toast.promise(createReservation(selectedTimeslotId), {
+        loading: "Confirming reservation...",
+        success: (res) => res?.message || "Reservation confirmed!",
+        error: (err) => {
+          return err?.message || "Failed to confirm reservation";
+        },
+      });
 
       setTimeout(() => {
         navigate("/reservation-confirmed", {
