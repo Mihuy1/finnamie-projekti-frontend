@@ -88,46 +88,48 @@ export const TimeSlot = ({
   };
 
   const handleEdit = async (updatedData, images, toRemoveImages) => {
-    try {
-      const result = await toast.promise(
-        updateExperience(slotData.id, updatedData, images),
-        {
-          loading: "Updating experience...",
-          success: (res) => res?.message || "Experience updated successfully",
-          error: (err) => {
-            return err?.message || "Failed to update experience";
-          },
-        },
-      );
+    const newFiles = (images || []).filter((file) => file instanceof File);
+    const removedImageUrls = (toRemoveImages || []).map((img) =>
+      img.url.replace(API_BASE_URL, ""),
+    );
 
-      if (!result) return;
+    const savePromise = (async () => {
+      const res = await updateExperience(slotData.id, updatedData);
 
-      let updatedResult = result.experience;
-
-      if (toRemoveImages.length > 0) {
-        for (const img of toRemoveImages) {
-          img.url = img.url.replace(API_BASE_URL, "");
-          const res = await deleteExperienceImageByIdAndUrl(
-            slotData.id,
-            img.url,
-          );
-
-          updatedResult = {
-            ...updatedResult,
-            images: (updatedResult.images || []).filter(
-              (i) => i.url !== img.url,
-            ),
-          };
-
-          if (!res) return;
-        }
+      if (!res?.experience) {
+        throw new Error("Failed to update experience");
       }
 
-      const newFiles = (images || []).filter((f) => f instanceof File);
+      let updatedResult = res.experience;
+
+      if (removedImageUrls.length > 0) {
+        await Promise.all(
+          removedImageUrls.map(async (url) => {
+            const deleted = await deleteExperienceImageByIdAndUrl(
+              slotData.id,
+              url,
+            );
+
+            if (!deleted) {
+              throw new Error("Failed to delete one or more images");
+            }
+          }),
+        );
+
+        updatedResult = {
+          ...updatedResult,
+          images: (updatedResult.images || []).filter(
+            (image) => !removedImageUrls.includes(image.url),
+          ),
+        };
+      }
 
       if (newFiles.length > 0) {
         const upload = await uploadExperienceImage(slotData.id, newFiles);
-        if (!upload || !upload.files) return;
+
+        if (!upload?.files) {
+          throw new Error("Failed to upload image(s)");
+        }
 
         const newImageObjects = upload.files.map((file) => ({
           url: file.url,
@@ -142,8 +144,17 @@ export const TimeSlot = ({
       setSlotData(updatedResult);
       onUpdate?.(updatedResult);
       setIsEditing(false);
-
       handleClose();
+
+      return res.message || "Experience updated successfully";
+    })();
+
+    try {
+      await toast.promise(savePromise, {
+        loading: "Updating experience...",
+        success: (message) => message,
+        error: (err) => err?.message || "Failed to update experience",
+      });
     } catch (error) {
       console.error("Error saving timeslot:", error);
     }

@@ -410,6 +410,7 @@ export const updateExperience = async (id, data, images) => {
     return data;
   } catch (error) {
     console.error("Update Experience error:", error);
+    throw error;
   }
 };
 

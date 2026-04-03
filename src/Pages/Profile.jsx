@@ -93,14 +93,14 @@ export const Profile = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.guest-wrapper')) {
+      if (!event.target.closest(".guest-wrapper")) {
         setShowCountryDropdown(false);
         setShowGenderDropdown(false);
         setShowExpDropdown(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -123,6 +123,7 @@ export const Profile = () => {
       try {
         const data = await getReservations();
         setReservations(Array.isArray(data) ? data : []);
+        console.log("Reservation data:", data);
       } catch (err) {
         console.error("Failed to load reservations:", err);
         setReservations([]);
@@ -506,22 +507,48 @@ export const Profile = () => {
                 disabled={!isEditing}
                 onFocus={() => {
                   if (!isEditing) return;
-                  setFilteredCountries(profileForm.country ? countries.filter(c => c.toLowerCase().includes(profileForm.country.toLowerCase())) : countries);
+                  setFilteredCountries(
+                    profileForm.country
+                      ? countries.filter((c) =>
+                          c
+                            .toLowerCase()
+                            .includes(profileForm.country.toLowerCase()),
+                        )
+                      : countries,
+                  );
                   setShowCountryDropdown(true);
                 }}
                 onChange={(e) => {
                   const val = e.target.value;
-                  setProfileForm(prev => ({ ...prev, country: val }));
-                  setFilteredCountries(countries.filter(c => c.toLowerCase().includes(val.toLowerCase())));
+                  setProfileForm((prev) => ({ ...prev, country: val }));
+                  setFilteredCountries(
+                    countries.filter((c) =>
+                      c.toLowerCase().includes(val.toLowerCase()),
+                    ),
+                  );
                 }}
               />
               {isEditing && profileForm.country && (
-                <button type="button" className="guest-clear-btn" onClick={() => setProfileForm(prev => ({ ...prev, country: "" }))}>✕</button>
+                <button
+                  type="button"
+                  className="guest-clear-btn"
+                  onClick={() =>
+                    setProfileForm((prev) => ({ ...prev, country: "" }))
+                  }
+                >
+                  ✕
+                </button>
               )}
               {showCountryDropdown && isEditing && (
                 <ul className="guest-dropdown">
                   {filteredCountries.map((c) => (
-                    <li key={c} onMouseDown={() => { setProfileForm(prev => ({ ...prev, country: c })); setShowCountryDropdown(false); }}>
+                    <li
+                      key={c}
+                      onMouseDown={() => {
+                        setProfileForm((prev) => ({ ...prev, country: c }));
+                        setShowCountryDropdown(false);
+                      }}
+                    >
                       {c}
                     </li>
                   ))}
@@ -560,15 +587,28 @@ export const Profile = () => {
               <input
                 type="text"
                 className="guest-input"
-                value={profileForm.gender ? profileForm.gender.charAt(0).toUpperCase() + profileForm.gender.slice(1) : "Not specified"}
+                value={
+                  profileForm.gender
+                    ? profileForm.gender.charAt(0).toUpperCase() +
+                      profileForm.gender.slice(1)
+                    : "Not specified"
+                }
                 readOnly
                 disabled={!isEditing}
-                onClick={() => isEditing && setShowGenderDropdown(!showGenderDropdown)}
+                onClick={() =>
+                  isEditing && setShowGenderDropdown(!showGenderDropdown)
+                }
               />
               {showGenderDropdown && isEditing && (
                 <ul className="guest-dropdown">
                   {["female", "male", "other"].map((g) => (
-                    <li key={g} onMouseDown={() => { setProfileForm(prev => ({ ...prev, gender: g })); setShowGenderDropdown(false); }}>
+                    <li
+                      key={g}
+                      onMouseDown={() => {
+                        setProfileForm((prev) => ({ ...prev, gender: g }));
+                        setShowGenderDropdown(false);
+                      }}
+                    >
                       {g.charAt(0).toUpperCase() + g.slice(1)}
                     </li>
                   ))}
@@ -629,12 +669,23 @@ export const Profile = () => {
                     value={profileForm.experience_length || "Both"}
                     readOnly
                     disabled={!isEditing}
-                    onClick={() => isEditing && setShowExpDropdown(!showExpDropdown)}
+                    onClick={() =>
+                      isEditing && setShowExpDropdown(!showExpDropdown)
+                    }
                   />
                   {showExpDropdown && isEditing && (
                     <ul className="guest-dropdown">
                       {["Half-day", "Full-day", "Both"].map((exp) => (
-                        <li key={exp} onMouseDown={() => { setProfileForm(prev => ({ ...prev, experience_length: exp })); setShowExpDropdown(false); }}>
+                        <li
+                          key={exp}
+                          onMouseDown={() => {
+                            setProfileForm((prev) => ({
+                              ...prev,
+                              experience_length: exp,
+                            }));
+                            setShowExpDropdown(false);
+                          }}
+                        >
                           {exp}
                         </li>
                       ))}
@@ -727,7 +778,12 @@ export const Profile = () => {
                 <input
                   type="text"
                   name="new_activity_suggestion"
-                  className={attemptedSubmit && !newActivitySuggestionForm.new_activity_suggestion.trim() ? "input-error" : ""}
+                  className={
+                    attemptedSubmit &&
+                    !newActivitySuggestionForm.new_activity_suggestion.trim()
+                      ? "input-error"
+                      : ""
+                  }
                   value={newActivitySuggestionForm.new_activity_suggestion}
                   onChange={(e) => {
                     handleActivitySuggestionInput(e);

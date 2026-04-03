@@ -30,7 +30,6 @@ export const useUserProfile = (user, loading) => {
         const [data, activitiesData] = await Promise.all([
           profilePromise,
           getActivities(),
-          // getSuggestionActivitiesByHostId(),
         ]);
 
         if (!data) throw new Error("No data received");
@@ -44,12 +43,11 @@ export const useUserProfile = (user, loading) => {
 
           try {
             const [hostTimeslots, suggestions] = await Promise.all([
-              // getTimeSlotsByHostId(user.id),
               getExperienceByHostId(),
               getSuggestionActivitiesByHostId(),
             ]);
 
-            console.log("hostTimeslots", hostTimeslots);
+            console.log("host timeslots:", hostTimeslots);
 
             setTimeSlots(hostTimeslots || []);
             activitiesSuggestionData = Array.isArray(suggestions)
