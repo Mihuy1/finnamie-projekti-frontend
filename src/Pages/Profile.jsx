@@ -122,8 +122,20 @@ export const Profile = () => {
     const getRes = async () => {
       try {
         const data = await getReservations();
-        setReservations(Array.isArray(data) ? data : []);
-        console.log("Reservation data:", data);
+        console.log("Backend vastaus:", data);
+
+        if (Array.isArray(data)) {
+          setReservations(data);
+        } else if (data && typeof data === 'object') {
+          if (data.error) {
+            console.error("Server error:", data.error);
+            setReservations([]);
+          } else {
+            setReservations([data]);
+          }
+        } else {
+          setReservations([]);
+        }
       } catch (err) {
         console.error("Failed to load reservations:", err);
         setReservations([]);
@@ -273,6 +285,27 @@ export const Profile = () => {
     fileInputRef.current.click();
   };
 
+  const formatDate = (dateInput) => {
+    if (!dateInput) return "";
+    const date = new Date(dateInput);
+    if (isNaN(date)) return "Date not found";
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  };
+
+  const formatTime = (dateInput) => {
+    if (!dateInput) return "";
+    const date = new Date(dateInput);
+    if (isNaN(date)) return "";
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
 
@@ -297,7 +330,6 @@ export const Profile = () => {
         }));
       }
 
-      // Sync with full profile data to be safe
       const updatedProfile = await getProfile();
       if (updatedProfile) {
         const formatted = {
@@ -510,10 +542,10 @@ export const Profile = () => {
                   setFilteredCountries(
                     profileForm.country
                       ? countries.filter((c) =>
-                          c
-                            .toLowerCase()
-                            .includes(profileForm.country.toLowerCase()),
-                        )
+                        c
+                          .toLowerCase()
+                          .includes(profileForm.country.toLowerCase()),
+                      )
                       : countries,
                   );
                   setShowCountryDropdown(true);
@@ -590,7 +622,7 @@ export const Profile = () => {
                 value={
                   profileForm.gender
                     ? profileForm.gender.charAt(0).toUpperCase() +
-                      profileForm.gender.slice(1)
+                    profileForm.gender.slice(1)
                     : "Not specified"
                 }
                 readOnly
@@ -780,7 +812,7 @@ export const Profile = () => {
                   name="new_activity_suggestion"
                   className={
                     attemptedSubmit &&
-                    !newActivitySuggestionForm.new_activity_suggestion.trim()
+                      !newActivitySuggestionForm.new_activity_suggestion.trim()
                       ? "input-error"
                       : ""
                   }
@@ -886,29 +918,125 @@ export const Profile = () => {
         ) : (
           // guest userille
           <>
+            <hr className="profile-divider" />
+            <h2 className="profile-section-title">Your Reservations</h2>
+
             {reservations && reservations.length > 0 ? (
-              <>
-                <hr className="profile-divider" />
-                <h2 className="profile-section-title">Your Reservations</h2>
-                <div className="profile-timeslot-list">
-                  {reservations.map((res) => (
-                    <Reservation
-                      key={res.reservation_id}
-                      inPast={new Date() >= new Date(res.res_date)}
-                      formattedDate={formatDateTimeDisplay(res.res_date).split(
-                        ",",
-                      )}
-                      reservation={res}
-                      handleModalOpen={handleModalOpen}
-                    />
-                  ))}
-                </div>
-              </>
+              <div className="BookingListContainer">
+                {reservations.map((res) => {
+                  const now = new Date();
+
+                  const endTimeStr = res.end_time || "23:59:59";
+                  const endDateTime = new Date(`${res.res_date}T${endTimeStr}`);
+
+                  const isPast = now > endDateTime;
+
+                  console.log("Varaus:", res.title);
+                  console.log("Nyt:", now);
+                  console.log("Päättyy:", endDateTime);
+                  console.log("Onko mennyt (isPast):", isPast);
+                  console.log("Status:", res.booking_status);
+
+                  const displayDate = formatDate(res.res_date);
+                  const startTime = res.start_time?.slice(0, 5);
+                  const endTime = res.end_time?.slice(0, 5);
+
+                  return (
+                    <div
+                      key={res.reservation_id || res.id}
+                      className="BookingRowCard"
+                      onClick={() => setSelectedSlot(res)}
+                    >
+                      <div className="BookingRowHeader">
+                        <span className="BookingTypeBadge">
+                          {res.experience_length === "halfday" ? "Half Day" : "Full Day"}
+                        </span>
+                        <span className={`BookingStatusPill Status-${res.booking_status}`}>
+                          {res.booking_status}
+                        </span>
+                      </div>
+
+                      <div className="BookingRowBody">
+                        <div className="BookingTitleGroup">
+                          <h3>{res.title}</h3>
+                          <span className="BookingHostText">with {res.first_name} {res.last_name}</span>
+                        </div>
+
+                        <div className="BookingMetaTags">
+                          <span className="BookingLocationTag">📍 {res.city}</span>
+                          <span className="BookingDateTag">📅 {displayDate}</span>
+                          <span className="BookingTimeTag">🕒 {startTime} - {endTime}</span>
+                        </div>
+                      </div>
+
+                      <div className="BookingRowFooter">
+                        <span className="BookingActionLink">View details →</span>
+
+                        {(res.booking_status === "confirmed") && (
+                          <button
+                            className="BookingRateBtnInline"
+                            disabled={!isPast}
+                            title={!isPast ? "You can rate this experience after it has ended" : ""}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (isPast) handleModalOpen(res);
+                            }}
+                          >
+                            {isPast ? "Rate Experience" : "Review stays locked"}
+                          </button>
+                        )}
+                      </div>
+
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
               <div className="no-reservations">
-                <hr className="profile-divider" />
-                <h2 className="profile-section-title">Reservations</h2>
                 <p>You haven't made any reservations yet.</p>
+              </div>
+            )}
+
+            {selectedSlot && (
+              <div className="BookingOverlay" onClick={() => setSelectedSlot(null)}>
+                <div className="BookingModalWrapper" onClick={(e) => e.stopPropagation()}>
+                  <button className="BookingCloseBtn" onClick={() => setSelectedSlot(null)}>×</button>
+
+                  <div className="BookingDetailedCard">
+                    <div className="BookingHeroImage">
+                      <img
+                        src={selectedSlot.image_url ? `http://localhost:3000${selectedSlot.image_url}` : "/placeholder-activity.jpg"}
+                        alt={selectedSlot.title}
+                      />
+                      <span className="BookingDurationTag">{selectedSlot.experience_length}</span>
+                    </div>
+
+                    <div className="BookingDetailedContent">
+                      <span className="BookingHostLabel">Host: {selectedSlot.first_name} {selectedSlot.last_name}</span>
+                      <h2 className="BookingMainTitle">{selectedSlot.title}</h2>
+                      <span className="BookingLocationLabel">📍 {selectedSlot.city}</span>
+
+                      <div className="BookingSummaryBox">
+                        <div className="BookingSummaryRow">
+                          <strong>Date</strong>
+                          <span>{formatDate(selectedSlot.res_date)}</span>
+                        </div>
+                        <div className="BookingSummaryRow">
+                          <strong>Time</strong>
+                          <span>
+                            {formatTime(`${selectedSlot.res_date}T${selectedSlot.start_time}`)} - {formatTime(`${selectedSlot.res_date}T${selectedSlot.end_time}`)}
+                          </span>
+                        </div>
+                        <div className="BookingSummaryRow">
+                          <strong>Status</strong>
+                          <span className={`StatusText-${selectedSlot.booking_status}`}>
+                            {selectedSlot.booking_status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 

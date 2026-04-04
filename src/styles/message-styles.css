@@ -152,3 +152,78 @@
   flex-direction: column;
   max-height: 500px;
 }
+
+.booking-request-card {
+  padding: 10px;
+  min-width: 200px;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.accept-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.reject-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.booking-bubble {
+  background-color: #f8f9fa !important;
+  border: 1px solid #dee2e6;
+  color: #333 !important;
+}
+
+.sent-info {
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 5px;
+  color: #666;
+}
+
+.status-update-confirmed {
+  color: #155724;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+}
+
+.status-update-rejected {
+  color: #721c24;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+}
+
+.small-text {
+  font-size: 0.75rem;
+  font-weight: normal;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+.message-bubble.booking-bubble:has(.status-update-confirmed) {
+  background-color: #d4edda !important;
+  border-color: #c3e6cb;
+}
+
+.message-bubble.booking-bubble:has(.status-update-rejected) {
+  background-color: #f8d7da !important;
+  border-color: #f5c6cb;
+}

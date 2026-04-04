@@ -1081,3 +1081,57 @@ export const getReviewsByHostId = async (hostId) => {
     console.error(e);
   }
 };
+
+export const sendMessage = async (conv_id, receiver_id, content) => {
+  try {
+    const res = await fetch(`${BASE_URL}conversations/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        conv_id,
+        receiver_id,
+        content,
+      }),
+    });
+
+    if (!res.ok) {
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to send message");
+      } else {
+        const errorText = await res.text();
+        throw new Error(`Server error (${res.status}): ${errorText.substring(0, 50)}`);
+      }
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error in sendMessage API:", error);
+    throw error;
+  }
+};
+
+export const updateReservationStatus = async (reservationId, status) => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/${reservationId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ booking_status: status }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Failed to update status");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error updating reservation status:", error);
+    throw error;
+  }
+};

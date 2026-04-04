@@ -10,6 +10,7 @@ import {
   createReservation,
 } from "../api/apiClient";
 import TimeslotSelector from "../components/TimeslotSelector";
+import { sendMessage, startConversation } from "../api/apiClient";
 
 export default function Reservation() {
   const { state } = useLocation();
@@ -57,7 +58,6 @@ export default function Reservation() {
   }, [slot?.host_id]);
 
   useEffect(() => {
-    // Reset body overflow that may have been set by modal
     document.body.style.overflow = "unset";
     window.scrollTo(0, 0);
 
@@ -75,39 +75,64 @@ export default function Reservation() {
   const totalPrice = basePrice + tax;
 
   const handleConfirm = async () => {
-    if (!paymentMethod) {
-      toast.error("Please select a payment method");
-      return;
-    }
-
-    if (!selectedTimeslotId) {
-      toast.error("Please select a date.");
+    if (!paymentMethod || !selectedTimeslotId) {
+      toast.error("Please fill all details");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // toast.success("Reservation confirmed!");
+      const selectedSlot = timeslots.find(ts => ts.id === selectedTimeslotId);
+      const eventDate = selectedSlot?.start_time?.split("T")[0] || selectedSlot?.res_date;
 
-      await toast.promise(createReservation(selectedTimeslotId), {
-        loading: "Confirming reservation...",
-        success: (res) => res?.message || "Reservation confirmed!",
-        error: (err) => {
-          return err?.message || "Failed to confirm reservation";
-        },
-      });
+      const resData = await createReservation(selectedTimeslotId);
+
+      const data = Array.isArray(resData) ? resData[0] : resData;
+      const realReservationId = data?.id || data?.reservation_id;
+
+      if (!realReservationId) {
+        console.error("Varaus onnistui, mutta ID puuttuu vastauksesta!", resData);
+      }
+
+      try {
+        const convData = await startConversation(slot.host_id);
+
+        const convId =
+          convData?.convesation_id ||
+          convData?.conversation_id ||
+          convData?.conv_id ||
+          convData?.id;
+
+        if (convId && realReservationId) {
+          const autoMessage = `TYPE:RESERVATION_REQUEST|ID:${realReservationId}|TITLE:${slot.title || slot.name}|DATE:${eventDate}`;
+
+          console.log("Yritetään lähettää viestiä...");
+          await sendMessage(convId, slot.host_id, autoMessage);
+          console.log("✅ Automaattiviesti lähetetty onnistuneesti!");
+        } else {
+          console.error("❌ PUUTTUVA DATAA:", { convId, realReservationId });
+        }
+      } catch (chatErr) {
+        console.error("❌ Chatin aloitus tai viesti epäonnistui", chatErr);
+      }
+
+      toast.success("Booking request sent!");
 
       setTimeout(() => {
         navigate("/reservation-confirmed", {
           state: {
-            reservation: { id: "RES-" + Math.floor(Math.random() * 10000) },
+            reservation: { id: realReservationId || "RES-" + Math.floor(Math.random() * 10000) },
             slot: slot,
             host: hostData,
+            openChat: true,
+            targetHost: hostData
           },
         });
-      }, 2000);
+      }, 1500);
+
     } catch (error) {
-      toast.error("Booking failed. Please try again.");
+      console.error("Reservation error:", error);
+      toast.error(error?.message || "Booking failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -292,6 +317,14 @@ export default function Reservation() {
             <div className="price-row total">
               <span>Total Price</span>
               <span>{totalPrice.toFixed(2)} €</span>
+            </div>
+
+            <div className="booking-notice-box">
+              <p>
+                <strong>📌 Note:</strong> Your booking is for the selected date, but it
+                is <strong>pending</strong> until the host approves it. You will receive
+                a confirmation email once it's officially confirmed.
+              </p>
             </div>
 
             <button

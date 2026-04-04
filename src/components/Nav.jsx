@@ -6,7 +6,7 @@ import { useChatbox } from "../contexts/ChatboxContext";
 
 export const Nav = () => {
   const { user, setUser } = useAuth();
-  const { isOpen, handleClose, handleOpen, toggle } = useChatbox();
+  const { isOpen, handleClose, handleOpen, toggle, unreadCount, newReceiver } = useChatbox();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -47,10 +47,11 @@ export const Nav = () => {
               style={{
                 cursor: "pointer",
                 alignItems: "center",
+                gap: "5px",
               }}
             >
               Conversations
-              <span className="nav-chat-dot"></span>
+              {unreadCount > 0 && <span className="nav-chat-dot"></span>}
             </a>
             {user.role === "admin" && <Link to="/admin"> Admin page</Link>}
             <a className="logout-link" onClick={handleLogout}>
@@ -59,7 +60,12 @@ export const Nav = () => {
           </>
         )}
       </nav>
-      {isOpen && <Chatbox loadMessages={false} />}
+      {isOpen && (
+        <Chatbox
+          newReceiver={newReceiver}
+          loadMessages={!!newReceiver}
+        />
+      )}
     </header>
   );
 };
