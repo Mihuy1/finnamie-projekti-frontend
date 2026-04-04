@@ -9,6 +9,7 @@ import { useChatbox } from "../contexts/ChatboxContext";
 
 export const Chatbox = ({ newReceiver = null, loadMessages }) => {
   const { handleClose } = useChatbox();
+
   const [openConversation, setOpenConversation] = useState(loadMessages);
   const [receiver, setReceiver] = useState({
     first_name: null,
@@ -22,16 +23,24 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
       const getConvId = async () => {
         try {
           const data = await getConversationId(newReceiver.user_id);
-          data && setConvId(data.conv_id);
+          if (data && data.conv_id) {
+            setConvId(data.conv_id);
+            setOpenConversation(true);
+            setReceiver({
+              first_name: newReceiver.first_name,
+              last_name: newReceiver.last_name,
+              id: newReceiver.user_id,
+            });
+            socket.emit("join conversation", data.conv_id);
+          }
         } catch (err) {
-          console.log(err);
+          console.error("Error fetching conversation ID:", err);
         }
       };
       getConvId();
     }
   }, [newReceiver]);
 
-  // init and cleanup
   useEffect(() => {
     if (!socket.connected) socket.connect();
     return () => {
@@ -50,8 +59,6 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
       setConvId("");
       setOpenConversation(false);
     }
-    if (openConversation && convId !== conv_id) setOpenConversation(true);
-    else setOpenConversation(!openConversation);
 
     setReceiver({
       first_name,
@@ -61,38 +68,34 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
   };
 
   return (
-    <>
-      {
-        <div className="chatbox">
-          <div className="chat-header">
-            <div className="chat-title">
-              {receiver?.first_name
-                ? `${receiver.first_name} ${receiver.last_name}`
-                : "Messages"}
-            </div>
-            <div className="chat-actions">
-              <button
-                className="chat-close"
-                aria-label="Close chat"
-                onClick={handleClose}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-          <div className="chatbox-main">
-            <ConversationList
-              handleOpenClick={handleOpenConversation}
-              convId={convId}
-              messageReceiver={newReceiver}
-            />
-            <div className="message-history-wrapper">
-              {openConversation && <MessageList conv_id={convId} />}
-              <MessageInput conv_id={convId} receiver_id={receiver.id} />
-            </div>
-          </div>
+    <div className="chatbox">
+      <div className="chat-header">
+        <div className="chat-title">
+          {receiver?.first_name
+            ? `${receiver.first_name} ${receiver.last_name}`
+            : "Messages"}
         </div>
-      }
-    </>
+        <div className="chat-actions">
+          <button
+            className="chat-close"
+            aria-label="Close chat"
+            onClick={handleClose}
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+      <div className="chatbox-main">
+        <ConversationList
+          handleOpenClick={handleOpenConversation}
+          convId={convId}
+          messageReceiver={newReceiver}
+        />
+        <div className="message-history-wrapper">
+          {openConversation && <MessageList conv_id={convId} />}
+          <MessageInput conv_id={convId} receiver_id={receiver.id} />
+        </div>
+      </div>
+    </div>
   );
 };

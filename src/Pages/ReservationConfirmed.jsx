@@ -2,6 +2,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
 import { useEffect } from "react";
+import { useChatbox } from "../contexts/ChatboxContext";
 
 function ReservationConfirmed() {
     const navigate = useNavigate();
@@ -10,6 +11,8 @@ function ReservationConfirmed() {
     const reservation = state?.reservation || {};
     const slot = state?.slot || {};
     const host = state?.host || {};
+
+    const { triggerChatWithHost } = useChatbox();
 
     const getStartTime = () => {
         if (slot.rule?.start_date) {
@@ -54,61 +57,69 @@ function ReservationConfirmed() {
         window.scrollTo(0, 0);
     }, []);
 
+    const handleNavigation = (targetPath) => {
+        if (state?.openChat && state?.targetHost) {
+            triggerChatWithHost(state.targetHost);
+        }
+        navigate(targetPath);
+    };
+
     return (
         <div className="app">
             <div className="app confirmation-page-wrapper">
                 <section className="confirmation-section">
                     <div className="success-icon" style={{ fontSize: '64px' }}>✅</div>
-                    <h1>Booking Confirmed!</h1>
-                    <p>Thank you for choosing Finnamie.</p>
+
+                    <h1>Booking Requested!</h1>
+                    <p>Your request has been sent to the host for approval.</p>
 
                     <div className="confirmation-card">
                         <h3>Booking Summary</h3>
-
                         <div className="conf-row">
                             <strong>Activity</strong>
                             <span>{slot.title || slot.name || "Local Activity"}</span>
                         </div>
-
                         <div className="conf-row">
                             <strong>Date</strong>
                             <span>{formatDate(getStartTime())}</span>
                         </div>
-
                         <div className="conf-row">
                             <strong>Time</strong>
                             <span>
                                 {formatTime(getStartTime())} - {formatTime(getEndTime())}
                             </span>
                         </div>
-
                         <div className="conf-row">
                             <strong>Location</strong>
                             <span>
                                 {slot.address ? `${slot.address}, ${slot.city}` : slot.city}
                             </span>
                         </div>
-
                         <div className="conf-row">
                             <strong>Host</strong>
                             <span>{hostDisplayName}</span>
                         </div>
-
                         <div className="conf-row">
                             <strong>Reference ID</strong>
                             <code>{reservation.id}</code>
                         </div>
 
                         <p className="confirmation-footer-text">
-                            A confirmation email has been sent to your inbox with all the details and meeting instructions.
+                            A confirmation email has been sent to you. The host will review your request shortly.
                         </p>
                     </div>
 
                     <div className="confirmation-actions">
-                        <button className="btn-confirm btn-confirm-primary" onClick={() => navigate("/")}>
+                        <button
+                            className="btn-confirm btn-confirm-primary"
+                            onClick={() => handleNavigation("/")}
+                        >
                             Back to Home
                         </button>
-                        <button className="btn-confirm btn-confirm-secondary" onClick={() => navigate("/profile")}>
+                        <button
+                            className="btn-confirm btn-confirm-secondary"
+                            onClick={() => handleNavigation("/profile")}
+                        >
                             View My Bookings
                         </button>
                     </div>
