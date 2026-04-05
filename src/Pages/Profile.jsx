@@ -22,6 +22,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
 import { Reservation } from "../components/Reservation";
+import { postReview } from "../api/apiClient";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -289,6 +290,7 @@ export const Profile = () => {
     if (!dateInput) return "";
     const date = new Date(dateInput);
     if (isNaN(date)) return "Date not found";
+
     return date.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "long",
@@ -926,31 +928,30 @@ export const Profile = () => {
                 {reservations.map((res) => {
                   const now = new Date();
 
-                  const endTimeStr = res.end_time || "23:59:59";
-                  const endDateTime = new Date(`${res.res_date}T${endTimeStr}`);
+                  const startDateTime = new Date(res.start_time.replace(' ', 'T'));
+                  const endDateTime = new Date(res.end_time.replace(' ', 'T'));
 
                   const isPast = now > endDateTime;
 
-                  console.log("Varaus:", res.title);
-                  console.log("Nyt:", now);
-                  console.log("Päättyy:", endDateTime);
-                  console.log("Onko mennyt (isPast):", isPast);
-                  console.log("Status:", res.booking_status);
+                  const displayDate = startDateTime.toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  });
 
-                  const displayDate = formatDate(res.res_date);
-                  const startTime = res.start_time?.slice(0, 5);
-                  const endTime = res.end_time?.slice(0, 5);
+                  const startTime = startDateTime.toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  });
+                  const endTime = endDateTime.toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  });
 
                   return (
-                    <div
-                      key={res.reservation_id || res.id}
-                      className="BookingRowCard"
-                      onClick={() => setSelectedSlot(res)}
-                    >
+                    <div key={res.reservation_id} className="BookingRowCard" onClick={() => setSelectedSlot(res)}>
                       <div className="BookingRowHeader">
-                        <span className="BookingTypeBadge">
-                          {res.experience_length === "halfday" ? "Half Day" : "Full Day"}
-                        </span>
+                        <span className="BookingTypeBadge">{res.experience_length}</span>
                         <span className={`BookingStatusPill Status-${res.booking_status}`}>
                           {res.booking_status}
                         </span>
@@ -972,7 +973,7 @@ export const Profile = () => {
                       <div className="BookingRowFooter">
                         <span className="BookingActionLink">View details →</span>
 
-                        {(res.booking_status === "confirmed") && (
+                        {res.booking_status === "confirmed" && (
                           <button
                             className="BookingRateBtnInline"
                             disabled={!isPast}
@@ -982,7 +983,11 @@ export const Profile = () => {
                               if (isPast) handleModalOpen(res);
                             }}
                           >
-                            {isPast ? "Rate Experience" : "Review stays locked"}
+                            {!isPast ? (
+                              "Review locked"
+                            ) : (
+                              (res.score || res.review_id) ? "Edit Review" : "Rate Experience"
+                            )}
                           </button>
                         )}
                       </div>
@@ -996,7 +1001,6 @@ export const Profile = () => {
                 <p>You haven't made any reservations yet.</p>
               </div>
             )}
-
             {selectedSlot && (
               <div className="BookingOverlay" onClick={() => setSelectedSlot(null)}>
                 <div className="BookingModalWrapper" onClick={(e) => e.stopPropagation()}>
@@ -1008,31 +1012,61 @@ export const Profile = () => {
                         src={selectedSlot.image_url ? `http://localhost:3000${selectedSlot.image_url}` : "/placeholder-activity.jpg"}
                         alt={selectedSlot.title}
                       />
-                      <span className="BookingDurationTag">{selectedSlot.experience_length}</span>
+                      <div className="BookingBadgeContainer">
+                        <span className="BookingDurationTag">{selectedSlot.experience_length}</span>
+                        <span className={`BookingStatusBadge Status-${selectedSlot.booking_status}`}>
+                          {selectedSlot.booking_status}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="BookingDetailedContent">
-                      <span className="BookingHostLabel">Host: {selectedSlot.first_name} {selectedSlot.last_name}</span>
-                      <h2 className="BookingMainTitle">{selectedSlot.title}</h2>
-                      <span className="BookingLocationLabel">📍 {selectedSlot.city}</span>
+                      <header className="BookingHeaderSection">
+                        <span className="BookingHostName">Host: {selectedSlot.first_name} {selectedSlot.last_name}</span>
+                        <h2 className="BookingMainTitle">{selectedSlot.title}</h2>
+                        <p className="BookingLocationLabel">📍 {selectedSlot.city}</p>
 
-                      <div className="BookingSummaryBox">
-                        <div className="BookingSummaryRow">
-                          <strong>Date</strong>
-                          <span>{formatDate(selectedSlot.res_date)}</span>
-                        </div>
-                        <div className="BookingSummaryRow">
-                          <strong>Time</strong>
-                          <span>
-                            {formatTime(`${selectedSlot.res_date}T${selectedSlot.start_time}`)} - {formatTime(`${selectedSlot.res_date}T${selectedSlot.end_time}`)}
+                        {selectedSlot.description && (
+                          <p className="BookingDescriptionText">
+                            {selectedSlot.description}
+                          </p>
+                        )}
+                      </header>
+
+                      <div className="BookingInfoGrid">
+                        <div className="InfoItem">
+                          <span className="InfoLabel">Date</span>
+                          <span className="InfoValue">
+                            {new Date(selectedSlot.start_time.replace(' ', 'T')).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric"
+                            })}
                           </span>
                         </div>
-                        <div className="BookingSummaryRow">
-                          <strong>Status</strong>
-                          <span className={`StatusText-${selectedSlot.booking_status}`}>
-                            {selectedSlot.booking_status}
+
+                        <div className="InfoItem">
+                          <span className="InfoLabel">Time</span>
+                          <span className="InfoValue">
+                            {selectedSlot.start_time.slice(11, 16)} – {selectedSlot.end_time.slice(11, 16)}
                           </span>
                         </div>
+                      </div>
+
+                      <div className="InfoItem full-width">
+                        <span className="InfoLabel">Location</span>
+                        <span className="InfoValue">
+                          📍 {selectedSlot.address ? `${selectedSlot.address}, ` : ""}{selectedSlot.city}
+                        </span>
+                      </div>
+
+                      <div className="BookingFooterInfo">
+                        <div className="ReferenceBox">
+                          <span>Reference ID</span>
+                          <code>{selectedSlot.reservation_id || "N/A"}</code>                        </div>
+                        <p className="RequestDate">
+                          Reserved on {formatDate(selectedSlot.res_date)}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1050,6 +1084,6 @@ export const Profile = () => {
           </>
         )}
       </div>
-    </section>
+    </section >
   );
 };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { updateReservationStatus } from "../api/apiClient";
+import { updateReservationStatus, sendMessage } from "../api/apiClient";
 import "../styles/message-styles.css";
 
 export const Message = ({ msg, user }) => {
@@ -22,8 +22,37 @@ export const Message = ({ msg, user }) => {
     try {
       await updateReservationStatus(resId, newStatus);
       setLocalStatus(newStatus);
+
+      const parts = msg.content.split("|");
+      const title = parts.find((p) => p.startsWith("TITLE:"))?.split(":")[1] || "Activity";
+      const date = parts.find((p) => p.startsWith("DATE:"))?.split(":")[1];
+
+      let confirmationMessage = "";
+
+      if (newStatus === "confirmed") {
+        confirmationMessage = `
+✅ BOOKING CONFIRMED!
+
+Your host has accepted your booking:
+• Activity: ${title}
+• Date: ${date}
+• Ref ID: ${resId}
+
+Get ready for your experience!
+`.trim();
+      } else {
+        confirmationMessage = `
+❌ BOOKING DECLINED
+
+Unfortunately, the host could not accept the booking for:
+• ${title}
+
+We hope you find another experience soon!
+`.trim();
+      }
+      await sendMessage(msg.conv_id, msg.sender_id, confirmationMessage);
     } catch (err) {
-      console.error("Failed to update status", err);
+      console.error("Failed to update status or send message", err);
       alert("Error processing request.");
     }
   };

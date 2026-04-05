@@ -29,7 +29,7 @@
   border-radius: 12px;
   color: white;
   display: inline-block;
-
+  white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: break-word;
   hyphens: auto;
