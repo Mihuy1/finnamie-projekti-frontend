@@ -18,33 +18,41 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation }) => {
       score: rating || 1,
       content: reviewText,
     };
-    if (!reservation?.conten && !reservation?.score) {
-      await toast.promise(
-        postReview({
-          resId: reservation.reservation_id,
-          hostId: reservation.host_id,
-          ...data,
-        }),
-        {
-          loading: "Posting review...",
-          success: "Review posted.",
-        },
-      );
-    } else {
-      await toast.promise(
-        updateReview({
-          review_id: reservation.review_id,
-          guestId: reservation.guest_id,
-          ...data,
-        }),
-        {
-          loading: "Updating review...",
-          success: "Review updated.",
-        },
-      );
-    }
+    const isNewReview = !reservation?.content && !reservation?.score;
 
-    closeModal(true);
+    try {
+      if (isNewReview) {
+        await toast.promise(
+          postReview({
+            resId: reservation.reservation_id,
+            hostId: reservation.host_id,
+            experienceId: reservation.experience_id,
+            ...data,
+          }),
+          {
+            loading: "Posting review...",
+            success: "Review posted successfully!",
+            error: "Failed to post review.",
+          }
+        );
+      } else {
+        await toast.promise(
+          updateReview({
+            review_id: reservation.review_id,
+            guestId: reservation.guest_id,
+            ...data,
+          }),
+          {
+            loading: "Updating review...",
+            success: "Review updated successfully!",
+            error: "Failed to update review.",
+          }
+        );
+      }
+      closeModal(true);
+    } catch (err) {
+      console.error("Submit error:", err);
+    }
   };
 
   return (

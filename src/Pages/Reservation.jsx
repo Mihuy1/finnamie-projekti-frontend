@@ -90,10 +90,6 @@ export default function Reservation() {
       const data = Array.isArray(resData) ? resData[0] : resData;
       const realReservationId = data?.id || data?.reservation_id;
 
-      if (!realReservationId) {
-        console.error("Varaus onnistui, mutta ID puuttuu vastauksesta!", resData);
-      }
-
       try {
         const convData = await startConversation(slot.host_id);
 
@@ -106,14 +102,13 @@ export default function Reservation() {
         if (convId && realReservationId) {
           const autoMessage = `TYPE:RESERVATION_REQUEST|ID:${realReservationId}|TITLE:${slot.title || slot.name}|DATE:${eventDate}`;
 
-          console.log("Yritetään lähettää viestiä...");
           await sendMessage(convId, slot.host_id, autoMessage);
-          console.log("✅ Automaattiviesti lähetetty onnistuneesti!");
+          console.log("Lähetetty onnistuneesti!");
         } else {
-          console.error("❌ PUUTTUVA DATAA:", { convId, realReservationId });
+          console.error("PUUTTUVA DATA:", { convId, realReservationId });
         }
       } catch (chatErr) {
-        console.error("❌ Chatin aloitus tai viesti epäonnistui", chatErr);
+        console.error("Chatin aloitus epäonnistui", chatErr);
       }
 
       toast.success("Booking request sent!");

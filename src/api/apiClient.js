@@ -999,7 +999,7 @@ export const postReview = async (review) => {
   if (!review) return;
 
   try {
-    const res = await fetch(`${BASE_URL}reviews`, {
+    const res = await fetch(`${BASE_URL}reviews/`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -1007,9 +1007,15 @@ export const postReview = async (review) => {
       },
       body: JSON.stringify(review),
     });
+
+    if (!res.ok) {
+      const errorData = await res.text();
+      throw new Error(`Request failed with status ${res.status}`);
+    }
+
     return await res.json();
   } catch (e) {
-    console.error(e);
+    console.error("Fetch error:", e);
   }
 };
 
@@ -1108,7 +1114,8 @@ export const sendMessage = async (conv_id, receiver_id, content) => {
       }
     }
 
-    return await res.json();
+    const text = await res.text();
+    return text ? JSON.parse(text) : { success: true };
   } catch (error) {
     console.error("Error in sendMessage API:", error);
     throw error;
@@ -1134,4 +1141,21 @@ export const updateReservationStatus = async (reservationId, status) => {
     console.error("Error updating reservation status:", error);
     throw error;
   }
+};
+
+export const getUnreadCount = async () => {
+  const response = await fetch(`${BASE_URL}conversations/unread-count`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (response.status === 401) {
+    return { count: 0 };
+  }
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch unread count");
+  }
+
+  return response.json();
 };

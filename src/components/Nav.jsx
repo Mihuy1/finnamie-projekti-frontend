@@ -22,6 +22,8 @@ export const Nav = () => {
     }
   };
 
+  console.log("Nav unreadCount:", unreadCount, typeof unreadCount);
+
   return (
     <header className="header">
       <Link to="/" className="logo">
@@ -46,12 +48,18 @@ export const Nav = () => {
               onClick={toggle}
               style={{
                 cursor: "pointer",
+                display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
+                gap: "6px",
+                position: "relative"
               }}
             >
               Conversations
-              {unreadCount > 0 && <span className="nav-chat-dot"></span>}
+              {unreadCount > 0 && (
+                <span className="nav-chat-dot">
+                  {unreadCount}
+                </span>
+              )}
             </a>
             {user.role === "admin" && <Link to="/admin"> Admin page</Link>}
             <a className="logout-link" onClick={handleLogout}>
