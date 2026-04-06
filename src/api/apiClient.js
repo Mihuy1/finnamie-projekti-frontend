@@ -1076,6 +1076,33 @@ export const createReservation = async (timeslot_id) => {
   }
 };
 
+export const cancelReservationApi = async (timeslot_id) => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/cancel/${timeslot_id}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong while cancelling reservation";
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (e) {
+    console.error("API Error (cancelReservation):", e);
+    throw e;
+  }
+};
+
 export const getReviewsByHostId = async (hostId) => {
   try {
     const res = await fetch(`${BASE_URL}reviews/host/${hostId}`, {
@@ -1098,7 +1125,7 @@ export const sendMessage = async (conv_id, receiver_id, content) => {
       credentials: "include",
       body: JSON.stringify({
         conv_id,
-        receiver_id,
+        sernder_id: receiver_id,
         content,
       }),
     });
