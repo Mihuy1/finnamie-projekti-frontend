@@ -43,7 +43,7 @@ const EMPTY_PROFILE = {
 configureLeaflet();
 
 export const Profile = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, refresh } = useAuth();
 
   const {
     profile,
@@ -103,6 +103,10 @@ export const Profile = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    refresh();
   }, []);
 
   useEffect(() => {
@@ -423,7 +427,9 @@ export const Profile = () => {
       loading: "Sending Verification Email...",
       success: (res) =>
         res.message || "Verification email sent! Please check your inbox.",
-      error: (err) => err.message || "Failed to send verification email",
+      error: (err) => {
+        return err.message || "Failed to send verification email";
+      },
     });
   };
 
@@ -491,9 +497,20 @@ export const Profile = () => {
           <div className="profile-top-info">
             <h2>{fullName || "Your Profile"}</h2>
             {profile.role && (
-              <p className="profile-role">
-                {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
-              </p>
+              <>
+                <p className="profile-role">
+                  {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+                </p>
+                <p className={user.is_verified ? "verified" : "unverified"}>
+                  {" "}
+                  {user.is_verified ? "Verified" : "Unverified"}{" "}
+                </p>
+                {/* <span
+                  className={`pill pill-${user.is_verified ? "verified" : "unverified"}`}
+                >
+                  {user.is_verified ? "Verified" : "Unverified"}
+                </span> */}
+              </>
             )}
             {/*<button
               className="profile-btn profile-btn-primary"
@@ -811,12 +828,17 @@ export const Profile = () => {
         </form>
 
         {user.is_verified === 0 && (
-          <>
-            <h2>Resend Email Verification</h2>
-            <button onClick={handleEmailVerificationSubmit}>
+          <div className="email-verification-section">
+            <hr className="profile-divider" />
+
+            <h2 className="profile-section-title">Email Verification</h2>
+            <button
+              className="profile-btn profile-btn-primary"
+              onClick={handleEmailVerificationSubmit}
+            >
               Send Verification
             </button>
-          </>
+          </div>
         )}
 
         {isHost ? (
