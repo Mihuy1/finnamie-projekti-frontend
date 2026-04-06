@@ -3028,6 +3028,75 @@ input.activity-input-host {
   font-size: 13px;
 }
 
+.BookingActionsArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn-read-feedback {
+  background-color: #ffffff;
+  color: #2563eb;
+  border: 2px solid #dbeafe;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-read-feedback:hover {
+  background-color: #f8faff;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.GuestFeedbackPreview {
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+  padding: 15px;
+  margin-top: 10px;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.FeedbackStars {
+  color: #ffc107;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.ScoreNumber {
+  color: #666;
+  font-size: 0.9rem;
+  margin-left: 8px;
+}
+
+.FeedbackContent {
+  font-style: italic;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .BookingOverlay {
   position: fixed;
   inset: 0;
@@ -3262,6 +3331,54 @@ input.activity-input-host {
 .Status-reserved {
   background: #eab308;
   color: white;
+}
+
+.host-view-card {
+  border-left: 5px solid #4CAF50;
+  background-color: #fcfdfc;
+}
+
+.BookingGuestText {
+  display: block;
+  font-size: 1.1rem;
+  margin: 5px 0;
+  color: #333;
+}
+
+.BookingDateInfo {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.CancelBookingBtn {
+  background-color: #fff1f1;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.CancelBookingBtn:hover {
+  background-color: #d32f2f;
+  color: white;
+  border-color: #d32f2f;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+}
+
+.CancelBookingBtn:disabled {
+  background-color: #f5f5f5;
+  color: #bdbdbd;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
 }
 
 /* profile timeslot */

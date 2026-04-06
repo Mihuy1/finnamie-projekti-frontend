@@ -10,6 +10,8 @@ export const Message = ({ msg, user }) => {
   const isDeclinedInDB = msg.content === "DECLINED";
 
   const [localStatus, setLocalStatus] = useState(null);
+  const isCancelledByHost = msg.content.includes("CANCELLED BY HOST");
+  const isCancelledByGuest = msg.content.includes("CANCELLED BY GUEST");
 
   const handleStatusUpdate = async (resId, newStatus) => {
     if (newStatus === "rejected") {
@@ -81,6 +83,17 @@ We hope you find another experience soon!
         <div className="status-update-rejected">
           <p>❌ <strong>Booking Declined</strong></p>
           {title && <p className="small-text">{title}</p>}
+        </div>
+      );
+    }
+
+    if (isCancelledByHost || isCancelledByGuest) {
+      return (
+        <div className="status-update-cancelled">
+          <p>🚫 <strong>Booking Cancelled</strong></p>
+          <p className="small-text" style={{ whiteSpace: 'pre-wrap' }}>
+            {msg.content}
+          </p>
         </div>
       );
     }
