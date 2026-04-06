@@ -8,7 +8,7 @@ import {
   updateExperience,
   uploadExperienceImage,
 } from "../api/apiClient";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import configureLeaflet from "../utils/leaflet-config";
 import { Carousel } from "./Carousel";
 import { ConfirmModal } from "./ConfirmModal";
@@ -26,7 +26,7 @@ export const TimeSlot = ({
   onDelete,
 }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const location = useLocation();
 
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -56,7 +56,7 @@ export const TimeSlot = ({
     onClose?.();
   };
 
-  const handleBookNow = () => {
+  const handleBookNow = async () => {
     if (!user) {
       navigate("/login", {
         state: {
@@ -65,9 +65,38 @@ export const TimeSlot = ({
           from: location.pathname,
         },
       });
-    } else {
-      navigate("/reserve-activity", { state: { slot: slotData } });
+      return;
     }
+
+    let currentUser = user;
+    try {
+      currentUser = (await refresh()) ?? user;
+    } catch (error) {
+      console.error("Failed to refresh auth before booking:", error);
+    }
+
+    if (!currentUser) {
+      navigate("/login", {
+        state: {
+          redirectTo: "/reserve-activity",
+          bookingData: slotData,
+          from: location.pathname,
+        },
+      });
+      return;
+    }
+
+    if (!currentUser.is_verified) {
+      toast(
+        "Please verify your email, you can resend confirmation email in your Profile page.",
+        {
+          duration: 6000,
+        },
+      );
+      return;
+    }
+
+    navigate("/reserve-activity", { state: { slot: slotData } });
   };
 
   const handleDelete = async (timeslotId) => {

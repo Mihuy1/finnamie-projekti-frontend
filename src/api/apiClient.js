@@ -1110,7 +1110,9 @@ export const sendMessage = async (conv_id, receiver_id, content) => {
         throw new Error(data.message || "Failed to send message");
       } else {
         const errorText = await res.text();
-        throw new Error(`Server error (${res.status}): ${errorText.substring(0, 50)}`);
+        throw new Error(
+          `Server error (${res.status}): ${errorText.substring(0, 50)}`,
+        );
       }
     }
 
@@ -1158,4 +1160,29 @@ export const getUnreadCount = async () => {
   }
 
   return response.json();
+};
+
+export const resendVerificationEmail = async (email) => {
+  try {
+    const res = await fetch(`${BASE_URL}auth/resend-verification/${email}`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
