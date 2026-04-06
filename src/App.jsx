@@ -15,6 +15,8 @@ import { PublicProfile } from "./Pages/PublicProfile";
 import BookActivity from "./Pages/BookActivity";
 import Reservation from "./Pages/Reservation";
 import ReservationConfirmed from "./Pages/ReservationConfirmed";
+import { Success } from "./Pages/Success";
+import { Cancelled } from "./Pages/Cancelled";
 
 function App() {
   return (
@@ -47,6 +49,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/host/login" element={<HostLogin />} />
+        <Route path="/success/:res_id" element={<Success />} />
+        <Route path="/cancel" element={<Cancelled />} />
       </Route>
       <Route path="/book-activity" element={<BookActivity />} />
       <Route path="/reserve-activity" element={<Reservation />} />

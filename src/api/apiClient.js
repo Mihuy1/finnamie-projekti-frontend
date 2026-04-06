@@ -1110,7 +1110,9 @@ export const sendMessage = async (conv_id, receiver_id, content) => {
         throw new Error(data.message || "Failed to send message");
       } else {
         const errorText = await res.text();
-        throw new Error(`Server error (${res.status}): ${errorText.substring(0, 50)}`);
+        throw new Error(
+          `Server error (${res.status}): ${errorText.substring(0, 50)}`,
+        );
       }
     }
 
@@ -1158,4 +1160,23 @@ export const getUnreadCount = async () => {
   }
 
   return response.json();
+};
+
+export const getCheckoutSession = async (type, email) => {
+  try {
+    const res = await fetch(`${BASE_URL}stripe/create-checkout-session`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type,
+        email,
+      }),
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
 };

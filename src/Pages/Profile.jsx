@@ -21,8 +21,9 @@ import toast from "react-hot-toast";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
-import { Reservation } from "../components/Reservation";
+//import { Reservation } from "../components/Reservation";
 import { postReview } from "../api/apiClient";
+import { PaymentButton } from "../components/PaymentButton";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -127,7 +128,7 @@ export const Profile = () => {
 
         if (Array.isArray(data)) {
           setReservations(data);
-        } else if (data && typeof data === 'object') {
+        } else if (data && typeof data === "object") {
           if (data.error) {
             console.error("Server error:", data.error);
             setReservations([]);
@@ -294,7 +295,7 @@ export const Profile = () => {
     return date.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "long",
-      year: "numeric"
+      year: "numeric",
     });
   };
 
@@ -304,7 +305,7 @@ export const Profile = () => {
     if (isNaN(date)) return "";
     return date.toLocaleTimeString("en-GB", {
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -544,10 +545,10 @@ export const Profile = () => {
                   setFilteredCountries(
                     profileForm.country
                       ? countries.filter((c) =>
-                        c
-                          .toLowerCase()
-                          .includes(profileForm.country.toLowerCase()),
-                      )
+                          c
+                            .toLowerCase()
+                            .includes(profileForm.country.toLowerCase()),
+                        )
                       : countries,
                   );
                   setShowCountryDropdown(true);
@@ -624,7 +625,7 @@ export const Profile = () => {
                 value={
                   profileForm.gender
                     ? profileForm.gender.charAt(0).toUpperCase() +
-                    profileForm.gender.slice(1)
+                      profileForm.gender.slice(1)
                     : "Not specified"
                 }
                 readOnly
@@ -814,7 +815,7 @@ export const Profile = () => {
                   name="new_activity_suggestion"
                   className={
                     attemptedSubmit &&
-                      !newActivitySuggestionForm.new_activity_suggestion.trim()
+                    !newActivitySuggestionForm.new_activity_suggestion.trim()
                       ? "input-error"
                       : ""
                   }
@@ -928,31 +929,44 @@ export const Profile = () => {
                 {reservations.map((res) => {
                   const now = new Date();
 
-                  const startDateTime = new Date(res.start_time.replace(' ', 'T'));
-                  const endDateTime = new Date(res.end_time.replace(' ', 'T'));
+                  const startDateTime = new Date(
+                    res.start_time.replace(" ", "T"),
+                  );
+                  const endDateTime = new Date(res.end_time.replace(" ", "T"));
 
                   const isPast = now > endDateTime;
 
-                  const displayDate = startDateTime.toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric"
-                  });
+                  const displayDate = startDateTime.toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    },
+                  );
 
                   const startTime = startDateTime.toLocaleTimeString("en-GB", {
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
                   });
                   const endTime = endDateTime.toLocaleTimeString("en-GB", {
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
                   });
 
                   return (
-                    <div key={res.reservation_id} className="BookingRowCard" onClick={() => setSelectedSlot(res)}>
+                    <div
+                      key={res.reservation_id}
+                      className="BookingRowCard"
+                      onClick={() => setSelectedSlot(res)}
+                    >
                       <div className="BookingRowHeader">
-                        <span className="BookingTypeBadge">{res.experience_length}</span>
-                        <span className={`BookingStatusPill Status-${res.booking_status}`}>
+                        <span className="BookingTypeBadge">
+                          {res.experience_length}
+                        </span>
+                        <span
+                          className={`BookingStatusPill Status-${res.booking_status}`}
+                        >
                           {res.booking_status}
                         </span>
                       </div>
@@ -960,38 +974,51 @@ export const Profile = () => {
                       <div className="BookingRowBody">
                         <div className="BookingTitleGroup">
                           <h3>{res.title}</h3>
-                          <span className="BookingHostText">with {res.first_name} {res.last_name}</span>
+                          <span className="BookingHostText">
+                            with {res.first_name} {res.last_name}
+                          </span>
                         </div>
 
                         <div className="BookingMetaTags">
-                          <span className="BookingLocationTag">📍 {res.city}</span>
-                          <span className="BookingDateTag">📅 {displayDate}</span>
-                          <span className="BookingTimeTag">🕒 {startTime} - {endTime}</span>
+                          <span className="BookingLocationTag">
+                            📍 {res.city}
+                          </span>
+                          <span className="BookingDateTag">
+                            📅 {displayDate}
+                          </span>
+                          <span className="BookingTimeTag">
+                            🕒 {startTime} - {endTime}
+                          </span>
                         </div>
                       </div>
 
                       <div className="BookingRowFooter">
-                        <span className="BookingActionLink">View details →</span>
+                        <span className="BookingActionLink">
+                          View details →
+                        </span>
 
                         {res.booking_status === "confirmed" && (
                           <button
                             className="BookingRateBtnInline"
                             disabled={!isPast}
-                            title={!isPast ? "You can rate this experience after it has ended" : ""}
+                            title={
+                              !isPast
+                                ? "You can rate this experience after it has ended"
+                                : ""
+                            }
                             onClick={(e) => {
                               e.stopPropagation();
                               if (isPast) handleModalOpen(res);
                             }}
                           >
-                            {!isPast ? (
-                              "Review locked"
-                            ) : (
-                              (res.score || res.review_id) ? "Edit Review" : "Rate Experience"
-                            )}
+                            {!isPast
+                              ? "Review locked"
+                              : res.score || res.review_id
+                                ? "Edit Review"
+                                : "Rate Experience"}
                           </button>
                         )}
                       </div>
-
                     </div>
                   );
                 })}
@@ -1002,19 +1029,38 @@ export const Profile = () => {
               </div>
             )}
             {selectedSlot && (
-              <div className="BookingOverlay" onClick={() => setSelectedSlot(null)}>
-                <div className="BookingModalWrapper" onClick={(e) => e.stopPropagation()}>
-                  <button className="BookingCloseBtn" onClick={() => setSelectedSlot(null)}>×</button>
+              <div
+                className="BookingOverlay"
+                onClick={() => setSelectedSlot(null)}
+              >
+                <div
+                  className="BookingModalWrapper"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="BookingCloseBtn"
+                    onClick={() => setSelectedSlot(null)}
+                  >
+                    ×
+                  </button>
 
                   <div className="BookingDetailedCard">
                     <div className="BookingHeroImage">
                       <img
-                        src={selectedSlot.image_url ? `http://localhost:3000${selectedSlot.image_url}` : "/placeholder-activity.jpg"}
+                        src={
+                          selectedSlot.image_url
+                            ? `http://localhost:3000${selectedSlot.image_url}`
+                            : "/placeholder-activity.jpg"
+                        }
                         alt={selectedSlot.title}
                       />
                       <div className="BookingBadgeContainer">
-                        <span className="BookingDurationTag">{selectedSlot.experience_length}</span>
-                        <span className={`BookingStatusBadge Status-${selectedSlot.booking_status}`}>
+                        <span className="BookingDurationTag">
+                          {selectedSlot.experience_length}
+                        </span>
+                        <span
+                          className={`BookingStatusBadge Status-${selectedSlot.booking_status}`}
+                        >
                           {selectedSlot.booking_status}
                         </span>
                       </div>
@@ -1022,9 +1068,16 @@ export const Profile = () => {
 
                     <div className="BookingDetailedContent">
                       <header className="BookingHeaderSection">
-                        <span className="BookingHostName">Host: {selectedSlot.first_name} {selectedSlot.last_name}</span>
-                        <h2 className="BookingMainTitle">{selectedSlot.title}</h2>
-                        <p className="BookingLocationLabel">📍 {selectedSlot.city}</p>
+                        <span className="BookingHostName">
+                          Host: {selectedSlot.first_name}{" "}
+                          {selectedSlot.last_name}
+                        </span>
+                        <h2 className="BookingMainTitle">
+                          {selectedSlot.title}
+                        </h2>
+                        <p className="BookingLocationLabel">
+                          📍 {selectedSlot.city}
+                        </p>
 
                         {selectedSlot.description && (
                           <p className="BookingDescriptionText">
@@ -1037,10 +1090,12 @@ export const Profile = () => {
                         <div className="InfoItem">
                           <span className="InfoLabel">Date</span>
                           <span className="InfoValue">
-                            {new Date(selectedSlot.start_time.replace(' ', 'T')).toLocaleDateString("en-GB", {
+                            {new Date(
+                              selectedSlot.start_time.replace(" ", "T"),
+                            ).toLocaleDateString("en-GB", {
                               day: "numeric",
                               month: "long",
-                              year: "numeric"
+                              year: "numeric",
                             })}
                           </span>
                         </div>
@@ -1048,7 +1103,8 @@ export const Profile = () => {
                         <div className="InfoItem">
                           <span className="InfoLabel">Time</span>
                           <span className="InfoValue">
-                            {selectedSlot.start_time.slice(11, 16)} – {selectedSlot.end_time.slice(11, 16)}
+                            {selectedSlot.start_time.slice(11, 16)} –{" "}
+                            {selectedSlot.end_time.slice(11, 16)}
                           </span>
                         </div>
                       </div>
@@ -1056,14 +1112,21 @@ export const Profile = () => {
                       <div className="InfoItem full-width">
                         <span className="InfoLabel">Location</span>
                         <span className="InfoValue">
-                          📍 {selectedSlot.address ? `${selectedSlot.address}, ` : ""}{selectedSlot.city}
+                          📍{" "}
+                          {selectedSlot.address
+                            ? `${selectedSlot.address}, `
+                            : ""}
+                          {selectedSlot.city}
                         </span>
                       </div>
 
                       <div className="BookingFooterInfo">
                         <div className="ReferenceBox">
                           <span>Reference ID</span>
-                          <code>{selectedSlot.reservation_id || "N/A"}</code>                        </div>
+                          <code>
+                            {selectedSlot.reservation_id || "N/A"}
+                          </code>{" "}
+                        </div>
                         <p className="RequestDate">
                           Reserved on {formatDate(selectedSlot.res_date)}
                         </p>
@@ -1081,9 +1144,10 @@ export const Profile = () => {
                 reservation={reservation}
               />
             )}
+            <PaymentButton type={"Full-day"} />
           </>
         )}
       </div>
-    </section >
+    </section>
   );
 };
