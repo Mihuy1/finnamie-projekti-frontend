@@ -863,22 +863,16 @@ export const register = async (params) => {
     throw new Error("Network error. Please try again.");
   }
 
-  const ct = res.headers.get("content-type") ?? "";
-  const payload = ct.includes("application/json")
-    ? await res.json()
-    : await res.text();
+  const data = await res.json();
 
   if (!res.ok) {
     const message =
-      typeof payload === "string"
-        ? payload
-        : (payload?.error ?? payload?.message);
+      typeof data === "string" ? data : data?.message || "Registration failed.";
 
-    if (res.status === 409) throw new Error("Email is already in use.");
-    throw new Error(message || "Registration failed.");
+    throw Object.assign(new Error(message), { status: res.status });
   }
 
-  return payload;
+  return data;
 };
 
 export const getProfile = async () => {
@@ -1092,7 +1086,8 @@ export const cancelReservationApi = async (timeslot_id) => {
       const message =
         typeof data === "string"
           ? data
-          : data?.message || "Something went wrong while cancelling reservation";
+          : data?.message ||
+            "Something went wrong while cancelling reservation";
       throw Object.assign(new Error(message), { status: res.status });
     }
 

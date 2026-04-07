@@ -45,7 +45,9 @@ export default function HostRegister() {
   const [strengthColor, setStrengthColor] = useState("");
 
   const navigate = useNavigate();
-  const maxDob = new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0];
+  const maxDob = new Date(new Date().setFullYear(new Date().getFullYear() - 18))
+    .toISOString()
+    .split("T")[0];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -154,7 +156,9 @@ export default function HostRegister() {
     setError("");
 
     if (strength === "Weak") {
-      setError("Password is too weak. Use at least 8 characters, including numbers or capital letters.");
+      setError(
+        "Password is too weak. Use at least 8 characters, including numbers or capital letters.",
+      );
       toast.error("Password is too weak.");
       return;
     }
@@ -223,14 +227,12 @@ export default function HostRegister() {
           loading: "Registration pending...",
           success: "Registration successful!",
           error: (err) => {
-            const msg = err.response?.data?.message || err.message || "";
-            if (err.response?.status === 409 || msg.toLowerCase().includes("already exists")) {
-              return "Email is already in use.";
-            }
-            return "Registration failed.";
-          }
+            return err?.message || "Registration failed. Please try again.";
+          },
         },
       );
+
+      console.log("res:", res);
 
       if (res?.userId) {
         await postLogin(email, password);
@@ -249,20 +251,8 @@ export default function HostRegister() {
         ""
       ).toLowerCase();
 
-      const isEmailTaken =
-        statusCode === 409 ||
-        errorMessage.includes("already exists") ||
-        errorMessage.includes("already in use") ||
-        errorMessage.includes("taken") ||
-        errorMessage.includes("unique violation");
-
-      if (isEmailTaken) {
-        setError("Email already in use. Please use another one or log in.");
-        toast.error("This email is already registered.");
-      } else {
-        setError("An unexpected error occurred. Please try again later.");
-        console.log("Debug info - Status:", statusCode, "Message:", errorMessage);
-      }
+      setError("An unexpected error occurred. Please try again later.");
+      console.log("Debug info - Status:", statusCode, "Message:", errorMessage);
     }
   }
 
@@ -320,13 +310,15 @@ export default function HostRegister() {
             required
           />
           {strength && (
-            <div style={{
-              fontSize: "12px",
-              fontWeight: "bold",
-              color: strengthColor,
-              marginTop: "4px",
-              textAlign: "right"
-            }}>
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: "bold",
+                color: strengthColor,
+                marginTop: "4px",
+                textAlign: "right",
+              }}
+            >
               {strength}
             </div>
           )}
@@ -402,8 +394,8 @@ export default function HostRegister() {
                   setFilteredCountries(
                     country
                       ? countries.filter((c) =>
-                        c.toLowerCase().includes(country.toLowerCase()),
-                      )
+                          c.toLowerCase().includes(country.toLowerCase()),
+                        )
                       : countries,
                   );
                   setShowCountryDropdown(true);

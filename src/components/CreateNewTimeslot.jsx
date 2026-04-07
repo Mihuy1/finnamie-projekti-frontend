@@ -10,6 +10,7 @@ import AsyncSelect from "react-select/async";
 import { MultiImageUpload } from "./MultiImageUpload";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { DayOfWeek } from "./DayOfWeek";
+import { SimpleModal } from "./SimpleModal";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -112,8 +113,6 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
 
     const res = await createExperience(dataToSend, selectedImages);
 
-    console.log("res:", res);
-
     if (!res.experience) {
       toast.error("Failed to create experience!");
       return;
@@ -127,6 +126,16 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
   if (loading) return <p>loading...</p>;
 
   if (!user) return <p>No user...</p>;
+
+  if (!user.is_verified) {
+    return (
+      <SimpleModal
+        title="Email not verified"
+        text="Please verify your email to create experiences."
+        onClose={onClose}
+      />
+    );
+  }
 
   return (
     <div className="profile-timeslots">
@@ -317,21 +326,21 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                       menu: (base) => ({ ...base, zIndex: 9999 }),
                       placeholder: (base) => ({
                         ...base,
-                        fontSize: '12px',
-                        color: '#999',
+                        fontSize: "12px",
+                        color: "#999",
                       }),
                       input: (base) => ({
                         ...base,
-                        fontSize: '14px',
+                        fontSize: "14px",
                       }),
                       singleValue: (base) => ({
                         ...base,
-                        fontSize: '14px',
+                        fontSize: "14px",
                       }),
                       control: (base) => ({
                         ...base,
-                        minHeight: '40px',
-                      })
+                        minHeight: "40px",
+                      }),
                     }}
                   />
                 </div>

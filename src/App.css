@@ -1923,6 +1923,28 @@ input.activity-input-host {
   scrollbar-width: none;
 }
 
+.modal-content.simple {
+  display: flex;
+  flex-direction: column;
+  max-width: fit-content;
+  height: fit-content;
+  padding: 20px;
+}
+
+.modal-header.simple {
+  margin-bottom: 0.5rem;
+}
+
+.modal-content.simple p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.modal-content.simple button {
+  margin-top: 1rem;
+}
+
 .modal-content.confirm {
   display: flex;
   flex-direction: column;
@@ -3334,7 +3356,7 @@ input.activity-input-host {
 }
 
 .host-view-card {
-  border-left: 5px solid #4CAF50;
+  border-left: 5px solid #4caf50;
   background-color: #fcfdfc;
 }
 

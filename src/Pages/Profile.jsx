@@ -928,7 +928,7 @@ export const Profile = () => {
             </form>
 
             <hr className="profile-divider" />
-            <h2 className="profile-section-title">Your Timeslots</h2>
+            <h2 className="profile-section-title">Your Experiences</h2>
 
             {timeSlots.length === 0 ? (
               <p>You have no timeslots. Create some to get started!</p>
@@ -986,7 +986,7 @@ export const Profile = () => {
                 onClick={() => setShowNewTimeslot(true)}
                 className="create-new-timeslot-btn"
               >
-                Create new timeslot
+                Create Experience
               </button>
             </div>
 

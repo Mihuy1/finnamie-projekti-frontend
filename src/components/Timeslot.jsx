@@ -13,7 +13,8 @@ import configureLeaflet from "../utils/leaflet-config";
 import { Carousel } from "./Carousel";
 import { ConfirmModal } from "./ConfirmModal";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext"; //
+import { useAuth } from "../auth/AuthContext";
+import { SimpleModal } from "./SimpleModal";
 
 configureLeaflet();
 
@@ -33,6 +34,8 @@ export const TimeSlot = ({
   const [isEditing, setIsEditing] = useState(false);
   const [slotData, setSlotData] = useState(slot);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showEmailVerificationModal, setShowEmailVerificationModal] =
+    useState(false);
 
   // Reset body overflow when component unmounts or modal closes
   useEffect(() => {
@@ -55,6 +58,16 @@ export const TimeSlot = ({
     setIsModalOpen(false);
     onClose?.();
   };
+
+  if (showEmailVerificationModal) {
+    return (
+      <SimpleModal
+        title="Email not verified"
+        text="Please verify your email to book experiences."
+        onClose={() => setShowEmailVerificationModal(false)}
+      />
+    );
+  }
 
   const handleBookNow = async () => {
     if (!user) {
@@ -87,12 +100,7 @@ export const TimeSlot = ({
     }
 
     if (!currentUser.is_verified) {
-      toast(
-        "Please verify your email, you can resend confirmation email in your Profile page.",
-        {
-          duration: 6000,
-        },
-      );
+      setShowEmailVerificationModal(true);
       return;
     }
 

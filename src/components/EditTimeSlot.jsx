@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
-import { loadOptions } from "../api/apiClient";
+import { getTimeslotsByRuleId, loadOptions } from "../api/apiClient";
 import Select from "react-select";
 import { MultiImageUpload } from "./MultiImageUpload";
 import { DayOfWeek } from "./DayOfWeek";
@@ -34,9 +34,20 @@ export const EditTimeSlot = ({
   );
 
   const [formData, setFormData] = useState(initialFormData);
+  const [expereienceTimeslots, setExperienceTimeslots] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [toRemoveImages, setToRemoveImages] = useState([]);
   const [coords, setCoords] = useState([slot.latitude_deg, slot.longitude_deg]);
+
+  useEffect(() => {
+    const getExperienceTimeslots = async () => {
+      const data = await getTimeslotsByRuleId(slot.rule.id);
+      console.log("fetched timeslots for rule:", data);
+      setExperienceTimeslots(data || []);
+    };
+
+    getExperienceTimeslots();
+  }, []);
 
   const bitmaskToState = (bitmask) => {
     // Create an array of 7 elements
@@ -315,6 +326,8 @@ export const EditTimeSlot = ({
                   }}
                 />
               </div>
+
+              <div className="timeslot-separate-list">{}</div>
 
               <div className="profile-full-width profile-timeslot-map profile-timeslot-map-edit">
                 <MapContainer
