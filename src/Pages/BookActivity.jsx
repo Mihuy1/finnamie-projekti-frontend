@@ -38,32 +38,6 @@ export default function BookActivity() {
     return API_BASE_URL + "/" + path;
   };
 
-  // koska tietokanta vielä tyhjä
-  const placeholders = [
-    {
-      id: 101,
-      name: "Nuuksio Camping",
-      host: "Host 1",
-      category: "Nature & outdoors",
-      city: "Espoo",
-      image_url: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4",
-      experience_length: "Full-day",
-      description:
-        "Experience the silence of Finnish nature in Nuuksio. Camp under the stars and enjoy a traditional Finnish campfire meal.",
-    },
-    {
-      id: 102,
-      name: "Traditional Smoke Sauna",
-      host: "Host 2",
-      category: "Wellness",
-      city: "Helsinki",
-      image_url:
-        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format",
-      experience_length: "Half-day",
-      description: "Relax in an authentic Finnish smoke sauna.",
-    },
-  ];
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".location-wrapper")) {
@@ -82,11 +56,12 @@ export default function BookActivity() {
           getAllExperiencesWithHost(),
         ]);
 
-        setActivities(actData?.length > 0 ? actData : placeholders);
+        console.log("slotData:", slotData);
+
+        setActivities(actData?.length > 0 ? actData : []);
         setTimeSlots(slotData || []);
       } catch (error) {
         console.error("Haku epäonnistui:", error);
-        setActivities(placeholders);
       } finally {
         setLoading(false);
       }
@@ -95,10 +70,8 @@ export default function BookActivity() {
   }, []);
 
   useEffect(() => {
-    let source = timeSlots.length > 0 ? timeSlots : placeholders;
+    let source = timeSlots.length > 0 ? timeSlots : [];
     let result = [...source];
-
-    console.log("result:", result);
 
     if (location) {
       result = result.filter((item) =>
@@ -176,7 +149,7 @@ export default function BookActivity() {
     setDate(null);
     setSelectedCategory("All");
     setShowCalendar(false);
-    setFilteredActivities(timeSlots.length > 0 ? timeSlots : placeholders);
+    setFilteredActivities(timeSlots.length > 0 ? timeSlots : []);
   };
 
   if (loading) return <div className="loading">Loading...</div>;

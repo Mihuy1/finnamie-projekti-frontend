@@ -736,13 +736,6 @@ export const Profile = () => {
             <>
               <label>
                 Phone number
-                {/* <input
-                  name="phone_number"
-                  value={profileForm.phone_number || ""}
-                  onChange={handleProfileInputChange}
-                  disabled={!isEditing}
-                  placeholder="Phone Number"
-                /> */}
                 <PhoneInput
                   className="host-phone-input"
                   placeholder="Enter phone number"
