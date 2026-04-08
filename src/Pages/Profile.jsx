@@ -551,15 +551,19 @@ export const Profile = () => {
                 <p className="profile-role">
                   {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
                 </p>
-                <p className={user.is_verified ? "verified" : "unverified"}>
-                  {" "}
-                  {user.is_verified ? "Verified" : "Unverified"}{" "}
-                </p>
-                {/* <span
-                  className={`pill pill-${user.is_verified ? "verified" : "unverified"}`}
-                >
-                  {user.is_verified ? "Verified" : "Unverified"}
-                </span> */}
+                <div>
+                  <p className={user.is_verified ? "verified" : "unverified"}>
+                    {user.is_verified ? "Verified" : "Unverified"}{" "}
+                  </p>
+                  {!user.is_verified && (
+                    <button
+                      className="profile-btn profile-btn-primary"
+                      onClick={handleEmailVerificationSubmit}
+                    >
+                      Send Verification
+                    </button>
+                  )}
+                </div>
               </>
             )}
             {/*<button
@@ -876,20 +880,6 @@ export const Profile = () => {
             </button>
           </div>
         </form>
-
-        {user.is_verified === 0 && (
-          <div className="email-verification-section">
-            <hr className="profile-divider" />
-
-            <h2 className="profile-section-title">Email Verification</h2>
-            <button
-              className="profile-btn profile-btn-primary"
-              onClick={handleEmailVerificationSubmit}
-            >
-              Send Verification
-            </button>
-          </div>
-        )}
 
         {isHost ? (
           <>
