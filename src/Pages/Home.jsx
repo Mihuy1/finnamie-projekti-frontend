@@ -159,8 +159,8 @@ function Home() {
                 setFilteredMunicipalities(
                   location
                     ? municipalities.filter((m) =>
-                      m.toLowerCase().includes(location.toLowerCase()),
-                    )
+                        m.toLowerCase().includes(location.toLowerCase()),
+                      )
                     : municipalities,
                 );
                 setShowDropdown(true);
@@ -169,6 +169,21 @@ function Home() {
                 setLocation(e.target.value);
                 setShowActivityDropdown(false);
                 setShowDropdown(true);
+                setFilteredMunicipalities(
+                  e.target.value
+                    ? municipalities.filter((m) =>
+                        m.toLowerCase().includes(e.target.value.toLowerCase()),
+                      )
+                    : municipalities,
+                );
+              }}
+              onBlur={() => {
+                const isValid = municipalities.some(
+                  (m) => m.toLocaleLowerCase() === location.toLowerCase(),
+                );
+                if (!isValid) setLocation("");
+
+                setShowDropdown(false);
               }}
             />
 
@@ -180,6 +195,7 @@ function Home() {
                     onMouseDown={() => {
                       setLocation(m);
                       setShowDropdown(false);
+                      setLocation(m);
                     }}
                   >
                     {m}
@@ -188,7 +204,9 @@ function Home() {
               </ul>
             )}
 
-            {location && (
+            {municipalities.some(
+              (m) => m.toLocaleLowerCase() === location.toLocaleLowerCase(),
+            ) && (
               <button
                 type="button"
                 className="clear-location-btn"
@@ -242,10 +260,7 @@ function Home() {
         </div>
 
         {searchError && (
-          <p
-            className="error-text-small"
-            style={{ textAlign: "center", marginTop: "15px" }}
-          >
+          <p className="error-text-small" style={{ margin: "0" }}>
             Please select location and activity to continue
           </p>
         )}

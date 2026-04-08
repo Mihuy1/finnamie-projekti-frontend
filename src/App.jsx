@@ -46,10 +46,13 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/host/login" element={<HostLogin />} />
+        <Route path="/book-activity" element={<BookActivity />} />
+        <Route path="/reserve-activity" element={<Reservation />} />
+        <Route
+          path="/reservation-confirmed"
+          element={<ReservationConfirmed />}
+        />
       </Route>
-      <Route path="/book-activity" element={<BookActivity />} />
-      <Route path="/reserve-activity" element={<Reservation />} />
-      <Route path="/reservation-confirmed" element={<ReservationConfirmed />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
