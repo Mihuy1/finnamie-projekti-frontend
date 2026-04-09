@@ -111,6 +111,23 @@ export const getAllTimeSlots = async () => {
   }
 };
 
+export const getTimeslotByIdWithExperience = async (timeslot_id) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL}timeslots/timeslotExperience/${timeslot_id}`,
+      {
+        method: "GET",
+        credentials: "include",
+      },
+    );
+
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getTimeslotsByRuleId = async (ruleId) => {
   try {
     const res = await fetch(`${BASE_URL}timeslots/rule/${ruleId}`, {

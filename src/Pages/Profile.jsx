@@ -9,6 +9,8 @@ import {
   uploadUserImage,
   cancelReservationApi,
   sendMessage,
+  getTimeslotById,
+  getTimeslotByIdWithExperience,
 } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import Select from "react-select";
@@ -26,6 +28,7 @@ import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
 import { Reservation } from "../components/Reservation";
 import { postReview } from "../api/apiClient";
+import { Carousel } from "../components/Carousel";
 
 const EMPTY_PROFILE = {
   first_name: "",
@@ -86,6 +89,8 @@ export const Profile = () => {
 
   const [reservation, setReservation] = useState({});
 
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [showExpDropdown, setShowExpDropdown] = useState(false);
@@ -96,6 +101,16 @@ export const Profile = () => {
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showFeedbackId, setShowFeedbackId] = useState(null);
+
+  const fetchTimeslotById = async (id) => {
+    const data = await getTimeslotByIdWithExperience(id);
+
+    console.log("data:", data);
+    console.log("images:", data?.images?.length ?? 0);
+
+    if (!data) return;
+    setSelectedBooking(data);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -132,7 +147,7 @@ export const Profile = () => {
     const getRes = async () => {
       try {
         const data = await getReservations();
-        console.log("Backend vastaus:", data);
+        // console.log("Backend vastaus:", data);
 
         if (Array.isArray(data)) {
           setReservations(data);
@@ -980,7 +995,7 @@ export const Profile = () => {
 
                 <div className="BookingListContainer">
                   {reservations
-                    .filter((res) => res.booking_status === "confirmed")
+                    // .filter((res) => res.booking_status === "confirmed")
                     .map((res) => {
                       const startDateTime = new Date(
                         res.start_time.replace(" ", "T"),
@@ -989,15 +1004,21 @@ export const Profile = () => {
                         <div
                           key={res.reservation_id}
                           className="BookingRowCard host-confirmed-card"
-                          onClick={() => setSelectedSlot(res)}
+                          onClick={async () => {
+                            setSelectedSlot(res);
+                            setSelectedBooking(null);
+                            await fetchTimeslotById(res.timeslot_id);
+                          }}
                           style={{ cursor: "pointer" }}
                         >
                           <div className="BookingRowHeader">
                             <span className="BookingTypeBadge">
                               {res.experience_length}
                             </span>
-                            <span className="BookingStatusPill Status-confirmed">
-                              Confirmed
+                            <span
+                              className={`BookingStatusPill Status-${res.booking_status}`}
+                            >
+                              {res.booking_status}
                             </span>
                           </div>
 
@@ -1063,9 +1084,9 @@ export const Profile = () => {
                       );
                     })}
 
-                  {reservations.filter(
+                  {/* {reservations.filter(
                     (res) => res.booking_status === "confirmed",
-                  ).length === 0 && <p>No confirmed bookings yet.</p>}
+                  ).length === 0 && <p>No confirmed bookings yet.</p>} */}
                 </div>
               </>
             )}
@@ -1196,10 +1217,11 @@ export const Profile = () => {
               );
               setSelectedSlot(null);
             }}
+            reservations={reservations}
           />
         )}
 
-        {selectedSlot && selectedSlot.reservation_id && (
+        {selectedSlot && selectedSlot.reservation_id && selectedBooking && (
           <div className="BookingOverlay" onClick={() => setSelectedSlot(null)}>
             <div
               className="BookingModalWrapper"
@@ -1222,14 +1244,14 @@ export const Profile = () => {
                 return (
                   <div className="BookingDetailedCard">
                     <div className="BookingHeroImage">
-                      <img
-                        src={
-                          selectedSlot.image_url
-                            ? `http://localhost:3000${selectedSlot.image_url}`
-                            : "/placeholder-activity.jpg"
-                        }
-                        alt={selectedSlot.title}
-                      />
+                      <div className="modal-image">
+                        <Carousel
+                          images={selectedBooking?.images.map(
+                            (i) => "http://localhost:3000" + i.url,
+                          )}
+                        />
+                      </div>
+
                       <div className="BookingBadgeContainer">
                         <span className="BookingDurationTag">
                           {selectedSlot.experience_length}
