@@ -1007,6 +1007,8 @@ export const Profile = () => {
                           onClick={async () => {
                             setSelectedSlot(res);
                             setSelectedBooking(null);
+                            const t = res.timeslot_id;
+                            console.log("t:", t);
                             await fetchTimeslotById(res.timeslot_id);
                           }}
                           style={{ cursor: "pointer" }}

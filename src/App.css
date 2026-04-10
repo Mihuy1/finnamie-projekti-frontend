@@ -2034,6 +2034,8 @@ input.activity-input-host {
 }
 
 .close-modal {
+  line-height: 32px;
+  text-align: center;
   position: absolute;
   top: 15px !important;
   right: 20px !important;
@@ -3388,7 +3390,7 @@ input.activity-input-host {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
+  /* width: 100%; */
 }
 
 .CancelBookingBtn:hover {
@@ -3420,6 +3422,11 @@ input.activity-input-host {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.timeslot-reservation-card-bottom {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .tab-div {

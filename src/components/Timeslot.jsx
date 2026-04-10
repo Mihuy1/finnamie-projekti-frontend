@@ -3,6 +3,7 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
 import {
+  cancelReservationApi,
   deleteExperienceById,
   deleteExperienceImageByIdAndUrl,
   updateExperience,
@@ -46,10 +47,10 @@ export const TimeSlot = ({
     };
   }, []);
 
-  console.log("reservation:", reservations);
-
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
+
+  console.log("reservations:", reservations);
 
   const resolveImage = (path) => {
     if (!path) return FALLBACK_IMAGE;
@@ -395,7 +396,7 @@ export const TimeSlot = ({
                 )}
               </div>
             )}
-            {activeTab === 1 && (
+            {activeTab === 1 ? (
               <div className="timeslot-reservations">
                 {reservations.map((r) => (
                   <div
@@ -426,9 +427,37 @@ export const TimeSlot = ({
                         minute: "2-digit",
                       })}
                     </p>
+                    {r.booking_status !== "cancelled" && (
+                      <div className="timeslot-reservation-card-bottom">
+                        <button
+                          className="CancelBookingBtn"
+                          onClick={async () => {
+                            await toast.promise(
+                              cancelReservationApi(r.reservation_id),
+                              {
+                                loading: "Canceling reservation...",
+                                success: (res) =>
+                                  res.message ||
+                                  "Reservation cancelled successfully!",
+                                error: (err) => {
+                                  return (
+                                    err?.message ||
+                                    "Failed to cancel reservation"
+                                  );
+                                },
+                              },
+                            );
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
+            ) : (
+              <p>No reservations yet</p>
             )}
           </div>
         </div>

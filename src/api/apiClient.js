@@ -114,14 +114,27 @@ export const getAllTimeSlots = async () => {
 export const getTimeslotByIdWithExperience = async (timeslot_id) => {
   try {
     const res = await fetch(
-      `${BASE_URL}timeslots/timeslotExperience/${timeslot_id}`,
+      `${BASE_URL}timeslots/timeslotWithExperience/${timeslot_id}`,
       {
-        method: "GET",
         credentials: "include",
       },
     );
 
-    return await res.json();
+    console.log("res:", res);
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message ||
+            "Something went wrong while fetching timeslotByIdWithExperience";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
   } catch (error) {
     console.error(error);
     throw error;
@@ -1087,15 +1100,18 @@ export const createReservation = async (timeslot_id) => {
   }
 };
 
-export const cancelReservationApi = async (timeslot_id) => {
+export const cancelReservationApi = async (reservation_id) => {
   try {
-    const res = await fetch(`${BASE_URL}reservations/cancel/${timeslot_id}`, {
-      method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${BASE_URL}reservations/cancel/${reservation_id}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
 
     const data = await res.json();
 
