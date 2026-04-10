@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 import { logout } from "../api/apiClient";
 import { Chatbox } from "./Chatbox";
 import { useChatbox } from "../contexts/ChatboxContext";
+import logo from "../assets/finnamie.jpeg";
 
 export const Nav = () => {
   const { user, setUser } = useAuth();
@@ -26,8 +27,8 @@ export const Nav = () => {
 
   return (
     <header className="header">
-      <Link to="/" className="logo">
-        Finnamie
+      <Link to="/" className="logo-link">
+        <img src={logo} alt="Finnamie Logo" className="nav-logo" />
       </Link>
       <nav className="nav">
         {!user ? (

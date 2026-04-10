@@ -89,7 +89,7 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
         <ConversationList
           handleOpenClick={handleOpenConversation}
           convId={convId}
-          messageReceiver={newReceiver}
+          messageReceiver={convId ? null : newReceiver}
         />
         <div className="message-history-wrapper">
           {openConversation && <MessageList conv_id={convId} />}
