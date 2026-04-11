@@ -32,40 +32,24 @@ export const Nav = () => {
       </Link>
       <nav className="nav">
         {!user ? (
-          <ul>
-            <Link to="/discover">Discover activities</Link>
-            <Link to="/host/register">Become a Host</Link>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-          </ul>
+          <>
+            <Link to="/discover" className="nav-btn primary">Discover activities</Link>
+            <Link to="/host/register" className="nav-btn ghost">Become a Host</Link>
+            <Link to="/login" className="nav-btn ghost">Login</Link>
+            <Link to="/register" className="nav-btn outline">Register</Link>
+          </>
         ) : (
           <>
-            <Link to="/discover">Discover activities</Link>
-            <Link to="/profile">
-              {user.first_name} {user.last_name}
+            <Link to="/discover" className="nav-btn primary">Discover activities</Link>
+            <Link to="/profile" className="nav-btn ghost">
+              👤 {user.first_name}
             </Link>
-            <a
-              className="nav-conversations-link"
-              onClick={toggle}
-              style={{
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                position: "relative"
-              }}
-            >
-              Conversations
-              {unreadCount > 0 && (
-                <span className="nav-chat-dot">
-                  {unreadCount}
-                </span>
-              )}
+            <a className="nav-btn ghost conversations" onClick={toggle}>
+              Messages
+              {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
             </a>
-            {user.role === "admin" && <Link to="/admin"> Admin page</Link>}
-            <a className="logout-link" onClick={handleLogout}>
-              Logout
-            </a>
+            {user.role === "admin" && <Link to="/admin" className="nav-btn ghost">Admin</Link>}
+            <a className="nav-btn logout" onClick={handleLogout}>Logout</a>
           </>
         )}
       </nav>

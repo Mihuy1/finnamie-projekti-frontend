@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   createActivitySuggestion,
   getProfile,
@@ -49,6 +50,7 @@ configureLeaflet();
 
 export const Profile = () => {
   const { user, loading, refresh } = useAuth();
+  const { hash } = useLocation();
 
   const {
     profile,
@@ -168,6 +170,17 @@ export const Profile = () => {
     };
     getRes();
   }, []);
+
+  useEffect(() => {
+    if (hash === "#reservations") {
+      setTimeout(() => {
+        const element = document.getElementById("reservations-section");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [hash]);
 
   useEffect(() => {
     if (selectedSlot || showNewTimeslot) {
@@ -640,10 +653,10 @@ export const Profile = () => {
                   setFilteredCountries(
                     profileForm.country
                       ? countries.filter((c) =>
-                          c
-                            .toLowerCase()
-                            .includes(profileForm.country.toLowerCase()),
-                        )
+                        c
+                          .toLowerCase()
+                          .includes(profileForm.country.toLowerCase()),
+                      )
                       : countries,
                   );
                   setShowCountryDropdown(true);
@@ -720,7 +733,7 @@ export const Profile = () => {
                 value={
                   profileForm.gender
                     ? profileForm.gender.charAt(0).toUpperCase() +
-                      profileForm.gender.slice(1)
+                    profileForm.gender.slice(1)
                     : "Not specified"
                 }
                 readOnly
@@ -903,7 +916,7 @@ export const Profile = () => {
                   name="new_activity_suggestion"
                   className={
                     attemptedSubmit &&
-                    !newActivitySuggestionForm.new_activity_suggestion.trim()
+                      !newActivitySuggestionForm.new_activity_suggestion.trim()
                       ? "input-error"
                       : ""
                   }
@@ -1006,7 +1019,7 @@ export const Profile = () => {
                           className="BookingRowCard host-confirmed-card"
                           onClick={async () => {
                             setSelectedSlot(res);
-                            setSelectedBooking(null);
+                            setSelectedBooking(res);
                             const t = res.timeslot_id;
                             console.log("t:", t);
                             await fetchTimeslotById(res.timeslot_id);
@@ -1096,113 +1109,115 @@ export const Profile = () => {
         ) : (
           // guest userille
           <>
-            <hr className="profile-divider" />
-            <h2 className="profile-section-title">Your Reservations</h2>
+            <div id="reservations-section">
+              <hr className="profile-divider" />
+              <h2 className="profile-section-title">Your Reservations</h2>
 
-            {reservations && reservations.length > 0 ? (
-              <div className="BookingListContainer">
-                {reservations.map((res) => {
-                  const now = new Date();
+              {reservations && reservations.length > 0 ? (
+                <div className="BookingListContainer">
+                  {reservations.map((res) => {
+                    const now = new Date();
 
-                  const startDateTime = new Date(
-                    res.start_time.replace(" ", "T"),
-                  );
-                  const endDateTime = new Date(res.end_time.replace(" ", "T"));
+                    const startDateTime = new Date(
+                      res.start_time.replace(" ", "T"),
+                    );
+                    const endDateTime = new Date(res.end_time.replace(" ", "T"));
 
-                  const isPast = now > endDateTime;
+                    const isPast = now > endDateTime;
 
-                  const displayDate = startDateTime.toLocaleDateString(
-                    "en-GB",
-                    {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    },
-                  );
+                    const displayDate = startDateTime.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      },
+                    );
 
-                  const startTime = startDateTime.toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
-                  const endTime = endDateTime.toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
+                    const startTime = startDateTime.toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    const endTime = endDateTime.toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
 
-                  return (
-                    <div
-                      key={res.reservation_id}
-                      className="BookingRowCard"
-                      onClick={() => setSelectedSlot(res)}
-                    >
-                      <div className="BookingRowHeader">
-                        <span className="BookingTypeBadge">
-                          {res.experience_length}
-                        </span>
-                        <span
-                          className={`BookingStatusPill Status-${res.booking_status}`}
-                        >
-                          {res.booking_status}
-                        </span>
-                      </div>
-
-                      <div className="BookingRowBody">
-                        <div className="BookingTitleGroup">
-                          <h3>{res.title}</h3>
-                          <span className="BookingHostText">
-                            with {res.first_name} {res.last_name}
+                    return (
+                      <div
+                        key={res.reservation_id}
+                        className="BookingRowCard"
+                        onClick={() => setSelectedSlot(res)}
+                      >
+                        <div className="BookingRowHeader">
+                          <span className="BookingTypeBadge">
+                            {res.experience_length}
                           </span>
-                        </div>
-
-                        <div className="BookingMetaTags">
-                          <span className="BookingLocationTag">
-                            📍 {res.city}
-                          </span>
-                          <span className="BookingDateTag">
-                            📅 {displayDate}
-                          </span>
-                          <span className="BookingTimeTag">
-                            🕒 {startTime} - {endTime}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="BookingRowFooter">
-                        <span className="BookingActionLink">
-                          View details →
-                        </span>
-
-                        {res.booking_status === "confirmed" && (
-                          <button
-                            className="BookingRateBtnInline"
-                            disabled={!isPast}
-                            title={
-                              !isPast
-                                ? "You can rate this experience after it has ended"
-                                : ""
-                            }
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (isPast) handleModalOpen(res);
-                            }}
+                          <span
+                            className={`BookingStatusPill Status-${res.booking_status}`}
                           >
-                            {!isPast
-                              ? "Review locked"
-                              : res.score || res.review_id
-                                ? "Edit Review"
-                                : "Rate Experience"}
-                          </button>
-                        )}
+                            {res.booking_status}
+                          </span>
+                        </div>
+
+                        <div className="BookingRowBody">
+                          <div className="BookingTitleGroup">
+                            <h3>{res.title}</h3>
+                            <span className="BookingHostText">
+                              with {res.first_name} {res.last_name}
+                            </span>
+                          </div>
+
+                          <div className="BookingMetaTags">
+                            <span className="BookingLocationTag">
+                              📍 {res.city}
+                            </span>
+                            <span className="BookingDateTag">
+                              📅 {displayDate}
+                            </span>
+                            <span className="BookingTimeTag">
+                              🕒 {startTime} - {endTime}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="BookingRowFooter">
+                          <span className="BookingActionLink">
+                            View details →
+                          </span>
+
+                          {res.booking_status === "confirmed" && (
+                            <button
+                              className="BookingRateBtnInline"
+                              disabled={!isPast}
+                              title={
+                                !isPast
+                                  ? "You can rate this experience after it has ended"
+                                  : ""
+                              }
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isPast) handleModalOpen(res);
+                              }}
+                            >
+                              {!isPast
+                                ? "Review locked"
+                                : res.score || res.review_id
+                                  ? "Edit Review"
+                                  : "Rate Experience"}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="no-reservations">
-                <p>You haven't made any reservations yet.</p>
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="no-reservations">
+                  <p>You haven't made any reservations yet.</p>
+                </div>
+              )}
+            </div>
           </>
         )}
 
@@ -1223,7 +1238,7 @@ export const Profile = () => {
           />
         )}
 
-        {selectedSlot && selectedSlot.reservation_id && selectedBooking && (
+        {selectedSlot && selectedSlot.reservation_id && (
           <div className="BookingOverlay" onClick={() => setSelectedSlot(null)}>
             <div
               className="BookingModalWrapper"
@@ -1248,9 +1263,9 @@ export const Profile = () => {
                     <div className="BookingHeroImage">
                       <div className="modal-image">
                         <Carousel
-                          images={selectedBooking?.images.map(
-                            (i) => "http://localhost:3000" + i.url,
-                          )}
+                          images={selectedBooking?.images ? selectedBooking.images.map(
+                            (i) => "http://localhost:3000" + i.url
+                          ) : []}
                         />
                       </div>
 
