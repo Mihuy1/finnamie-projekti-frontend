@@ -147,13 +147,11 @@ export default function Reservation() {
         navigate("/reservation-confirmed", {
           state: {
             reservation: {
-              id:
-                realReservationId || "RES-" + Math.floor(Math.random() * 10000),
+              id: realReservationId || "RES-" + Math.floor(Math.random() * 10000),
             },
             slot: slot,
             host: hostData,
-            openChat: true,
-            targetHost: hostData,
+            fromBooking: true,
           },
         });
       }, 1500);
