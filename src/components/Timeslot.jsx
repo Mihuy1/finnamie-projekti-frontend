@@ -72,6 +72,10 @@ export const TimeSlot = ({
     onClose?.();
   };
 
+  const filteredReservations = (reservations || []).filter(
+    (reservation) => reservation.experience_id === slot.id,
+  );
+
   if (showEmailVerificationModal) {
     return (
       <SimpleModal
@@ -396,68 +400,73 @@ export const TimeSlot = ({
                 )}
               </div>
             )}
-            {activeTab === 1 ? (
+            {activeTab === 1 && (
               <div className="timeslot-reservations">
-                {reservations.map((r) => (
-                  <div
-                    key={r.timeslot_id}
-                    className="timeslot-reservation-card"
-                  >
-                    <div className="timeslot-reservation-card-top">
-                      <h3>
-                        {r.first_name} {r.last_name}{" "}
-                      </h3>
-                      <span
-                        className={`BookingStatusPill Status-${r.booking_status}`}
+                {filteredReservations.length === 0 ? (
+                  <p>No reservations yet.</p>
+                ) : (
+                  <>
+                    {filteredReservations.map((r) => (
+                      <div
+                        key={r.timeslot_id}
+                        className="timeslot-reservation-card"
                       >
-                        {r.booking_status}
-                      </span>
-                    </div>
-                    <p>
-                      {new Date(r.start_time).toLocaleDateString(undefined, {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "2-digit",
-                      })}
-                    </p>
-                    <p>
-                      {new Date(r.start_time).toLocaleTimeString(undefined, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                    {r.booking_status !== "cancelled" && (
-                      <div className="timeslot-reservation-card-bottom">
-                        <button
-                          className="CancelBookingBtn"
-                          onClick={async () => {
-                            await toast.promise(
-                              cancelReservationApi(r.reservation_id),
-                              {
-                                loading: "Canceling reservation...",
-                                success: (res) =>
-                                  res.message ||
-                                  "Reservation cancelled successfully!",
-                                error: (err) => {
-                                  return (
-                                    err?.message ||
-                                    "Failed to cancel reservation"
-                                  );
-                                },
-                              },
-                            );
-                          }}
-                        >
-                          Cancel
-                        </button>
+                        <div className="timeslot-reservation-card-top">
+                          <h3>
+                            {r.first_name} {r.last_name}{" "}
+                          </h3>
+                          <span
+                            className={`BookingStatusPill Status-${r.booking_status}`}
+                          >
+                            {r.booking_status}
+                          </span>
+                        </div>
+                        <p>
+                          {new Date(r.start_time).toLocaleDateString(undefined, {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                          })}
+                        </p>
+                        <p>
+                          {new Date(r.start_time).toLocaleTimeString(undefined, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                        {r.booking_status !== "cancelled" && (
+                          <div className="timeslot-reservation-card-bottom">
+                            <button
+                              className="CancelBookingBtn"
+                              onClick={async () => {
+                                await toast.promise(
+                                  cancelReservationApi(r.reservation_id),
+                                  {
+                                    loading: "Canceling reservation...",
+                                    success: (res) =>
+                                      res.message ||
+                                      "Reservation cancelled successfully!",
+                                    error: (err) => {
+                                      return (
+                                        err?.message ||
+                                        "Failed to cancel reservation"
+                                      );
+                                    },
+                                  },
+                                );
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
+                    ))}
+                  </>
+                )}
+
               </div>
-            ) : (
-              <p>No reservations yet</p>
             )}
           </div>
         </div>
