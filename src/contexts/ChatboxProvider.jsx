@@ -46,7 +46,7 @@ export const ChatboxProvider = ({ children }) => {
     }
   };
 
-  const triggerChatWithHost = (host) => {
+  /*const triggerChatWithHost = (host) => {
     if (!host) return;
     setNewReceiver({
       user_id: host.id || host.user_id || host.host_id,
@@ -54,7 +54,7 @@ export const ChatboxProvider = ({ children }) => {
       last_name: host.last_name
     });
     setIsOpen(true);
-  };
+  };*/
 
   return (
     <ChatboxContext.Provider
@@ -63,7 +63,7 @@ export const ChatboxProvider = ({ children }) => {
         handleOpen,
         handleClose,
         toggle,
-        triggerChatWithHost,
+        //triggerChatWithHost,
         newReceiver,
         unreadCount,
         refreshUnreadCount

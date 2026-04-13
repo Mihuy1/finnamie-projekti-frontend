@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   createActivitySuggestion,
   getProfile,
   getReservations,
   loadCountries,
+  resendVerificationEmail,
   updateProfile,
   uploadUserImage,
+  cancelReservationApi,
+  sendMessage,
+  getTimeslotById,
+  getTimeslotByIdWithExperience,
 } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import Select from "react-select";
@@ -23,6 +29,7 @@ import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
 //import { Reservation } from "../components/Reservation";
 import { postReview } from "../api/apiClient";
+import { Carousel } from "../components/Carousel";
 import { PaymentButton } from "../components/PaymentButton";
 
 const EMPTY_PROFILE = {
@@ -43,7 +50,8 @@ const EMPTY_PROFILE = {
 configureLeaflet();
 
 export const Profile = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, refresh } = useAuth();
+  const { hash } = useLocation();
 
   const {
     profile,
@@ -84,6 +92,8 @@ export const Profile = () => {
 
   const [reservation, setReservation] = useState({});
 
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [showExpDropdown, setShowExpDropdown] = useState(false);
@@ -92,6 +102,18 @@ export const Profile = () => {
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showFeedbackId, setShowFeedbackId] = useState(null);
+
+  const fetchTimeslotById = async (id) => {
+    const data = await getTimeslotByIdWithExperience(id);
+
+    console.log("data:", data);
+    console.log("images:", data?.images?.length ?? 0);
+
+    if (!data) return;
+    setSelectedBooking(data);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -103,6 +125,10 @@ export const Profile = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    refresh();
   }, []);
 
   useEffect(() => {
@@ -124,7 +150,7 @@ export const Profile = () => {
     const getRes = async () => {
       try {
         const data = await getReservations();
-        console.log("Backend vastaus:", data);
+        // console.log("Backend vastaus:", data);
 
         if (Array.isArray(data)) {
           setReservations(data);
@@ -145,6 +171,17 @@ export const Profile = () => {
     };
     getRes();
   }, []);
+
+  useEffect(() => {
+    if (hash === "#reservations") {
+      setTimeout(() => {
+        const element = document.getElementById("reservations-section");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [hash]);
 
   useEffect(() => {
     if (selectedSlot || showNewTimeslot) {
@@ -418,6 +455,63 @@ export const Profile = () => {
     setIsModalOpen(false);
   };
 
+  const handleEmailVerificationSubmit = async () => {
+    await toast.promise(resendVerificationEmail(profile.email), {
+      loading: "Sending Verification Email...",
+      success: (res) =>
+        res.message || "Verification email sent! Please check your inbox.",
+      error: (err) => {
+        return err.message || "Failed to send verification email";
+      },
+    });
+  };
+  const handleCancelBooking = async (resId) => {
+    if (!resId) return;
+
+    const reservationToCancel = reservations.find(
+      (r) => r.reservation_id === resId,
+    );
+
+    const targetConvId = reservationToCancel.conv_id;
+    const title = reservationToCancel.title || "Experience";
+
+    const receiverId = isHost
+      ? reservationToCancel.guest_id
+      : reservationToCancel.host_id;
+
+    const confirmMsg = isHost
+      ? "Are you sure you want to cancel this guest's booking?"
+      : "Are you sure you want to cancel your reservation?";
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setIsCancelling(true);
+
+    try {
+      await cancelReservationApi(resId);
+
+      if (targetConvId && receiverId) {
+        const cancelText = isHost
+          ? `CANCELLED BY HOST\nThe host has cancelled the booking for: ${title}.`
+          : `CANCELLED BY GUEST\nThe guest has cancelled their reservation for: ${title}.`;
+
+        try {
+          await sendMessage(targetConvId, receiverId, cancelText);
+        } catch (msgErr) {
+          console.error(msgErr);
+        }
+      }
+
+      setReservations((prev) => prev.filter((r) => r.reservation_id !== resId));
+      setSelectedSlot(null);
+      toast.success("Cancelled and notified via chat");
+    } catch (err) {
+      toast.error(err.message || "Could not cancel reservation");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   if (isProfileLoading)
     return <div className="profile-page">Loading profile data...</div>;
 
@@ -482,9 +576,24 @@ export const Profile = () => {
           <div className="profile-top-info">
             <h2>{fullName || "Your Profile"}</h2>
             {profile.role && (
-              <p className="profile-role">
-                {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
-              </p>
+              <>
+                <p className="profile-role">
+                  {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+                </p>
+                <div>
+                  <p className={user.is_verified ? "verified" : "unverified"}>
+                    {user.is_verified ? "Verified" : "Unverified"}{" "}
+                  </p>
+                  {!user.is_verified && (
+                    <button
+                      className="profile-btn profile-btn-primary"
+                      onClick={handleEmailVerificationSubmit}
+                    >
+                      Send Verification
+                    </button>
+                  )}
+                </div>
+              </>
             )}
             {/*<button
               className="profile-btn profile-btn-primary"
@@ -656,13 +765,6 @@ export const Profile = () => {
             <>
               <label>
                 Phone number
-                {/* <input
-                  name="phone_number"
-                  value={profileForm.phone_number || ""}
-                  onChange={handleProfileInputChange}
-                  disabled={!isEditing}
-                  placeholder="Phone Number"
-                /> */}
                 <PhoneInput
                   className="host-phone-input"
                   placeholder="Enter phone number"
@@ -838,7 +940,7 @@ export const Profile = () => {
             </form>
 
             <hr className="profile-divider" />
-            <h2 className="profile-section-title">Your Timeslots</h2>
+            <h2 className="profile-section-title">Your Experiences</h2>
 
             {timeSlots.length === 0 ? (
               <p>You have no timeslots. Create some to get started!</p>
@@ -882,24 +984,6 @@ export const Profile = () => {
                     </div>
                   </article>
                 ))}
-
-                {selectedSlot && (
-                  <TimeSlot
-                    slot={selectedSlot}
-                    activities={activitiesForm}
-                    canEdit={true}
-                    onClose={() => setSelectedSlot(null)}
-                    onUpdate={(updatedTimeslot) =>
-                      handleOnUpdate(updatedTimeslot)
-                    }
-                    onDelete={(deleteId) => {
-                      setTimeSlots((prev) =>
-                        prev.filter((timeslot) => timeslot.id !== deleteId),
-                      );
-                      setSelectedSlot(null);
-                    }}
-                  />
-                )}
               </div>
             )}
 
@@ -914,146 +998,287 @@ export const Profile = () => {
                 onClick={() => setShowNewTimeslot(true)}
                 className="create-new-timeslot-btn"
               >
-                Create new timeslot
+                Create Experience
               </button>
             </div>
+
+            {isHost && (
+              <>
+                <hr className="profile-divider" />
+                <h2 className="profile-section-title">Bookings from Guests</h2>
+
+                <div className="BookingListContainer">
+                  {reservations
+                    // .filter((res) => res.booking_status === "confirmed")
+                    .map((res) => {
+                      const startDateTime = new Date(
+                        res.start_time.replace(" ", "T"),
+                      );
+                      return (
+                        <div
+                          key={res.reservation_id}
+                          className="BookingRowCard host-confirmed-card"
+                          onClick={async () => {
+                            setSelectedSlot(res);
+                            setSelectedBooking(res);
+                            const t = res.timeslot_id;
+                            console.log("t:", t);
+                            await fetchTimeslotById(res.timeslot_id);
+                          }}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <div className="BookingRowHeader">
+                            <span className="BookingTypeBadge">
+                              {res.experience_length}
+                            </span>
+                            <span
+                              className={`BookingStatusPill Status-${res.booking_status}`}
+                            >
+                              {res.booking_status}
+                            </span>
+                          </div>
+
+                          <div className="BookingRowBody">
+                            <div className="BookingTitleGroup">
+                              <h3>{res.title}</h3>
+                              <span className="BookingGuestText">
+                                Guest:{" "}
+                                <strong>
+                                  {res.first_name} {res.last_name}
+                                </strong>
+                              </span>
+                              <p className="BookingDateTag">
+                                📅 {startDateTime.toLocaleDateString("en-GB")}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="BookingRowFooter">
+                            <span className="BookingActionLink">
+                              View guest details →
+                            </span>
+
+                            {res.review_id && (
+                              <button
+                                className="BookingRateBtnInline feedback-view-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowFeedbackId(
+                                    showFeedbackId === res.reservation_id
+                                      ? null
+                                      : res.reservation_id,
+                                  );
+                                }}
+                              >
+                                {showFeedbackId === res.reservation_id
+                                  ? "Close Feedback"
+                                  : "Read Guest Feedback"}
+                              </button>
+                            )}
+                          </div>
+
+                          {showFeedbackId === res.reservation_id && (
+                            <div
+                              className="GuestFeedbackPreview"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="FeedbackStars">
+                                {"★".repeat(res.score)}
+                                {"☆".repeat(5 - res.score)}
+                                <span className="ScoreNumber">
+                                  ({res.score}/5)
+                                </span>
+                              </div>
+                              <p className="FeedbackContent">
+                                "
+                                {res.content ||
+                                  "The guest didn't leave a written comment, only a rating."}
+                                "
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                  {/* {reservations.filter(
+                    (res) => res.booking_status === "confirmed",
+                  ).length === 0 && <p>No confirmed bookings yet.</p>} */}
+                </div>
+              </>
+            )}
           </>
         ) : (
           // guest userille
           <>
-            <hr className="profile-divider" />
-            <h2 className="profile-section-title">Your Reservations</h2>
+            <div id="reservations-section">
+              <hr className="profile-divider" />
+              <h2 className="profile-section-title">Your Reservations</h2>
 
-            {reservations && reservations.length > 0 ? (
-              <div className="BookingListContainer">
-                {reservations.map((res) => {
-                  const now = new Date();
+              {reservations && reservations.length > 0 ? (
+                <div className="BookingListContainer">
+                  {reservations.map((res) => {
+                    const now = new Date();
 
-                  const startDateTime = new Date(
-                    res.start_time.replace(" ", "T"),
-                  );
-                  const endDateTime = new Date(res.end_time.replace(" ", "T"));
+                    const startDateTime = new Date(
+                      res.start_time.replace(" ", "T"),
+                    );
+                    const endDateTime = new Date(
+                      res.end_time.replace(" ", "T"),
+                    );
 
-                  const isPast = now > endDateTime;
+                    const isPast = now > endDateTime;
 
-                  const displayDate = startDateTime.toLocaleDateString(
-                    "en-GB",
-                    {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    },
-                  );
+                    const displayDate = startDateTime.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      },
+                    );
 
-                  const startTime = startDateTime.toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
-                  const endTime = endDateTime.toLocaleTimeString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
+                    const startTime = startDateTime.toLocaleTimeString(
+                      "en-GB",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    );
+                    const endTime = endDateTime.toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
 
-                  return (
-                    <div
-                      key={res.reservation_id}
-                      className="BookingRowCard"
-                      onClick={() => setSelectedSlot(res)}
-                    >
-                      <div className="BookingRowHeader">
-                        <span className="BookingTypeBadge">
-                          {res.experience_length}
-                        </span>
-                        <span
-                          className={`BookingStatusPill Status-${res.booking_status}`}
-                        >
-                          {res.booking_status}
-                        </span>
-                      </div>
-
-                      <div className="BookingRowBody">
-                        <div className="BookingTitleGroup">
-                          <h3>{res.title}</h3>
-                          <span className="BookingHostText">
-                            with {res.first_name} {res.last_name}
+                    return (
+                      <div
+                        key={res.reservation_id}
+                        className="BookingRowCard"
+                        onClick={() => setSelectedSlot(res)}
+                      >
+                        <div className="BookingRowHeader">
+                          <span className="BookingTypeBadge">
+                            {res.experience_length}
                           </span>
-                        </div>
-
-                        <div className="BookingMetaTags">
-                          <span className="BookingLocationTag">
-                            📍 {res.city}
-                          </span>
-                          <span className="BookingDateTag">
-                            📅 {displayDate}
-                          </span>
-                          <span className="BookingTimeTag">
-                            🕒 {startTime} - {endTime}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="BookingRowFooter">
-                        <span className="BookingActionLink">
-                          View details →
-                        </span>
-
-                        {res.booking_status === "confirmed" && (
-                          <button
-                            className="BookingRateBtnInline"
-                            disabled={!isPast}
-                            title={
-                              !isPast
-                                ? "You can rate this experience after it has ended"
-                                : ""
-                            }
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (isPast) handleModalOpen(res);
-                            }}
+                          <span
+                            className={`BookingStatusPill Status-${res.booking_status}`}
                           >
-                            {!isPast
-                              ? "Review locked"
-                              : res.score || res.review_id
-                                ? "Edit Review"
-                                : "Rate Experience"}
-                          </button>
-                        )}
+                            {res.booking_status}
+                          </span>
+                        </div>
+
+                        <div className="BookingRowBody">
+                          <div className="BookingTitleGroup">
+                            <h3>{res.title}</h3>
+                            <span className="BookingHostText">
+                              with {res.first_name} {res.last_name}
+                            </span>
+                          </div>
+
+                          <div className="BookingMetaTags">
+                            <span className="BookingLocationTag">
+                              📍 {res.city}
+                            </span>
+                            <span className="BookingDateTag">
+                              📅 {displayDate}
+                            </span>
+                            <span className="BookingTimeTag">
+                              🕒 {startTime} - {endTime}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="BookingRowFooter">
+                          <span className="BookingActionLink">
+                            View details →
+                          </span>
+
+                          {res.booking_status === "confirmed" && (
+                            <button
+                              className="BookingRateBtnInline"
+                              disabled={!isPast}
+                              title={
+                                !isPast
+                                  ? "You can rate this experience after it has ended"
+                                  : ""
+                              }
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isPast) handleModalOpen(res);
+                              }}
+                            >
+                              {!isPast
+                                ? "Review locked"
+                                : res.score || res.review_id
+                                  ? "Edit Review"
+                                  : "Rate Experience"}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="no-reservations">
-                <p>You haven't made any reservations yet.</p>
-              </div>
-            )}
-            {selectedSlot && (
-              <div
-                className="BookingOverlay"
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="no-reservations">
+                  <p>You haven't made any reservations yet.</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {selectedSlot && selectedSlot.rule && (
+          <TimeSlot
+            slot={selectedSlot}
+            activities={activitiesForm}
+            canEdit={true}
+            onClose={() => setSelectedSlot(null)}
+            onUpdate={(updatedTimeslot) => handleOnUpdate(updatedTimeslot)}
+            onDelete={(deleteId) => {
+              setTimeSlots((prev) =>
+                prev.filter((timeslot) => timeslot.id !== deleteId),
+              );
+              setSelectedSlot(null);
+            }}
+            reservations={reservations}
+          />
+        )}
+
+        {selectedSlot && selectedSlot.reservation_id && (
+          <div className="BookingOverlay" onClick={() => setSelectedSlot(null)}>
+            <div
+              className="BookingModalWrapper"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="BookingCloseBtn"
                 onClick={() => setSelectedSlot(null)}
               >
-                <div
-                  className="BookingModalWrapper"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    className="BookingCloseBtn"
-                    onClick={() => setSelectedSlot(null)}
-                  >
-                    ×
-                  </button>
+                ×
+              </button>
 
+              {(() => {
+                const now = new Date();
+                const endDateTime = new Date(
+                  selectedSlot.end_time.replace(" ", "T"),
+                );
+                const isPastEvent = now > endDateTime;
+
+                return (
                   <div className="BookingDetailedCard">
                     <div className="BookingHeroImage">
-                      <img
-                        src={
-                          selectedSlot.image_url
-                            ? `http://localhost:3000${selectedSlot.image_url}`
-                            : "/placeholder-activity.jpg"
-                        }
-                        alt={selectedSlot.title}
-                      />
+                      <div className="modal-image">
+                        <Carousel
+                          images={
+                            selectedBooking?.images
+                              ? selectedBooking.images.map(
+                                  (i) => "http://localhost:3000" + i.url,
+                                )
+                              : []
+                          }
+                        />
+                      </div>
+
                       <div className="BookingBadgeContainer">
                         <span className="BookingDurationTag">
                           {selectedSlot.experience_length}
@@ -1069,8 +1294,9 @@ export const Profile = () => {
                     <div className="BookingDetailedContent">
                       <header className="BookingHeaderSection">
                         <span className="BookingHostName">
-                          Host: {selectedSlot.first_name}{" "}
-                          {selectedSlot.last_name}
+                          {isHost
+                            ? `Guest: ${selectedSlot.first_name} ${selectedSlot.last_name}`
+                            : `Host: ${selectedSlot.first_name} ${selectedSlot.last_name}`}
                         </span>
                         <h2 className="BookingMainTitle">
                           {selectedSlot.title}
@@ -1120,12 +1346,69 @@ export const Profile = () => {
                         </span>
                       </div>
 
+                      <div
+                        className="BookingActionsArea"
+                        style={{
+                          marginTop: "20px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "12px",
+                        }}
+                      >
+                        {isHost && selectedSlot.review_id && (
+                          <button
+                            className="btn-read-feedback"
+                            onClick={() => handleModalOpen(selectedSlot)}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "8px",
+                              padding: "12px",
+                              backgroundColor: "#f0f7ff",
+                              border: "1px solid #007bff",
+                              borderRadius: "8px",
+                              color: "#007bff",
+                              fontWeight: "600",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <span className="icon">⭐</span> Read Guest Feedback
+                          </button>
+                        )}
+
+                        {!isHost &&
+                          selectedSlot.booking_status === "confirmed" &&
+                          isPastEvent && (
+                            <button
+                              className="BookingRateBtnInline"
+                              onClick={() => handleModalOpen(selectedSlot)}
+                            >
+                              {selectedSlot.review_id
+                                ? "Edit My Review"
+                                : "Rate Experience"}
+                            </button>
+                          )}
+
+                        {selectedSlot.booking_status === "confirmed" &&
+                          !isPastEvent && (
+                            <button
+                              className="CancelBookingBtn"
+                              onClick={() =>
+                                handleCancelBooking(selectedSlot.reservation_id)
+                              }
+                            >
+                              {isHost
+                                ? "Cancel Guest's Booking"
+                                : "Cancel My Reservation"}
+                            </button>
+                          )}
+                      </div>
+
                       <div className="BookingFooterInfo">
                         <div className="ReferenceBox">
                           <span>Reference ID</span>
-                          <code>
-                            {selectedSlot.reservation_id || "N/A"}
-                          </code>{" "}
+                          <code>{selectedSlot.reservation_id || "N/A"}</code>
                         </div>
                         <p className="RequestDate">
                           Reserved on {formatDate(selectedSlot.res_date)}
@@ -1133,19 +1416,20 @@ export const Profile = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                );
+              })()}
+            </div>
+          </div>
+        )}
 
-            {isModalOpen && (
-              <ReviewModal
-                isModalOpen={isModalOpen}
-                closeModal={handleCloseModal}
-                reservation={reservation}
-              />
-            )}
-            <PaymentButton type={"Full-day"} />
-          </>
+        {isModalOpen && (
+          <ReviewModal
+            isModalOpen={isModalOpen}
+            closeModal={handleCloseModal}
+            reservation={reservation}
+            initialData={selectedSlot}
+            isReadOnly={isHost}
+          />
         )}
       </div>
     </section>

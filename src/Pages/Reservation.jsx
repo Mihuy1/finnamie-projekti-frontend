@@ -13,9 +13,10 @@ import TimeslotSelector from "../components/TimeslotSelector";
 import { sendMessage, startConversation } from "../api/apiClient";
 
 export default function Reservation() {
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
 
   const slot = state?.slot;
 
@@ -80,10 +81,39 @@ export default function Reservation() {
       return;
     }
 
+    let currentUser = user;
+    try {
+      currentUser = (await refresh()) ?? user;
+    } catch (refreshError) {
+      console.error(
+        "Failed to refresh auth before confirming reservation:",
+        refreshError,
+      );
+    }
+
+    if (!currentUser) {
+      navigate("/login", {
+        state: {
+          redirectTo: "/reserve-activity",
+          bookingData: slot,
+          from: location.pathname,
+        },
+      });
+      return;
+    }
+
+    if (!currentUser.is_verified) {
+      toast.error(
+        "Please verify your email before booking. You can resend the confirmation email from your Profile page.",
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const selectedSlot = timeslots.find(ts => ts.id === selectedTimeslotId);
-      const eventDate = selectedSlot?.start_time?.split("T")[0] || selectedSlot?.res_date;
+      const selectedSlot = timeslots.find((ts) => ts.id === selectedTimeslotId);
+      const eventDate =
+        selectedSlot?.start_time?.split("T")[0] || selectedSlot?.res_date;
 
       const resData = await createReservation(selectedTimeslotId);
 
@@ -116,17 +146,23 @@ export default function Reservation() {
       setTimeout(() => {
         navigate("/reservation-confirmed", {
           state: {
-            reservation: { id: realReservationId || "RES-" + Math.floor(Math.random() * 10000) },
+            reservation: {
+              id: realReservationId || "RES-" + Math.floor(Math.random() * 10000),
+            },
             slot: slot,
             host: hostData,
-            openChat: true,
-            targetHost: hostData
+            fromBooking: true,
           },
         });
       }, 1500);
-
     } catch (error) {
       console.error("Reservation error:", error);
+      if (error?.status === 403) {
+        toast.error(
+          "Please verify your email before booking. You can resend the confirmation email from your Profile page.",
+        );
+        return;
+      }
       toast.error(error?.message || "Booking failed.");
     } finally {
       setIsSubmitting(false);
@@ -316,9 +352,10 @@ export default function Reservation() {
 
             <div className="booking-notice-box">
               <p>
-                <strong>📌 Note:</strong> Your booking is for the selected date, but it
-                is <strong>pending</strong> until the host approves it. You will receive
-                a confirmation email once it's officially confirmed.
+                <strong>📌 Note:</strong> Your booking is for the selected date,
+                but it is <strong>pending</strong> until the host approves it.
+                You will receive a confirmation email once it's officially
+                confirmed.
               </p>
             </div>
 

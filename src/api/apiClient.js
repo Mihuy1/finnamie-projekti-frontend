@@ -111,6 +111,36 @@ export const getAllTimeSlots = async () => {
   }
 };
 
+export const getTimeslotByIdWithExperience = async (timeslot_id) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL}timeslots/timeslotWithExperience/${timeslot_id}`,
+      {
+        credentials: "include",
+      },
+    );
+
+    console.log("res:", res);
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message ||
+            "Something went wrong while fetching timeslotByIdWithExperience";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 export const getTimeslotsByRuleId = async (ruleId) => {
   try {
     const res = await fetch(`${BASE_URL}timeslots/rule/${ruleId}`, {
@@ -863,22 +893,16 @@ export const register = async (params) => {
     throw new Error("Network error. Please try again.");
   }
 
-  const ct = res.headers.get("content-type") ?? "";
-  const payload = ct.includes("application/json")
-    ? await res.json()
-    : await res.text();
+  const data = await res.json();
 
   if (!res.ok) {
     const message =
-      typeof payload === "string"
-        ? payload
-        : (payload?.error ?? payload?.message);
+      typeof data === "string" ? data : data?.message || "Registration failed.";
 
-    if (res.status === 409) throw new Error("Email is already in use.");
-    throw new Error(message || "Registration failed.");
+    throw Object.assign(new Error(message), { status: res.status });
   }
 
-  return payload;
+  return data;
 };
 
 export const getProfile = async () => {
@@ -1076,6 +1100,37 @@ export const createReservation = async (timeslot_id) => {
   }
 };
 
+export const cancelReservationApi = async (reservation_id) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL}reservations/cancel/${reservation_id}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message ||
+            "Something went wrong while cancelling reservation";
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (e) {
+    console.error("API Error (cancelReservation):", e);
+    throw e;
+  }
+};
+
 export const getReviewsByHostId = async (hostId) => {
   try {
     const res = await fetch(`${BASE_URL}reviews/host/${hostId}`, {
@@ -1098,7 +1153,7 @@ export const sendMessage = async (conv_id, receiver_id, content) => {
       credentials: "include",
       body: JSON.stringify({
         conv_id,
-        receiver_id,
+        sernder_id: receiver_id,
         content,
       }),
     });
@@ -1160,6 +1215,31 @@ export const getUnreadCount = async () => {
   }
 
   return response.json();
+};
+
+export const resendVerificationEmail = async (email) => {
+  try {
+    const res = await fetch(`${BASE_URL}auth/resend-verification/${email}`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message || "Something went wrong";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export const getCheckoutSession = async (type, email) => {

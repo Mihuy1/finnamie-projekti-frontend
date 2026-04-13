@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
       const payload = await verifyMe(); // null OR { user, message }
       setSession(payload);
       setUser(payload?.user ?? null);
+      return payload?.user ?? null;
     } finally {
       setLoading(false);
     }

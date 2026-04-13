@@ -7,6 +7,9 @@ export const Carousel = ({
   imageHeight = "100%",
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!images) return;
+
   const imageCount = images.length;
 
   const goNext = () => {

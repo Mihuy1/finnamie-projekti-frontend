@@ -4,6 +4,7 @@ import {
   getExperienceByHostId,
   getProfile,
   getSuggestionActivitiesByHostId,
+  getTimeSlotsByHostId,
 } from "../api/apiClient";
 import { formatDateForInput } from "../utils/date-utils";
 
@@ -42,14 +43,12 @@ export const useUserProfile = (user, loading) => {
           setIsHost(true);
 
           try {
-            const [hostTimeslots, suggestions] = await Promise.all([
+            const [hostExperiences, suggestions] = await Promise.all([
               getExperienceByHostId(),
               getSuggestionActivitiesByHostId(),
             ]);
 
-            console.log("host timeslots:", hostTimeslots);
-
-            setTimeSlots(hostTimeslots || []);
+            setTimeSlots(hostExperiences || []);
             activitiesSuggestionData = Array.isArray(suggestions)
               ? suggestions
               : [];

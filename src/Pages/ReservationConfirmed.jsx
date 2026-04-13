@@ -1,18 +1,16 @@
 // @ts-nocheck
 import { useNavigate, useLocation } from "react-router-dom";
 import "../App.css";
-import { useEffect } from "react";
-import { useChatbox } from "../contexts/ChatboxContext";
+import { useEffect, useState } from "react";
 
 function ReservationConfirmed() {
     const navigate = useNavigate();
     const { state } = useLocation();
+    const [showToast, setShowToast] = useState(false);
 
     const reservation = state?.reservation || {};
     const slot = state?.slot || {};
     const host = state?.host || {};
-
-    const { triggerChatWithHost } = useChatbox();
 
     const getStartTime = () => {
         if (slot.rule?.start_date) {
@@ -55,17 +53,27 @@ function ReservationConfirmed() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, []);
+        if (state?.fromBooking) {
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 5000);
+        }
+    }, [state]);
 
     const handleNavigation = (targetPath) => {
-        if (state?.openChat && state?.targetHost) {
-            triggerChatWithHost(state.targetHost);
+        if (targetPath === "/profile") {
+            navigate("/profile#reservations");
+        } else {
+            navigate(targetPath);
         }
-        navigate(targetPath);
     };
 
     return (
         <div className="app">
+            {showToast && (
+                <div className="booking-toast">
+                    ✅ Booking request sent to {hostDisplayName}! Check your conversations for updates.
+                </div>
+            )}
             <div className="app confirmation-page-wrapper">
                 <section className="confirmation-section">
                     <div className="success-icon" style={{ fontSize: '64px' }}>✅</div>

@@ -23,69 +23,111 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 30px;
+  padding: 5px 80px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  min-height: 80px;
+  height: 140px;
 }
 
-.logo {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--accent);
+.logo-container {
+  display: flex;
+  align-items: center;
   text-decoration: none;
 }
 
-.nav a {
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  margin-left: 45px;
+}
+
+.nav-logo {
+  height: 200px;
+  width: auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: contrast(1.1);
+  transition: transform 0.3s ease;
+}
+
+.nav-logo:hover {
+  transform: scale(1.05);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav a,
+.nav-conversations-link,
+.logout-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  padding: 10px 16px;
-  border-radius: 999px;
-
-  background: var(--accent);
-  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background-color: var(--accent);
+  color: #ffffff !important;
   text-decoration: none;
   font-weight: 600;
-  font-size: 13px;
-
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    opacity 0.15s ease;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
 }
 
-.nav a:not(:last-child) {
-  margin-right: 8px;
+.nav a:hover,
+.nav-conversations-link:hover,
+.logout-link:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.nav a:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
-}
-
-.nav a:active {
+.nav a:active,
+.nav-conversations-link:active {
   transform: translateY(0px);
-  opacity: 0.95;
+  filter: brightness(0.95);
+}
+
+.logout-link {
+  background-color: var(--accent);
+  opacity: 0.9;
 }
 
 /* Conversations */
 
 .nav-chat-dot {
-  min-width: 18px;
-  height: 18px;
-  background-color: #ff4d4d;
-  color: white;
+  background: #ffffff;
+  color: var(--accent);
   font-size: 11px;
-  font-weight: bold;
-  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(255, 77, 77, 0.5);
-  animation: pulse-dot 2s infinite;
-  padding: 2px;
+  font-weight: 800;
+}
+
+.unread-badge {
+  background-color: #ff4d4d;
+  color: white;
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(255, 77, 77, 0.3);
 }
 
 @keyframes pulse-dot {
@@ -129,9 +171,11 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 47, 108, 0.2),
-      rgba(0, 0, 0, 0.3));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 47, 108, 0.2),
+    rgba(0, 0, 0, 0.3)
+  );
   z-index: 1;
 }
 
@@ -229,7 +273,8 @@ body {
   transform: rotate(180deg);
 }
 
-.location-wrapper:has(.clear-location-btn)::after .activity-wrapper:has(.clear-location-btn)::after {
+.location-wrapper:has(.clear-location-btn)::after
+  .activity-wrapper:has(.clear-location-btn)::after {
   display: none;
 }
 
@@ -792,10 +837,11 @@ body {
   font-size: 13px;
   font-weight: 700;
   margin-top: 10px;
+  z-index: 1 !important;
+  position: relative;
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -1921,6 +1967,28 @@ input.activity-input-host {
   scrollbar-width: none;
 }
 
+.modal-content.simple {
+  display: flex;
+  flex-direction: column;
+  max-width: fit-content;
+  height: fit-content;
+  padding: 20px;
+}
+
+.modal-header.simple {
+  margin-bottom: 0.5rem;
+}
+
+.modal-content.simple p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.modal-content.simple button {
+  margin-top: 1rem;
+}
+
 .modal-content.confirm {
   display: flex;
   flex-direction: column;
@@ -2008,6 +2076,8 @@ input.activity-input-host {
 }
 
 .close-modal {
+  line-height: 32px;
+  text-align: center;
   position: absolute;
   top: 15px !important;
   right: 20px !important;
@@ -2279,6 +2349,25 @@ input.activity-input-host {
 }
 
 /* Profile */
+
+.email-verification-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.email-verification-section button {
+  margin-left: auto;
+}
+
+.verified {
+  color: green !important;
+  font-weight: 500;
+}
+
+.unverified {
+  color: red !important;
+  font-weight: 500;
+}
 
 .timeslot-modal-header p {
   color: #34495e;
@@ -2867,7 +2956,7 @@ input.activity-input-host {
   -webkit-text-fill-color: var(--text-muted);
 }
 
-.guest-input:disabled~.guest-clear-btn {
+.guest-input:disabled ~ .guest-clear-btn {
   display: none !important;
 }
 
@@ -2883,7 +2972,6 @@ input.activity-input-host {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -3008,6 +3096,75 @@ input.activity-input-host {
   font-size: 13px;
 }
 
+.BookingActionsArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn-read-feedback {
+  background-color: #ffffff;
+  color: #2563eb;
+  border: 2px solid #dbeafe;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-read-feedback:hover {
+  background-color: #f8faff;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.GuestFeedbackPreview {
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+  padding: 15px;
+  margin-top: 10px;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.FeedbackStars {
+  color: #ffc107;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.ScoreNumber {
+  color: #666;
+  font-size: 0.9rem;
+  margin-left: 8px;
+}
+
+.FeedbackContent {
+  font-style: italic;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .BookingOverlay {
   position: fixed;
   inset: 0;
@@ -3045,14 +3202,14 @@ input.activity-input-host {
 
 .BookingHeroImage {
   position: relative;
-  height: 280px;
+  /* height: 280px; */
 }
 
-.BookingHeroImage img {
+/* .BookingHeroImage img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
+} */
 
 .BookingHeaderSection {
   margin-bottom: 24px;
@@ -3244,7 +3401,102 @@ input.activity-input-host {
   color: white;
 }
 
+.host-view-card {
+  border-left: 5px solid #4caf50;
+  background-color: #fcfdfc;
+}
+
+.BookingGuestText {
+  display: block;
+  font-size: 1.1rem;
+  margin: 5px 0;
+  color: #333;
+}
+
+.BookingDateInfo {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.CancelBookingBtn {
+  background-color: #fff1f1;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* width: 100%; */
+}
+
+.CancelBookingBtn:hover {
+  background-color: #d32f2f;
+  color: white;
+  border-color: #d32f2f;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+}
+
+.CancelBookingBtn:disabled {
+  background-color: #f5f5f5;
+  color: #bdbdbd;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
 /* profile timeslot */
+
+.timeslot-reservations {
+  padding: 1rem;
+}
+
+.timeslot-reservation-card {
+  border: 1px solid;
+  margin: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  padding: 14px 16px;
+}
+
+.timeslot-reservation-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timeslot-reservation-card-bottom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tab-div {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(0, 47, 108, 0.12);
+}
+
+.tab-div button {
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-div button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
 
 .timeslot-modal h3 {
   margin: 0;
@@ -3826,7 +4078,6 @@ input.activity-input-host {
 }
 
 @media screen and (max-width: 380px) {
-
   .filter-input,
   .filter-input-button {
     font-size: 14px !important;
@@ -4272,7 +4523,7 @@ input.activity-input-host {
   backdrop-filter: blur(10px);
 }
 
-.confirmation-section>p {
+.confirmation-section > p {
   color: #666;
   margin-bottom: 30px;
 }
@@ -4370,6 +4621,33 @@ input.activity-input-host {
   transform: translateY(-1px);
 }
 
+.booking-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 47, 108, 1);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  font-weight: 600;
+  animation: slideDownFade 0.5s ease-out;
+}
+
+@keyframes slideDownFade {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 20px;
+    opacity: 1;
+  }
+}
+
 /* Confirmation sivu mobiili */
 
 @media screen and (max-width: 768px) {
@@ -4394,7 +4672,7 @@ input.activity-input-host {
     line-height: 1.2;
   }
 
-  .confirmation-section>p {
+  .confirmation-section > p {
     font-size: 1rem;
     text-align: center;
     margin-bottom: 20px;
@@ -4681,6 +4959,16 @@ input.activity-input-host {
 .pill-open {
   background: #eaf3de;
   color: #3b6d11;
+}
+
+.pill-verified {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.pill-unverified {
+  background: #fce7e7;
+  color: #991b1b;
 }
 
 /* ── Buttons ── */

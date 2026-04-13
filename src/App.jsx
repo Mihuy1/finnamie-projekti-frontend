@@ -27,7 +27,6 @@ function App() {
         <Route path="/discover" element={<Discover />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/host/register" element={<HostRegister />} />
-        <Route path="/admin" element={<Admin />} />
 
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<Admin />} />
@@ -49,12 +48,15 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/host/login" element={<HostLogin />} />
+        <Route path="/book-activity" element={<BookActivity />} />
+        <Route path="/reserve-activity" element={<Reservation />} />
+        <Route
+          path="/reservation-confirmed"
+          element={<ReservationConfirmed />}
+        />
         <Route path="/success/:res_id" element={<Success />} />
         <Route path="/cancel" element={<Cancelled />} />
       </Route>
-      <Route path="/book-activity" element={<BookActivity />} />
-      <Route path="/reserve-activity" element={<Reservation />} />
-      <Route path="/reservation-confirmed" element={<ReservationConfirmed />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
