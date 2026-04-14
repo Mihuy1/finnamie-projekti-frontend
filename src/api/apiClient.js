@@ -1131,6 +1131,39 @@ export const cancelReservationApi = async (reservation_id) => {
   }
 };
 
+export const confirmReservationApi = async (reservation_id) => {
+  try {
+    const res = await fetch(
+      `${BASE_URL}reservations/confirm/${reservation_id}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!res) throw Error("Failed to confirm Reservation");
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data?.message ||
+            "Something went wrong while confirming reservation";
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Error confirming reservation:", err);
+    throw err;
+  }
+};
+
 export const getReviewsByHostId = async (hostId) => {
   try {
     const res = await fetch(`${BASE_URL}reviews/host/${hostId}`, {

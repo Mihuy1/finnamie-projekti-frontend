@@ -3449,6 +3449,28 @@ input.activity-input-host {
   cursor: not-allowed;
 }
 
+.ConfirmBookingBtn {
+  background-color: #e6f7ed;
+  color: #1f8b4c;
+  border: 1px solid #c3e6cb;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ConfirmBookingBtn:hover {
+  background-color: #1f8b4c;
+  color: white;
+  border-color: #1f8b4c;
+  box-shadow: 0 4px 12px rgba(31, 139, 76, 0.2);
+}
+
 /* profile timeslot */
 
 .timeslot-reservations {
@@ -3473,6 +3495,7 @@ input.activity-input-host {
 .timeslot-reservation-card-bottom {
   display: flex;
   justify-content: flex-end;
+  gap: 16px;
 }
 
 .tab-div {
