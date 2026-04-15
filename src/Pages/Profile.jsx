@@ -506,6 +506,7 @@ export const Profile = () => {
       toast.success("Cancelled and notified via chat");
     } catch (err) {
       toast.error(err.message || "Could not cancel reservation");
+      setSelectedSlot(null);
     } finally {
       setIsCancelling(false);
     }
@@ -653,10 +654,10 @@ export const Profile = () => {
                   setFilteredCountries(
                     profileForm.country
                       ? countries.filter((c) =>
-                        c
-                          .toLowerCase()
-                          .includes(profileForm.country.toLowerCase()),
-                      )
+                          c
+                            .toLowerCase()
+                            .includes(profileForm.country.toLowerCase()),
+                        )
                       : countries,
                   );
                   setShowCountryDropdown(true);
@@ -733,7 +734,7 @@ export const Profile = () => {
                 value={
                   profileForm.gender
                     ? profileForm.gender.charAt(0).toUpperCase() +
-                    profileForm.gender.slice(1)
+                      profileForm.gender.slice(1)
                     : "Not specified"
                 }
                 readOnly
@@ -916,7 +917,7 @@ export const Profile = () => {
                   name="new_activity_suggestion"
                   className={
                     attemptedSubmit &&
-                      !newActivitySuggestionForm.new_activity_suggestion.trim()
+                    !newActivitySuggestionForm.new_activity_suggestion.trim()
                       ? "input-error"
                       : ""
                   }
@@ -1121,7 +1122,9 @@ export const Profile = () => {
                     const startDateTime = new Date(
                       res.start_time.replace(" ", "T"),
                     );
-                    const endDateTime = new Date(res.end_time.replace(" ", "T"));
+                    const endDateTime = new Date(
+                      res.end_time.replace(" ", "T"),
+                    );
 
                     const isPast = now > endDateTime;
 
@@ -1134,10 +1137,13 @@ export const Profile = () => {
                       },
                     );
 
-                    const startTime = startDateTime.toLocaleTimeString("en-GB", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    });
+                    const startTime = startDateTime.toLocaleTimeString(
+                      "en-GB",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    );
                     const endTime = endDateTime.toLocaleTimeString("en-GB", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -1263,9 +1269,13 @@ export const Profile = () => {
                     <div className="BookingHeroImage">
                       <div className="modal-image">
                         <Carousel
-                          images={selectedBooking?.images ? selectedBooking.images.map(
-                            (i) => "http://localhost:3000" + i.url
-                          ) : []}
+                          images={
+                            selectedBooking?.images
+                              ? selectedBooking.images.map(
+                                  (i) => "http://localhost:3000" + i.url,
+                                )
+                              : []
+                          }
                         />
                       </div>
 
