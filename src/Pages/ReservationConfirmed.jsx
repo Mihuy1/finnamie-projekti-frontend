@@ -13,6 +13,12 @@ function ReservationConfirmed() {
     const host = state?.host || {};
 
     const getStartTime = () => {
+        if (reservation.start_time) {
+            return reservation.start_time.includes("T")
+                ? reservation.start_time
+                : reservation.start_time.replace(" ", "T");
+        }
+
         if (slot.rule?.start_date) {
             return `${slot.rule.start_date}T${slot.rule.start_time}`;
         }
@@ -20,6 +26,12 @@ function ReservationConfirmed() {
     };
 
     const getEndTime = () => {
+        if (reservation.end_time) {
+            return reservation.end_time.includes("T")
+                ? reservation.end_time
+                : reservation.end_time.replace(" ", "T");
+        }
+
         if (slot.rule?.end_date) {
             return `${slot.rule.end_date}T${slot.rule.end_time}`;
         }
@@ -55,9 +67,10 @@ function ReservationConfirmed() {
         window.scrollTo(0, 0);
         if (state?.fromBooking) {
             setShowToast(true);
-            setTimeout(() => setShowToast(false), 5000);
         }
     }, [state]);
+
+    const closeToast = () => setShowToast(false);
 
     const handleNavigation = (targetPath) => {
         if (targetPath === "/profile") {
@@ -70,8 +83,11 @@ function ReservationConfirmed() {
     return (
         <div className="app">
             {showToast && (
-                <div className="booking-toast">
-                    ✅ Booking request sent to {hostDisplayName}! Check your conversations for updates.
+                <div className="booking-toast-persistent">
+                    <div className="toast-content">
+                        <span>✅ Booking request sent to <strong>{hostDisplayName}</strong>! Check your conversations for updates.</span>
+                    </div>
+                    <button className="toast-close-btn" onClick={closeToast}>×</button>
                 </div>
             )}
             <div className="app confirmation-page-wrapper">

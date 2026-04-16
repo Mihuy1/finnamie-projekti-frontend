@@ -9,6 +9,7 @@ import { useChatbox } from "../contexts/ChatboxContext";
 
 export const Chatbox = ({ newReceiver = null, loadMessages }) => {
   const { handleClose } = useChatbox();
+  const isMobile = window.innerWidth <= 768;
 
   const [openConversation, setOpenConversation] = useState(loadMessages);
   const [receiver, setReceiver] = useState({
@@ -48,6 +49,21 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
     };
   }, []);
 
+  // tausta ei skrollaannu, kun chatbox on auki mobiilissa
+  useEffect(() => {
+    if (window.innerWidth <= 768) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+      document.body.style.position = "static";
+      document.body.style.width = "auto";
+    };
+  }, []);
+
   const handleOpenConversation = (c) => {
     const { conv_id, first_name, last_name, user_id } = c;
     if (conv_id !== convId) {
@@ -67,14 +83,27 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
     });
   };
 
+  const handleBackToList = () => {
+    socket.emit("leave conversation", convId);
+    setConvId("");
+    setOpenConversation(false);
+    setReceiver({ first_name: null, last_name: null, id: null });
+  };
+
   return (
-    <div className="chatbox">
+    <div className={`chatbox ${convId ? "conversation-open" : ""}`}>
       <div className="chat-header">
+
+        <button className="chat-back-btn" onClick={handleBackToList}>
+          ←
+        </button>
+
         <div className="chat-title">
           {receiver?.first_name
             ? `${receiver.first_name} ${receiver.last_name}`
             : "Messages"}
         </div>
+
         <div className="chat-actions">
           <button
             className="chat-close"
@@ -85,12 +114,15 @@ export const Chatbox = ({ newReceiver = null, loadMessages }) => {
           </button>
         </div>
       </div>
+
       <div className="chatbox-main">
-        <ConversationList
-          handleOpenClick={handleOpenConversation}
-          convId={convId}
-          messageReceiver={convId ? null : newReceiver}
-        />
+        {!(isMobile && convId) && (
+          <ConversationList
+            handleOpenClick={handleOpenConversation}
+            convId={convId}
+            messageReceiver={convId ? null : newReceiver}
+          />
+        )}
         <div className="message-history-wrapper">
           {openConversation && <MessageList conv_id={convId} />}
           <MessageInput conv_id={convId} receiver_id={receiver.id} />
