@@ -141,13 +141,12 @@ export default function Reservation() {
         console.error("Chatin aloitus epäonnistui", chatErr);
       }
 
-      toast.success("Booking request sent!");
-
       setTimeout(() => {
         navigate("/reservation-confirmed", {
           state: {
             reservation: {
-              id: realReservationId || "RES-" + Math.floor(Math.random() * 10000),
+              id:
+                realReservationId || "RES-" + Math.floor(Math.random() * 10000),
             },
             slot: slot,
             host: hostData,

@@ -104,6 +104,8 @@ export const Profile = () => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [showFeedbackId, setShowFeedbackId] = useState(null);
 
+  console.log("SelectedBooking:", selectedBooking);
+
   const fetchTimeslotById = async (id) => {
     const data = await getTimeslotByIdWithExperience(id);
 
@@ -1153,7 +1155,11 @@ export const Profile = () => {
                       <div
                         key={res.reservation_id}
                         className="BookingRowCard"
-                        onClick={() => setSelectedSlot(res)}
+                        onClick={async () => {
+                          setSelectedSlot(res);
+                          setSelectedBooking(res);
+                          await fetchTimeslotById(res.timeslot_id);
+                        }}
                       >
                         <div className="BookingRowHeader">
                           <span className="BookingTypeBadge">
