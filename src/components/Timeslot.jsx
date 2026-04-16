@@ -40,11 +40,9 @@ export const TimeSlot = ({
   const [activeTab, setActiveTab] = useState(0);
   const [showEmailVerificationModal, setShowEmailVerificationModal] =
     useState(false);
+  const [showFeedbackId, setShowFeedbackId] = useState(null);
 
   const [reservationsData, setReservationsData] = useState(reservations);
-
-  console.log("reservationsData:", reservationsData);
-
   // Reset body overflow when component unmounts or modal closes
   useEffect(() => {
     return () => {
@@ -448,6 +446,25 @@ export const TimeSlot = ({
                             },
                           )}
                         </p>
+                        {r.review_id && (
+                          <div
+                            className="GuestFeedbackPreview"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="FeedbackStars">
+                              {"★".repeat(r.score)}
+                              {"☆".repeat(5 - r.score)}
+                              <span className="ScoreNumber">({r.score}/5)</span>
+                            </div>
+                            <p className="FeedbackContent">
+                              "
+                              {r.content ||
+                                "The guest didn't leave a written comment, only a rating."}
+                              "
+                            </p>
+                          </div>
+                        )}
+
                         {(r.booking_status || "").toLowerCase() !==
                           "confirmed" && (
                           <div className="timeslot-reservation-card-bottom">

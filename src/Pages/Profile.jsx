@@ -10,17 +10,15 @@ import {
   uploadUserImage,
   cancelReservationApi,
   sendMessage,
-  getTimeslotById,
   getTimeslotByIdWithExperience,
 } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import Select from "react-select";
 import "leaflet/dist/leaflet.css";
 import configureLeaflet from "../utils/leaflet-config";
-import { formatDateForInput, formatDateTimeDisplay } from "../utils/date-utils";
+import { formatDateForInput } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
-// import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 import { useUserProfile } from "../hooks/useUserProfile";
 import toast from "react-hot-toast";
@@ -28,7 +26,6 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
 import { Reservation } from "../components/Reservation";
-import { postReview } from "../api/apiClient";
 import { Carousel } from "../components/Carousel";
 
 const EMPTY_PROFILE = {
@@ -104,13 +101,8 @@ export const Profile = () => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [showFeedbackId, setShowFeedbackId] = useState(null);
 
-  console.log("SelectedBooking:", selectedBooking);
-
   const fetchTimeslotById = async (id) => {
     const data = await getTimeslotByIdWithExperience(id);
-
-    console.log("data:", data);
-    console.log("images:", data?.images?.length ?? 0);
 
     if (!data) return;
     setSelectedBooking(data);
@@ -1007,7 +999,7 @@ export const Profile = () => {
             {isHost && (
               <>
                 <hr className="profile-divider" />
-                <h2 className="profile-section-title">Bookings from Guests</h2>
+                {/* <h2 className="profile-section-title">Bookings from Guests</h2> */}
 
                 <div className="BookingListContainer">
                   {reservations
@@ -1433,6 +1425,7 @@ export const Profile = () => {
             isModalOpen={isModalOpen}
             closeModal={handleCloseModal}
             reservation={reservation}
+            setReservation={setReservation}
             initialData={selectedSlot}
             isReadOnly={isHost}
           />

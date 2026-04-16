@@ -4,7 +4,13 @@ import { postReview, updateReview } from "../api/apiClient";
 import toast from "react-hot-toast";
 import "../styles/review-modal-styles.css";
 
-export const ReviewModal = ({ isModalOpen, closeModal, reservation, isReadOnly }) => {
+export const ReviewModal = ({
+  isModalOpen,
+  closeModal,
+  reservation,
+  setReservation,
+  isReadOnly,
+}) => {
   const [rating, setRating] = useState(() => reservation?.score || 0);
   const [hover, setHover] = useState(0);
   const [reviewText, setReviewText] = useState(
@@ -33,9 +39,13 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation, isReadOnly }
           {
             loading: "Posting review...",
             success: "Review posted successfully!",
-            error: "Failed to post review.",
-          }
+            error: (err) => {
+              return err?.message || "Failed to post review.";
+            },
+          },
         );
+
+        setReservation({ score: data.score, content: data.content });
       } else {
         await toast.promise(
           updateReview({
@@ -47,7 +57,7 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation, isReadOnly }
             loading: "Updating review...",
             success: "Review updated successfully!",
             error: "Failed to update review.",
-          }
+          },
         );
       }
       closeModal(true);
@@ -68,7 +78,12 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation, isReadOnly }
             ? "This is the feedback left by the guest for your experience."
             : "This review will be available publicly on the host's profile."}
         </p>
-        <div style={{ fontSize: "2rem", cursor: isReadOnly ? "default" : "pointer" }}>
+        <div
+          style={{
+            fontSize: "2rem",
+            cursor: isReadOnly ? "default" : "pointer",
+          }}
+        >
           {[1, 2, 3, 4, 5].map((star) => (
             <span
               key={star}
@@ -88,12 +103,22 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation, isReadOnly }
         <div className="review-textarea-wrapper">
           <textarea
             className={`review-textarea ${isReadOnly ? "readonly-style" : ""}`}
-            placeholder={isReadOnly ? "No comment provided." : "Write your review..."}
+            placeholder={
+              isReadOnly ? "No comment provided." : "Write your review..."
+            }
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
             rows={4}
             readOnly={isReadOnly}
-            style={isReadOnly ? { background: "#f9f9f9", cursor: "default", fontStyle: "italic" } : {}}
+            style={
+              isReadOnly
+                ? {
+                    background: "#f9f9f9",
+                    cursor: "default",
+                    fontStyle: "italic",
+                  }
+                : {}
+            }
           />
         </div>
 
@@ -119,7 +144,7 @@ export const ReviewModal = ({ isModalOpen, closeModal, reservation, isReadOnly }
             style={{
               background: "#f3f4f6",
               color: "#111",
-              width: isReadOnly ? "100%" : "auto"
+              width: isReadOnly ? "100%" : "auto",
             }}
             onMouseEnter={(e) => (e.target.style.background = "#e5e7eb")}
             onMouseLeave={(e) => (e.target.style.background = "#f3f4f6")}
