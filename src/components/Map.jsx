@@ -1,7 +1,10 @@
 // @ts-nocheck
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import { useState, useEffect } from "react";
 import "leaflet/dist/leaflet.css";
+import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
+import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import L from "leaflet";
 import { Markers } from "./Markers";
 
@@ -40,8 +43,8 @@ function Map({ activityType }) {
   const filteredSlots = !activityType
     ? timeslots
     : timeslots.filter((slot) => {
-      return slot.type === activityType;
-    });
+        return slot.type === activityType;
+      });
 
   return (
     <div style={{ height: "400px", width: "100%" }}>
@@ -51,31 +54,38 @@ function Map({ activityType }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Markers center={mapCenter} />
-        {filteredSlots.length > 0 &&
-          filteredSlots.map((slot) => {
-            const lat = parseFloat(slot.latitude_deg);
-            const lng = parseFloat(slot.longitude_deg);
+        {filteredSlots.length > 0 && (
+          <MarkerClusterGroup chunkedLoading>
+            {filteredSlots.map((slot) => {
+              const lat = parseFloat(slot.latitude_deg);
+              const lng = parseFloat(slot.longitude_deg);
 
-            if (isNaN(lat) || isNaN(lng)) {
-              console.warn(`Slot ID ${slot.id} puuttuvat koordinaatit.`, slot);
-              return null;
-            }
+              if (isNaN(lat) || isNaN(lng)) {
+                console.warn(
+                  `Slot ID ${slot.id} puuttuvat koordinaatit.`,
+                  slot,
+                );
+                return null;
+              }
 
-            const position = [slot.latitude_deg, slot.longitude_deg];
-            const start = new Date(slot.rule.start_date).toLocaleString(
-              "en-GB",
-            );
-            const end = new Date(slot.rule.end_date).toLocaleString("en-GB");
-            return (
-              <Marker position={position} key={slot.id}>
-                <Popup>
-                  <p>City: {slot.city}</p>
-                  <p>Start: {slot.rule.start_time}</p>
-                  <p>End: {slot.rule.end_time}</p>
-                </Popup>
-              </Marker>
-            );
-          })}
+              const position = [lat, lng];
+              const start = new Date(slot.rule.start_date).toLocaleString(
+                "en-GB",
+              );
+              const end = new Date(slot.rule.end_date).toLocaleString("en-GB");
+
+              return (
+                <Marker position={position} key={slot.id}>
+                  <Popup>
+                    <p>City: {slot.city}</p>
+                    <p>Start: {slot.rule.start_time}</p>
+                    <p>End: {slot.rule.end_time}</p>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        )}
       </MapContainer>
     </div>
   );
