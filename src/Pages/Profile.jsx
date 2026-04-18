@@ -1152,6 +1152,8 @@ export const Profile = () => {
                           setSelectedSlot(res);
                           setSelectedBooking(res);
                           await fetchTimeslotById(res.timeslot_id);
+                          console.log(res);
+                          console.log(user);
                         }}
                       >
                         <div className="BookingRowHeader">
@@ -1192,25 +1194,33 @@ export const Profile = () => {
                           </span>
 
                           {res.booking_status === "confirmed" && (
-                            <button
-                              className="BookingRateBtnInline"
-                              disabled={!isPast}
-                              title={
-                                !isPast
-                                  ? "You can rate this experience after it has ended"
-                                  : ""
-                              }
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (isPast) handleModalOpen(res);
-                              }}
-                            >
-                              {!isPast
-                                ? "Review locked"
-                                : res.score || res.review_id
-                                  ? "Edit Review"
-                                  : "Rate Experience"}
-                            </button>
+                            <span>
+                              <button
+                                className="BookingRateBtnInline"
+                                disabled={!isPast}
+                                title={
+                                  !isPast
+                                    ? "You can rate this experience after it has ended"
+                                    : ""
+                                }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isPast) handleModalOpen(res);
+                                }}
+                              >
+                                {!isPast
+                                  ? "Review locked"
+                                  : res.score || res.review_id
+                                    ? "Edit Review"
+                                    : "Rate Experience"}
+                              </button>
+                              {!isPast && ( // && isPaid
+                                <PaymentButton
+                                  type={res.experience_length}
+                                  email={user.email}
+                                />
+                              )}
+                            </span>
                           )}
                         </div>
                       </div>

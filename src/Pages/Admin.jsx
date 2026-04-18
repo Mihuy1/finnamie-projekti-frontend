@@ -12,7 +12,9 @@ import {
   getAllActivitySuggestions,
   getAllExperiencesWithHost,
   getAllUsers,
+  getPriceData,
   rejectActivitySuggestion,
+  setPriceData,
   updateActivityNameById,
   updateExperience,
   uploadExperienceImage,
@@ -31,6 +33,7 @@ const TABS = [
   { id: "activities", label: "Activities", icon: "🏃" },
   { id: "suggestions", label: "Suggestions", icon: "💡" },
   { id: "experiences", label: "Experiences", icon: "🕐" },
+  { id: "prices", label: "Prices", icon: "💲" },
 ];
 
 const sortByName = (items = []) =>
@@ -47,6 +50,7 @@ export const Admin = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [activities, setActivities] = useState([]);
   const [experiences, setExperiences] = useState([]);
+  const [prices, setPrices] = useState([]);
 
   const pendingCount = suggestions.filter((s) => s.status === "pending").length;
 
@@ -56,11 +60,13 @@ export const Admin = () => {
       const activitiesRes = await getActivities();
       const activitiesSuggestionsRes = await getAllActivitySuggestions();
       const experiences = await getAllExperiencesWithHost();
+      const prices = await getPriceData();
 
       setUsers(usersRes);
       setActivities(sortByName(activitiesRes));
       setSuggestions(activitiesSuggestionsRes);
       setExperiences(Array.isArray(experiences) ? experiences : []);
+      setPrices(prices);
     };
 
     fetchData();
@@ -111,6 +117,7 @@ export const Admin = () => {
             setExperiences={setExperiences}
           />
         )}
+        {activeTab === "prices" && <PriceSection prices={prices} />}
       </div>
     </div>
   );
@@ -778,3 +785,86 @@ function ExperiencesSection({ experiences, setExperiences }) {
     </>
   );
 }
+
+const PriceSection = ({ prices }) => {
+  const [data, setData] = useState(prices);
+
+  const handleChange = (index, newPriceId) => {
+    const updated = [...data];
+    updated[index] = {
+      ...updated[index],
+      price_id: newPriceId,
+    };
+    setData(updated);
+  };
+
+  const handleUpdateAll = async () => {
+    const res = await toast.promise(setPriceData(data), {
+      loading: "Updating prices...",
+      success: "Prices updated successfully!",
+      error: (error) => error.message || "Failed to update profile",
+    });
+
+    console.log(res);
+  };
+
+  const styles = {
+    th: {
+      border: "1px solid #ccc",
+      padding: "8px",
+      background: "#f5f5f5",
+      textAlign: "left",
+    },
+    td: {
+      border: "1px solid #ccc",
+      padding: "8px",
+    },
+    input: {
+      width: "100%",
+      padding: "4px",
+    },
+    button: {
+      marginTop: "12px",
+      padding: "8px 16px",
+      cursor: "pointer",
+    },
+  };
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <table style={{ borderCollapse: "collapse", width: "100%" }}>
+        <thead>
+          <tr>
+            <th style={styles.th}>Type</th>
+            <th style={styles.th}>Price ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={item.type}>
+              <td style={styles.td}>{item.type}</td>
+              <td style={styles.td}>
+                <input
+                  type="text"
+                  value={item.price_id}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  style={styles.input}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <button style={styles.button} onClick={handleUpdateAll}>
+        Update
+      </button>
+    </div>
+  );
+};
