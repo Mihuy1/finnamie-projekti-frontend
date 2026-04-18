@@ -83,7 +83,7 @@ function Home() {
   };
 
   const handleSearch = () => {
-    if (!location || selectedActivities.length === 0) {
+    if (selectedActivities.length === 0) {
       setSearchError(true);
       return;
     }
@@ -113,7 +113,7 @@ function Home() {
   };
 
   const handleFinalAction = () => {
-    if (!location || selectedActivities.length === 0) {
+    if (selectedActivities.length === 0) {
       setSearchError(true);
       searchSectionRef.current?.scrollIntoView({ behavior: "smooth" });
       return;
@@ -145,83 +145,12 @@ function Home() {
     <div className="app">
       <section className="booking-section" ref={searchSectionRef}>
         <h1>Book your local experience</h1>
-        <p>Find the perfect activity in your favorite location</p>
+        <p>Discover unique activities for your stay and start exploring</p>
 
         <div className={`search-box ${searchError ? "search-box-error" : ""}`}>
-          <div className={`location-wrapper ${showDropdown ? "open" : ""}`}>
-            <input
-              type="text"
-              placeholder="Location"
-              className="location-input"
-              value={location}
-              onFocus={() => {
-                setShowActivityDropdown(false);
-                setFilteredMunicipalities(
-                  location
-                    ? municipalities.filter((m) =>
-                        m.toLowerCase().includes(location.toLowerCase()),
-                      )
-                    : municipalities,
-                );
-                setShowDropdown(true);
-              }}
-              onChange={(e) => {
-                setLocation(e.target.value);
-                setShowActivityDropdown(false);
-                setShowDropdown(true);
-                setFilteredMunicipalities(
-                  e.target.value
-                    ? municipalities.filter((m) =>
-                        m.toLowerCase().includes(e.target.value.toLowerCase()),
-                      )
-                    : municipalities,
-                );
-              }}
-              onBlur={() => {
-                const isValid = municipalities.some(
-                  (m) => m.toLocaleLowerCase() === location.toLowerCase(),
-                );
-                if (!isValid) setLocation("");
-
-                setShowDropdown(false);
-              }}
-            />
-
-            {showDropdown && filteredMunicipalities.length > 0 && (
-              <ul className="custom-dropdown">
-                {filteredMunicipalities.map((m) => (
-                  <li
-                    key={m}
-                    onMouseDown={() => {
-                      setLocation(m);
-                      setShowDropdown(false);
-                      setLocation(m);
-                    }}
-                  >
-                    {m}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {municipalities.some(
-              (m) => m.toLocaleLowerCase() === location.toLocaleLowerCase(),
-            ) && (
-              <button
-                type="button"
-                className="clear-location-btn"
-                onClick={() => {
-                  setLocation("");
-                  setShowDropdown(false);
-                }}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
           <div
             className={`activity-wrapper ${showActivityDropdown ? "open" : ""}`}
+            style={{ flex: 1 }}
           >
             <input
               type="text"
@@ -231,7 +160,6 @@ function Home() {
               readOnly
               onClick={(e) => {
                 e.stopPropagation();
-                setShowDropdown(false);
                 setShowActivityDropdown(!showActivityDropdown);
               }}
             />
@@ -261,7 +189,7 @@ function Home() {
 
         {searchError && (
           <p className="error-text-small" style={{ margin: "0" }}>
-            Please select location and activity to continue
+            Please select an activity to continue
           </p>
         )}
       </section>
@@ -273,7 +201,7 @@ function Home() {
             <div className="step-number">1</div>
             <h3>Search</h3>
             <p>
-              Find a place or activity that fits you. Our discover page helps
+              Find an activity that fits you. Our discover page helps
               you find the best options.
             </p>
           </div>

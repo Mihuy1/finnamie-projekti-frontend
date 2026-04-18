@@ -580,8 +580,9 @@ export const Profile = () => {
                   </p>
                   {!user.is_verified && (
                     <button
-                      className="profile-btn profile-btn-primary"
+                      className="profile-verify-link"
                       onClick={handleEmailVerificationSubmit}
+                      type="button"
                     >
                       Send Verification
                     </button>
@@ -648,10 +649,10 @@ export const Profile = () => {
                   setFilteredCountries(
                     profileForm.country
                       ? countries.filter((c) =>
-                          c
-                            .toLowerCase()
-                            .includes(profileForm.country.toLowerCase()),
-                        )
+                        c
+                          .toLowerCase()
+                          .includes(profileForm.country.toLowerCase()),
+                      )
                       : countries,
                   );
                   setShowCountryDropdown(true);
@@ -728,7 +729,7 @@ export const Profile = () => {
                 value={
                   profileForm.gender
                     ? profileForm.gender.charAt(0).toUpperCase() +
-                      profileForm.gender.slice(1)
+                    profileForm.gender.slice(1)
                     : "Not specified"
                 }
                 readOnly
@@ -911,7 +912,7 @@ export const Profile = () => {
                   name="new_activity_suggestion"
                   className={
                     attemptedSubmit &&
-                    !newActivitySuggestionForm.new_activity_suggestion.trim()
+                      !newActivitySuggestionForm.new_activity_suggestion.trim()
                       ? "input-error"
                       : ""
                   }
@@ -1270,8 +1271,8 @@ export const Profile = () => {
                           images={
                             selectedBooking?.images
                               ? selectedBooking.images.map(
-                                  (i) => "http://localhost:3000" + i.url,
-                                )
+                                (i) => "http://localhost:3000" + i.url,
+                              )
                               : []
                           }
                         />
