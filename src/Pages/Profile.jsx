@@ -10,14 +10,13 @@ import {
   uploadUserImage,
   cancelReservationApi,
   sendMessage,
-  getTimeslotById,
   getTimeslotByIdWithExperience,
 } from "../api/apiClient";
 import isEmail from "validator/lib/isEmail";
 import Select from "react-select";
 import "leaflet/dist/leaflet.css";
 import configureLeaflet from "../utils/leaflet-config";
-import { formatDateForInput, formatDateTimeDisplay } from "../utils/date-utils";
+import { formatDateForInput } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
 // import { Chatbox } from "../components/Chatbox";
