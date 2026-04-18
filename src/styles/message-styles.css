@@ -227,3 +227,110 @@
   background-color: #f8d7da !important;
   border-color: #f5c6cb;
 }
+
+.chat-back-btn {
+  display: none !important;
+}
+
+@media screen and (max-width: 768px) {
+  .chatbox {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 15px !important;
+    left: auto !important;
+    top: auto !important;
+    width: 320px !important;
+    max-width: calc(100vw - 30px) !important;
+    height: 450px !important;
+    max-height: 60vh !important;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    z-index: 10001;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .chatbox-main {
+    display: flex;
+    position: relative !important;
+    width: 100% !important;
+    height: 90% !important;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
+
+  .conv-list-container,
+  .message-history-wrapper {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .message-list {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding-bottom: 20px !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .input-wrapper {
+    flex-shrink: 0 !important;
+    background: white !important;
+    border-top: 1px solid #eee !important;
+    padding: 10px !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+
+  .chat-header {
+    padding: 10px 15px;
+    min-height: 50px;
+  }
+
+  .chat-title {
+    font-size: 15px;
+  }
+
+  .chatbox:not(.conversation-open) .message-history-wrapper {
+    display: none !important;
+  }
+
+  .chatbox:not(.conversation-open) .conv-list-container {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .chatbox.conversation-open .conv-list-container {
+    display: none !important;
+  }
+
+  .chatbox.conversation-open .message-history-wrapper {
+    display: flex !important;
+    width: 100% !important;
+    height: 100%;
+  }
+
+  .chatbox.conversation-open .chat-back-btn {
+    display: flex !important;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    padding: 0 10px;
+    cursor: pointer;
+  }
+
+  .message-history-wrapper {
+    width: 70% !important;
+    display: flex !important;
+  }
+
+  .chat-back-btn {
+    display: none !important;
+  }
+}

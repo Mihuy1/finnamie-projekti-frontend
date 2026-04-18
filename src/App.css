@@ -171,11 +171,9 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 47, 108, 0.2),
-    rgba(0, 0, 0, 0.3)
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 47, 108, 0.2),
+      rgba(0, 0, 0, 0.3));
   z-index: 1;
 }
 
@@ -273,8 +271,7 @@ body {
   transform: rotate(180deg);
 }
 
-.location-wrapper:has(.clear-location-btn)::after
-  .activity-wrapper:has(.clear-location-btn)::after {
+.location-wrapper:has(.clear-location-btn)::after .activity-wrapper:has(.clear-location-btn)::after {
   display: none;
 }
 
@@ -842,6 +839,7 @@ body {
 }
 
 @keyframes shake {
+
   0%,
   100% {
     transform: translateX(0);
@@ -861,40 +859,69 @@ body {
 @media screen and (max-width: 768px) {
   .header {
     flex-direction: column;
-    padding: 15px 10px;
-    gap: 12px;
+    padding: 10px 10px;
+    gap: 5px;
     align-items: center;
+    height: auto;
+    min-height: auto;
   }
 
-  .logo {
-    font-size: 20px;
+  .logo-link {
+    margin-left: 0;
+    justify-content: center;
+    width: 100%;
   }
 
-  .nav {
+  .nav-logo {
+    height: 100px;
     width: auto;
-    min-width: 200px;
+    filter: contrast(1.1);
+    transform: none;
+    transition: all 0.2s ease !important;
   }
 
-  .nav ul,
+  .nav-logo:hover {
+    transform: none;
+  }
+
   .nav {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 0;
-    margin: 0;
-    align-items: center;
+    width: 100% !important;
+    display: block !important;
+    padding: 0 20px !important;
+    box-sizing: border-box !important;
+  }
+
+  .nav ul {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 15px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+    align-items: center !important;
+  }
+
+  .nav li {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
   }
 
   .nav a {
-    margin-right: 0 !important;
-    padding: 6px 16px;
-    font-size: 12px;
-    text-align: center;
-    width: auto;
-    min-width: 160px;
-    box-sizing: border-box;
-    border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    width: 100% !important;
+    max-width: 320px !important;
+    padding: 10px 16px !important;
+    border-radius: 10px !important;
+    text-align: center !important;
+    background-color: var(--accent) !important;
+    border: 1px solid #ffffff !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .nav a:active {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(0.98) !important;
   }
 
   .booking-section {
@@ -1061,37 +1088,17 @@ body {
     font-size: 16px;
     font-weight: bold;
   }
+}
 
-  /* Tätä luokkaa ei käytetä missään, saa VARMAAN poistaa
-  .chat-launcher {
-    position: fixed;
-    bottom: 100px;
-    right: 40px;
-    width: 55px;
-    height: 55px;
-    background-color: var(--accent, #aa00a2);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 13px;
-    font-weight: 700;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
   }
-    */
 
-  .chatbox-wrapper,
-  .chatbox-container {
-    position: fixed;
-    bottom: 165px;
-    right: 40px;
-    width: calc(100% - 80px);
-    max-width: 300px;
-    z-index: 10000;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -2956,7 +2963,7 @@ input.activity-input-host {
   -webkit-text-fill-color: var(--text-muted);
 }
 
-.guest-input:disabled ~ .guest-clear-btn {
+.guest-input:disabled~.guest-clear-btn {
   display: none !important;
 }
 
@@ -2972,6 +2979,7 @@ input.activity-input-host {
 }
 
 @keyframes shake {
+
   0%,
   100% {
     transform: translateX(0);
@@ -3449,6 +3457,28 @@ input.activity-input-host {
   cursor: not-allowed;
 }
 
+.ConfirmBookingBtn {
+  background-color: #e6f7ed;
+  color: #1f8b4c;
+  border: 1px solid #c3e6cb;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ConfirmBookingBtn:hover {
+  background-color: #1f8b4c;
+  color: white;
+  border-color: #1f8b4c;
+  box-shadow: 0 4px 12px rgba(31, 139, 76, 0.2);
+}
+
 /* profile timeslot */
 
 .timeslot-reservations {
@@ -3473,6 +3503,7 @@ input.activity-input-host {
 .timeslot-reservation-card-bottom {
   display: flex;
   justify-content: flex-end;
+  gap: 16px;
 }
 
 .tab-div {
@@ -3521,28 +3552,41 @@ input.activity-input-host {
   display: flex;
   justify-content: center;
   margin-top: 1rem;
-}
-
-.create-timeslot-div {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 25px;
-  margin-bottom: 20px;
   width: 100%;
+  margin: 30px 0 !important;
 }
 
 .create-new-timeslot-btn {
+  width: auto !important;
+  min-width: 180px;
+  max-width: 240px;
+  padding: 14px 28px !important;
+  border-radius: 999px !important;
   background: #0056b3 !important;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 999px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+  color: white !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
   border: none !important;
   box-shadow: 0 2px 10px rgba(0, 86, 179, 0.2);
-  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.profile-form input::placeholder,
+.profile-form textarea::placeholder,
+.tag-select-input::placeholder {
+  font-size: 12px !important;
+  color: #999 !important;
+  font-weight: 400 !important;
+}
+
+.profile-form input::-webkit-input-placeholder,
+.profile-form textarea::-webkit-input-placeholder {
+  font-size: 12px !important;
+}
+
+.profile-form input::-moz-placeholder,
+.profile-form textarea::-moz-placeholder {
+  font-size: 12px !important;
 }
 
 .create-new-timeslot-btn:hover {
@@ -3613,7 +3657,7 @@ input.activity-input-host {
     margin: 0;
   }
 
-  .profile-header .profile-btn {
+  .profile-header {
     width: auto !important;
     padding: 8px 16px !important;
     font-size: 13px !important;
@@ -3621,48 +3665,11 @@ input.activity-input-host {
     margin: 0;
   }
 
-  .profile-form .profile-actions .profile-btn {
-    width: 100% !important;
-    padding: 14px !important;
-    margin-top: 20px;
-    border-radius: 8px;
-  }
-
-  .profile-password-form .profile-actions {
-    width: 100%;
-    margin: 30px 0 !important;
-    display: flex;
-    justify-content: center;
-    padding-top: 25px;
-    border-top: 1px solid rgba(0, 47, 108, 0.03);
-  }
-
-  .profile-password-form .profile-actions .profile-btn {
-    width: 100% !important;
-    max-width: 280px;
-    padding: 16px !important;
-    border-radius: 999px !important;
-    background: rgba(170, 0, 162, 1) !important;
-    color: white !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    border: none !important;
-    box-shadow: 0 4px 12px rgba(170, 0, 162, 0.15);
-  }
-
-  .profile-activity-suggestion-form .profile-action {
+  .profile-action {
     width: 100%;
     margin: 35px 0 !important;
     display: flex;
     justify-content: center;
-  }
-
-  .profile-activity-suggestion-form .profile-btn {
-    width: 100% !important;
-    max-width: 280px;
-    padding: 14px !important;
-    border-radius: 999px !important;
-    font-size: 14px !important;
   }
 
   .profile-top {
@@ -3682,8 +3689,7 @@ input.activity-input-host {
     font-size: 20px !important;
   }
 
-  .profile-form,
-  .profile-password-form {
+  .profile-form {
     grid-template-columns: 1fr !important;
     gap: 15px !important;
   }
@@ -3704,78 +3710,371 @@ input.activity-input-host {
     font-size: 16px !important;
   }
 
-  .profile-timeslot-summary {
+  .modal-body {
+    padding: 0 !important;
+  }
+
+  .profile-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+
+  .profile-form label {
+    width: 100% !important;
+    font-size: 14px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .select__control {
+    width: 100% !important;
+    display: flex !important;
+  }
+
+  .profile-form input,
+  .profile-form select,
+  .profile-form textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+  }
+
+  .DayOfWeek-container,
+  .profile-form label>div {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+  }
+
+  .profile-timeslot-map {
+    height: 200px !important;
+    border-radius: 12px !important;
+    margin: 10px 0 !important;
+  }
+
+  .MultiImageUpload-container {
+    width: 100% !important;
+  }
+
+  .profile-btn-secondary {
+    background: transparent !important;
+    color: #666 !important;
+    border: none !important;
+  }
+
+  .profile-activity-suggestion-form label {
+    margin-bottom: 20px !important;
+    margin-top: 10px !important;
+    gap: 2px !important;
+  }
+
+  .profile-activity-suggestion-form input {
+    margin-bottom: 0 !important;
+    margin-top: 10px !important;
+  }
+
+  .profile-password-form .profile-actions .profile-btn,
+  .profile-activity-suggestion-form .profile-btn {
+    width: 100% !important;
+    max-width: 300px !important;
+    padding: 12px !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(170, 0, 162, 0.15) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+  }
+
+  .profile-activity-suggestion-form .profile-action {
+    width: 100%;
+    margin: 5px 0 !important;
+    display: flex;
+    justify-content: center;
+  }
+
+  .profile-password-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    width: 100% !important;
+  }
+
+  .profile-password-form label {
+    display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
-    gap: 12px;
+    width: 100% !important;
+    margin-bottom: 5px !important;
+  }
+
+  .profile-password-form input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    height: 48px !important;
+    padding: 12px 15px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+  }
+
+  .profile-password-form-title {
+    margin-top: 40px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .profile-password-form .profile-actions {
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+    justify-content: center;
+    padding-top: 30px;
+    border-top: 1px solid rgba(0, 47, 108, 0.05);
+  }
+
+  .profile-divider {
+    margin: 28px 0 20px;
+    border: 0;
+  }
+
+  .profile-section-title {
+    margin-top: 25px !important;
+    padding-top: 30px !important;
+    border-top: 1px solid rgba(0, 47, 108, 0.1) !important;
+    margin-bottom: 15px !important;
+    font-size: 20px !important;
+    width: 100%;
+    display: block;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .BookingOverlay {
+    padding: 10px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .BookingModalWrapper {
+    width: 95% !important;
+    max-width: 100% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    border-radius: 15px !important;
+    position: relative;
+  }
+
+  .BookingCloseBtn {
+    top: 10px !important;
+    right: 10px !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 50%;
+    z-index: 100;
+  }
+
+  .BookingHeroImage {
+    height: 200px !important;
+  }
+
+  .modal-image {
+    height: 100% !important;
+  }
+
+  .BookingDetailedContent {
     padding: 15px !important;
   }
 
-  .profile-timeslot-summary-meta {
+  .BookingMainTitle {
+    font-size: 20px !important;
+    line-height: 1.3 !important;
+  }
+
+  .BookingInfoGrid {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+
+  .InfoItem {
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+  }
+
+  .BookingActionsArea {
+    gap: 10px !important;
+  }
+
+  .BookingActionsArea button {
+    width: 100% !important;
+    padding: 14px !important;
+    font-size: 15px !important;
+  }
+
+  .BookingFooterInfo {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    padding-top: 15px !important;
+  }
+
+  .ReferenceBox {
     width: 100%;
-    justify-content: flex-start !important;
-    gap: 6px;
-  }
-
-  .profile-timeslot-pill {
-    padding: 4px 8px !important;
-    font-size: 11px !important;
-  }
-
-  .profile-timeslot-chevron {
-    margin-top: 5px;
-    display: block;
-    width: 100%;
-    text-align: right;
-  }
-
-  .profile-timeslot-map.profile-timeslot-map-edit {
-    height: 250px !important;
-  }
-
-  .profile-timeslot-images .carousel {
-    aspect-ratio: 4 / 3 !important;
+    justify-content: space-between;
   }
 }
 
-.create-timeslot-div {
-  margin: 30px 0 !important;
-  display: flex;
-  justify-content: center;
-  width: 100%;
+@media screen and (max-width: 768px) {
+
+  .select__input-container input,
+  .timeslot-address-select__input-container input {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  .select__input {
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .timeslot-address-select__input-container {
+    visibility: visible !important;
+    flex: 1 !important;
+  }
+
+  .timeslot-address-select__input {
+    opacity: 1 !important;
+    width: 100% !important;
+    color: black !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .timeslot-address-select__menu-portal {
+    z-index: 100000 !important;
+  }
+
+  .timeslot-address-select__menu {
+    background-color: white !important;
+    border: 1px solid #ddd !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .timeslot-address-select__control--is-focused {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 1px var(--accent) !important;
+  }
+
+  .close-modal {
+    top: 6px !important;
+    right: 15px !important;
+    position: absolute !important;
+    font-size: 15px !important;
+    width: 30px !important;
+    height: 30px !important;
+  }
 }
 
-.create-new-timeslot-btn {
-  width: auto !important;
-  min-width: 180px;
-  max-width: 240px;
-  padding: 14px 28px !important;
-  border-radius: 999px !important;
-  background: #0056b3 !important;
-  color: white !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  border: none !important;
-  box-shadow: 0 2px 10px rgba(0, 86, 179, 0.2);
-  cursor: pointer;
-}
+/* edit timeslot mobiili */
 
-.profile-form input::placeholder,
-.profile-form textarea::placeholder,
-.tag-select-input::placeholder {
-  font-size: 12px !important;
-  color: #999 !important;
-  font-weight: 400 !important;
-}
+@media screen and (max-width: 768px) {
+  .profile-timeslot-edit-modal-content {
+    width: 95% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 20px 15px !important;
+    margin: 10px auto !important;
+    border-radius: 12px !important;
+    position: relative;
+  }
 
-.profile-form input::-webkit-input-placeholder,
-.profile-form textarea::-webkit-input-placeholder {
-  font-size: 12px !important;
-}
+  .modal-body-timeslot {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
 
-.profile-form input::-moz-placeholder,
-.profile-form textarea::-moz-placeholder {
-  font-size: 12px !important;
+  .profile-timeslot-search-wrapper,
+  .select__control {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .profile-timeslot-edit-form label {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    font-size: 14px !important;
+    font-weight: 600;
+    gap: 6px !important;
+  }
+
+  .profile-timeslot-edit-form input[type="text"],
+  .profile-timeslot-edit-form input[type="date"],
+  .profile-timeslot-edit-form input[type="time"],
+  .profile-timeslot-edit-form input[type="number"],
+  .profile-timeslot-edit-form select,
+  .profile-timeslot-edit-form textarea {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-timeslot-edit-form textarea {
+    min-height: 100px !important;
+  }
+
+  .profile-select,
+  .timeslot-address-select__control {
+    width: 100% !important;
+    min-height: 48px !important;
+  }
+
+  .profile-timeslot-map-edit {
+    height: 200px !important;
+    border-radius: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  .profile-timeslot-edit-actions {
+    margin-top: 25px !important;
+    padding-bottom: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .profile-timeslot-edit-actions .profile-btn-primary {
+    width: 100% !important;
+    max-width: 280px !important;
+    height: 48px !important;
+    border-radius: 999px !important;
+    background: rgba(170, 0, 162, 1) !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(170, 0, 162, 0.2) !important;
+  }
+
+  .profile-timeslot-edit-form .day-selection-wrapper {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+  }
 }
 
 @media screen and (max-width: 360px) {
@@ -3996,6 +4295,18 @@ input.activity-input-host {
     margin: 10px 0 25px !important;
   }
 
+  .discover-header h1 {
+    font-size: 15px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .discover-header p {
+    font-size: 13px !important;
+    color: #64748b;
+    line-height: 1.4 !important;
+    margin-top: 0 !important;
+  }
+
   .filter-group {
     padding: 0 !important;
     border-left: none !important;
@@ -4075,9 +4386,34 @@ input.activity-input-host {
     width: 100% !important;
     left: 0 !important;
   }
+
+  .no-results-content span {
+    font-size: 35px !important;
+    margin-bottom: 10px !important;
+    display: block;
+  }
+
+  .no-results-content h3 {
+    font-size: 18px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .no-results-content p {
+    font-size: 13px !important;
+    margin: 4px 0 !important;
+    line-height: 1.5 !important;
+    padding: 0 20px;
+  }
+
+  .reset-all-btn {
+    margin-top: 15px !important;
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+  }
 }
 
 @media screen and (max-width: 380px) {
+
   .filter-input,
   .filter-input-button {
     font-size: 14px !important;
@@ -4523,7 +4859,7 @@ input.activity-input-host {
   backdrop-filter: blur(10px);
 }
 
-.confirmation-section > p {
+.confirmation-section>p {
   color: #666;
   margin-bottom: 30px;
 }
@@ -4621,31 +4957,57 @@ input.activity-input-host {
   transform: translateY(-1px);
 }
 
-.booking-toast {
+.booking-toast-persistent {
   position: fixed;
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 47, 108, 1);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 50px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background-color: #ffffff;
+  color: #1a1a1a;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   z-index: 9999;
-  font-weight: 600;
-  animation: slideDownFade 0.5s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-left: 5px solid #4caf50;
+  animation: slideDown 0.4s ease-out;
 }
 
-@keyframes slideDownFade {
+@keyframes slideDown {
   from {
-    top: -60px;
+    transform: translate(-50%, -100%);
     opacity: 0;
   }
 
   to {
-    top: 20px;
+    transform: translate(-50%, 0);
     opacity: 1;
   }
+}
+
+.toast-content {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.toast-close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.toast-close-btn:hover {
+  color: #333;
 }
 
 /* Confirmation sivu mobiili */
@@ -4672,7 +5034,7 @@ input.activity-input-host {
     line-height: 1.2;
   }
 
-  .confirmation-section > p {
+  .confirmation-section>p {
     font-size: 1rem;
     text-align: center;
     margin-bottom: 20px;
@@ -4724,6 +5086,12 @@ input.activity-input-host {
     padding: 14px !important;
     font-size: 15px !important;
     text-align: center;
+  }
+
+  .booking-toast-persistent {
+    top: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
   }
 }
 

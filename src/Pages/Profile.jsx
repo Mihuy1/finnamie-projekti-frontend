@@ -19,15 +19,13 @@ import configureLeaflet from "../utils/leaflet-config";
 import { formatDateForInput } from "../utils/date-utils";
 import { TimeSlot } from "../components/Timeslot";
 import { useAuth } from "../auth/AuthContext";
-// import { Chatbox } from "../components/Chatbox";
 import { CreateNewTimeslot } from "../components/CreateNewTimeslot";
 import { useUserProfile } from "../hooks/useUserProfile";
 import toast from "react-hot-toast";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { ReviewModal } from "../components/ReviewModal";
-//import { Reservation } from "../components/Reservation";
-import { postReview } from "../api/apiClient";
+import { Reservation } from "../components/Reservation";
 import { Carousel } from "../components/Carousel";
 import { PaymentButton } from "../components/PaymentButton";
 
@@ -106,9 +104,6 @@ export const Profile = () => {
 
   const fetchTimeslotById = async (id) => {
     const data = await getTimeslotByIdWithExperience(id);
-
-    console.log("data:", data);
-    console.log("images:", data?.images?.length ?? 0);
 
     if (!data) return;
     setSelectedBooking(data);
@@ -506,6 +501,7 @@ export const Profile = () => {
       toast.success("Cancelled and notified via chat");
     } catch (err) {
       toast.error(err.message || "Could not cancel reservation");
+      setSelectedSlot(null);
     } finally {
       setIsCancelling(false);
     }
@@ -1004,7 +1000,7 @@ export const Profile = () => {
             {isHost && (
               <>
                 <hr className="profile-divider" />
-                <h2 className="profile-section-title">Bookings from Guests</h2>
+                {/* <h2 className="profile-section-title">Bookings from Guests</h2> */}
 
                 <div className="BookingListContainer">
                   {reservations
@@ -1152,7 +1148,11 @@ export const Profile = () => {
                       <div
                         key={res.reservation_id}
                         className="BookingRowCard"
-                        onClick={() => setSelectedSlot(res)}
+                        onClick={async () => {
+                          setSelectedSlot(res);
+                          setSelectedBooking(res);
+                          await fetchTimeslotById(res.timeslot_id);
+                        }}
                       >
                         <div className="BookingRowHeader">
                           <span className="BookingTypeBadge">
@@ -1426,6 +1426,7 @@ export const Profile = () => {
             isModalOpen={isModalOpen}
             closeModal={handleCloseModal}
             reservation={reservation}
+            setReservation={setReservation}
             initialData={selectedSlot}
             isReadOnly={isHost}
           />

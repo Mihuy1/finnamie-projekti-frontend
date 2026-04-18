@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { EditTimeSlot } from "./EditTimeSlot";
 import {
   cancelReservationApi,
+  confirmReservationApi,
   deleteExperienceById,
   deleteExperienceImageByIdAndUrl,
   updateExperience,
@@ -39,7 +40,9 @@ export const TimeSlot = ({
   const [activeTab, setActiveTab] = useState(0);
   const [showEmailVerificationModal, setShowEmailVerificationModal] =
     useState(false);
+  const [showFeedbackId, setShowFeedbackId] = useState(null);
 
+  const [reservationsData, setReservationsData] = useState(reservations);
   // Reset body overflow when component unmounts or modal closes
   useEffect(() => {
     return () => {
@@ -49,8 +52,6 @@ export const TimeSlot = ({
 
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
-
-  console.log("reservations:", reservations);
 
   const resolveImage = (path) => {
     if (!path) return FALLBACK_IMAGE;
@@ -72,8 +73,12 @@ export const TimeSlot = ({
     onClose?.();
   };
 
-  const filteredReservations = (reservations || []).filter(
-    (reservation) => reservation.experience_id === slot.id,
+  const filteredReservations = (reservationsData || []).filter(
+    (reservation) => {
+      const status = (reservation.booking_status || "").toLowerCase();
+
+      return reservation.experience_id === slot.id && status !== "cancelled";
+    },
   );
 
   if (showEmailVerificationModal) {
@@ -262,7 +267,7 @@ export const TimeSlot = ({
               </div>
             )}
 
-            {reservations && (
+            {reservationsData && (
               <div className="tab-div">
                 <button
                   className={`tab-div-btn ${activeTab === 0 ? "active" : ""}`}
@@ -422,21 +427,80 @@ export const TimeSlot = ({
                           </span>
                         </div>
                         <p>
-                          {new Date(r.start_time).toLocaleDateString(undefined, {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "2-digit",
-                          })}
+                          {new Date(r.start_time).toLocaleDateString(
+                            undefined,
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "2-digit",
+                            },
+                          )}
                         </p>
                         <p>
-                          {new Date(r.start_time).toLocaleTimeString(undefined, {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {new Date(r.start_time).toLocaleTimeString(
+                            undefined,
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </p>
-                        {r.booking_status !== "cancelled" && (
+                        {r.review_id && (
+                          <div
+                            className="GuestFeedbackPreview"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="FeedbackStars">
+                              {"★".repeat(r.score)}
+                              {"☆".repeat(5 - r.score)}
+                              <span className="ScoreNumber">({r.score}/5)</span>
+                            </div>
+                            <p className="FeedbackContent">
+                              "
+                              {r.content ||
+                                "The guest didn't leave a written comment, only a rating."}
+                              "
+                            </p>
+                          </div>
+                        )}
+
+                        {(r.booking_status || "").toLowerCase() !==
+                          "confirmed" && (
                           <div className="timeslot-reservation-card-bottom">
+                            <button
+                              className="ConfirmBookingBtn"
+                              onClick={async () => {
+                                await toast.promise(
+                                  confirmReservationApi(r.reservation_id),
+                                  {
+                                    loading: "Confirming reservation...",
+                                    success: (res) =>
+                                      res.message || "Reservation confirmed!",
+                                    error: (err) => {
+                                      return (
+                                        err?.message ||
+                                        "Failed to confirm reservation"
+                                      );
+                                    },
+                                  },
+
+                                  setReservationsData((prev) =>
+                                    prev.map((reservation) =>
+                                      reservation.reservation_id ===
+                                      r.reservation_id
+                                        ? {
+                                            ...reservation,
+                                            booking_status: "confirmed",
+                                          }
+                                        : reservation,
+                                    ),
+                                  ),
+                                );
+                              }}
+                            >
+                              Confirm
+                            </button>
                             <button
                               className="CancelBookingBtn"
                               onClick={async () => {
@@ -455,6 +519,18 @@ export const TimeSlot = ({
                                     },
                                   },
                                 );
+
+                                setReservationsData((prev) =>
+                                  prev.map((reservation) =>
+                                    reservation.reservation_id ===
+                                    r.reservation_id
+                                      ? {
+                                          ...reservation,
+                                          booking_status: "confirmed",
+                                        }
+                                      : reservation,
+                                  ),
+                                );
                               }}
                             >
                               Cancel
@@ -465,7 +541,6 @@ export const TimeSlot = ({
                     ))}
                   </>
                 )}
-
               </div>
             )}
           </div>

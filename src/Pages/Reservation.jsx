@@ -19,6 +19,9 @@ export default function Reservation() {
   const { user, refresh } = useAuth();
 
   const slot = state?.slot;
+  const basePrice = slot.price || 45;
+  const tax = basePrice * 0.24;
+  const totalPrice = basePrice + tax;
 
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,10 +73,6 @@ export default function Reservation() {
   if (!slot) {
     return <Navigate to="/book-activity" replace />;
   }
-
-  const basePrice = slot.price || 45;
-  const tax = basePrice * 0.24;
-  const totalPrice = basePrice + tax;
 
   const handleConfirm = async () => {
     if (!paymentMethod || !selectedTimeslotId) {
@@ -144,10 +143,14 @@ export default function Reservation() {
       toast.success("Booking request sent!");
 
       setTimeout(() => {
+        const selectedSlot = timeslots.find((ts) => ts.id === selectedTimeslotId);
+
         navigate("/reservation-confirmed", {
           state: {
             reservation: {
               id: realReservationId || "RES-" + Math.floor(Math.random() * 10000),
+              start_time: selectedSlot?.start_time,
+              end_time: selectedSlot?.end_time,
             },
             slot: slot,
             host: hostData,
