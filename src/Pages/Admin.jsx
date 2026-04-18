@@ -45,6 +45,7 @@ const sortByName = (items = []) =>
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState("users");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [users, setUsers] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -73,17 +74,34 @@ export const Admin = () => {
   }, []);
 
   return (
-    <div className="admin">
-      <div className="admin-sidebar">
-        <Link to="/" className="admin-back-btn">
+    <div className={`admin ${isSidebarOpen ? "sidebar-open" : ""}`}>
+      <div className="admin-mobile-nav">
+        <button className="menu-toggle" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+          {isSidebarOpen ? "✕" : "☰"}
+        </button>
+        <span className="mobile-title">Admin: {TABS.find(t => t.id === activeTab)?.label}</span>
+      </div>
+
+      <div className={`admin-sidebar ${isSidebarOpen ? "show" : ""}`}>
+        <Link to="/" className="admin-back-btn desktop-only">
           ← Back
         </Link>
+
+        <button
+          className="admin-close-btn mobile-only"
+          onClick={() => setIsSidebarOpen(false)}
+        >
+          ←
+        </button>
         <div className="admin-sidebar-title">Admin</div>
         {TABS.map((tab) => (
           <div
             key={tab.id}
             className={`admin-nav-item ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id);
+              setIsSidebarOpen(false);
+            }}
           >
             <span>{tab.icon}</span>
             {tab.label}
@@ -94,7 +112,7 @@ export const Admin = () => {
         ))}
       </div>
 
-      <div className="admin-content">
+      <div className="admin-content" onClick={() => setIsSidebarOpen(false)}>
         {activeTab === "users" && (
           <UsersSection users={users} setUsers={setUsers} />
         )}
@@ -223,36 +241,31 @@ function UsersSection({ users, setUsers }) {
           <tbody>
             {filtered.map((u) => (
               <tr key={u.id}>
-                <td>
+                <td data-label="User">
                   <div className="user-cell">
                     {u.image_url === null ? (
-                      <>
-                        <div className="avatar">{initials(u.first_name)}</div>
-                      </>
+                      <div className="avatar">{initials(u.first_name)}</div>
                     ) : (
                       <div className="avatar">
                         <img
                           className="avatar-img"
                           src={`http://localhost:3000${u.image_url}`}
                           alt="Profile avatar"
-                          // onClick={handleImageClick}
                         />
                       </div>
                     )}
-                    <span>
-                      {u.first_name} {u.last_name}{" "}
+                    <span className="td-bold">
+                      {u.first_name} {u.last_name}
                     </span>
                   </div>
                 </td>
-                <td className="td-muted">{u.email}</td>
-                <td>
-                  <span
-                    className={`pill ${u.role === "Admin" ? "pill-admin" : "pill-user"}`}
-                  >
+                <td data-label="Email" className="td-muted">{u.email}</td>
+                <td data-label="Role">
+                  <span className={`pill ${u.role === "Admin" ? "pill-admin" : "pill-user"}`}>
                     {u.role}
                   </span>
                 </td>
-                <td>
+                <td data-label="Action">
                   <button
                     className="btn btn-danger"
                     onClick={() => setDeleteTarget(u)}
@@ -486,8 +499,10 @@ function ActivitiesSection({ activities, setActivities }) {
           <tbody>
             {activities.map((a) => (
               <tr key={a.id}>
-                <td style={{ fontWeight: 500 }}>{a.name}</td>
-                <td>
+                <td data-label="Name" style={{ fontWeight: 500 }}>
+                  {a.name}
+                </td>
+                <td data-label="Action">
                   <div className="btn-row">
                     <button
                       className="btn"

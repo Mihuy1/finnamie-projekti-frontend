@@ -172,14 +172,14 @@ export default function BookActivity() {
             <input
               type="text"
               className="filter-input"
-              placeholder="Change location"
+              placeholder="Choose location"
               value={location}
               onFocus={() => {
                 setFilteredMunicipalities(
                   location
                     ? municipalities.filter((m) =>
-                        m.toLowerCase().includes(location.toLowerCase()),
-                      )
+                      m.toLowerCase().includes(location.toLowerCase()),
+                    )
                     : municipalities,
                 );
                 setShowLocationDropdown(true);
