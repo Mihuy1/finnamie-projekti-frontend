@@ -1274,3 +1274,50 @@ export const resendVerificationEmail = async (email) => {
     throw error;
   }
 };
+
+export const getCheckoutSession = async (type, email) => {
+  try {
+    const res = await fetch(`${BASE_URL}stripe/create-checkout-session`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type,
+        email,
+      }),
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const getPriceData = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/prices`, {
+      method: "GET",
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const setPriceData = async (prices) => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/prices`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(prices),
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};

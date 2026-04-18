@@ -18,21 +18,6 @@ export const formatDateTimeForInput = (dateString) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-export const formatDateTimeDisplay = (dateString) => {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return dateString;
-
-  return date.toLocaleString([], {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-};
-
 export const formatLocalDateRange = (startDate, endDate) => {
   const start = startDate ? new Date(startDate) : null;
   const end = endDate ? new Date(endDate) : null;
