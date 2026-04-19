@@ -1275,7 +1275,7 @@ export const resendVerificationEmail = async (email) => {
   }
 };
 
-export const getCheckoutSession = async (type, email) => {
+export const getCheckoutSession = async (type, user, resId) => {
   try {
     const res = await fetch(`${BASE_URL}stripe/create-checkout-session`, {
       method: "POST",
@@ -1285,7 +1285,8 @@ export const getCheckoutSession = async (type, email) => {
       },
       body: JSON.stringify({
         type,
-        email,
+        user,
+        resId,
       }),
     });
     return await res.json();
