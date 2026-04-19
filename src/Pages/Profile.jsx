@@ -144,7 +144,7 @@ export const Profile = () => {
     const getRes = async () => {
       try {
         const data = await getReservations();
-        // console.log("Backend vastaus:", data);
+        console.log("Backend vastaus:", data);
 
         if (Array.isArray(data)) {
           setReservations(data);
@@ -650,10 +650,10 @@ export const Profile = () => {
                   setFilteredCountries(
                     profileForm.country
                       ? countries.filter((c) =>
-                        c
-                          .toLowerCase()
-                          .includes(profileForm.country.toLowerCase()),
-                      )
+                          c
+                            .toLowerCase()
+                            .includes(profileForm.country.toLowerCase()),
+                        )
                       : countries,
                   );
                   setShowCountryDropdown(true);
@@ -730,7 +730,7 @@ export const Profile = () => {
                 value={
                   profileForm.gender
                     ? profileForm.gender.charAt(0).toUpperCase() +
-                    profileForm.gender.slice(1)
+                      profileForm.gender.slice(1)
                     : "Not specified"
                 }
                 readOnly
@@ -913,7 +913,7 @@ export const Profile = () => {
                   name="new_activity_suggestion"
                   className={
                     attemptedSubmit &&
-                      !newActivitySuggestionForm.new_activity_suggestion.trim()
+                    !newActivitySuggestionForm.new_activity_suggestion.trim()
                       ? "input-error"
                       : ""
                   }
@@ -1028,9 +1028,9 @@ export const Profile = () => {
                               {res.experience_length}
                             </span>
                             <span
-                              className={`BookingStatusPill Status-${res.booking_status}`}
+                              className={`BookingStatusPill Status-${res.current_status}`}
                             >
-                              {res.booking_status}
+                              {res.current_status}
                             </span>
                           </div>
 
@@ -1162,9 +1162,9 @@ export const Profile = () => {
                             {res.experience_length}
                           </span>
                           <span
-                            className={`BookingStatusPill Status-${res.booking_status}`}
+                            className={`BookingStatusPill Status-${res.current_status}`}
                           >
-                            {res.booking_status}
+                            {res.current_status}
                           </span>
                         </div>
 
@@ -1282,8 +1282,8 @@ export const Profile = () => {
                           images={
                             selectedBooking?.images
                               ? selectedBooking.images.map(
-                                (i) => "http://localhost:3000" + i.url,
-                              )
+                                  (i) => "http://localhost:3000" + i.url,
+                                )
                               : []
                           }
                         />
@@ -1294,9 +1294,9 @@ export const Profile = () => {
                           {selectedSlot.experience_length}
                         </span>
                         <span
-                          className={`BookingStatusBadge Status-${selectedSlot.booking_status}`}
+                          className={`BookingStatusBadge Status-${selectedSlot.current_status}`}
                         >
-                          {selectedSlot.booking_status}
+                          {selectedSlot.current_status}
                         </span>
                       </div>
                     </div>

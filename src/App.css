@@ -171,9 +171,11 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 47, 108, 0.2),
-      rgba(0, 0, 0, 0.3));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 47, 108, 0.2),
+    rgba(0, 0, 0, 0.3)
+  );
   z-index: 1;
 }
 
@@ -271,7 +273,8 @@ body {
   transform: rotate(180deg);
 }
 
-.location-wrapper:has(.clear-location-btn)::after .activity-wrapper:has(.clear-location-btn)::after {
+.location-wrapper:has(.clear-location-btn)::after
+  .activity-wrapper:has(.clear-location-btn)::after {
   display: none;
 }
 
@@ -839,7 +842,6 @@ body {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -2983,7 +2985,7 @@ input.activity-input-host {
   -webkit-text-fill-color: var(--text-muted);
 }
 
-.guest-input:disabled~.guest-clear-btn {
+.guest-input:disabled ~ .guest-clear-btn {
   display: none !important;
 }
 
@@ -2999,7 +3001,6 @@ input.activity-input-host {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -3429,6 +3430,27 @@ input.activity-input-host {
   color: white;
 }
 
+.Status-upcoming {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.Status-ongoing {
+  background: #f97316;
+  color: white;
+}
+
+.Status-ended,
+.Status-completed {
+  background: #64748b;
+  color: white;
+}
+
+.Status-cancelled {
+  background: #dc2626;
+  color: white;
+}
+
 .host-view-card {
   border-left: 5px solid #4caf50;
   background-color: #fcfdfc;
@@ -3507,6 +3529,7 @@ input.activity-input-host {
 
 .timeslot-reservation-card {
   border: 1px solid;
+  border-color: rgba(0, 47, 108, 0.14);
   margin: 1rem;
   border-radius: 12px;
   overflow: hidden;
@@ -3765,7 +3788,7 @@ input.activity-input-host {
   }
 
   .DayOfWeek-container,
-  .profile-form label>div {
+  .profile-form label > div {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 8px !important;
@@ -3952,7 +3975,6 @@ input.activity-input-host {
 }
 
 @media screen and (max-width: 768px) {
-
   .select__input-container input,
   .timeslot-address-select__input-container input {
     border: none !important;
@@ -4433,7 +4455,6 @@ input.activity-input-host {
 }
 
 @media screen and (max-width: 380px) {
-
   .filter-input,
   .filter-input-button {
     font-size: 14px !important;
@@ -4879,7 +4900,7 @@ input.activity-input-host {
   backdrop-filter: blur(10px);
 }
 
-.confirmation-section>p {
+.confirmation-section > p {
   color: #666;
   margin-bottom: 30px;
 }
@@ -5054,7 +5075,7 @@ input.activity-input-host {
     line-height: 1.2;
   }
 
-  .confirmation-section>p {
+  .confirmation-section > p {
     font-size: 1rem;
     text-align: center;
     margin-bottom: 20px;

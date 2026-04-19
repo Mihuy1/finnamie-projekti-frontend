@@ -140,15 +140,16 @@ export default function Reservation() {
         console.error("Chatin aloitus epäonnistui", chatErr);
       }
 
-      toast.success("Booking request sent!");
-
       setTimeout(() => {
-        const selectedSlot = timeslots.find((ts) => ts.id === selectedTimeslotId);
+        const selectedSlot = timeslots.find(
+          (ts) => ts.id === selectedTimeslotId,
+        );
 
         navigate("/reservation-confirmed", {
           state: {
             reservation: {
-              id: realReservationId || "RES-" + Math.floor(Math.random() * 10000),
+              id:
+                realReservationId || "RES-" + Math.floor(Math.random() * 10000),
               start_time: selectedSlot?.start_time,
               end_time: selectedSlot?.end_time,
             },
