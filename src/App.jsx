@@ -53,7 +53,7 @@ function App() {
           path="/reservation-confirmed"
           element={<ReservationConfirmed />}
         />
-        <Route path="/success/:res_id" element={<Success />} />
+        <Route path="/success/" element={<Success />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

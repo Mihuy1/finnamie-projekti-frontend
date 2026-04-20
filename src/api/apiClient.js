@@ -1322,3 +1322,37 @@ export const setPriceData = async (prices) => {
     console.error(e);
   }
 };
+
+export const getAllReservations = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/payments`, {
+      method: "GET",
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const markReservationsPaid = async (reservationIds) => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/payments`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        reservation_ids: reservationIds,
+      }),
+    });
+    if (!res.ok) {
+      throw new Error("Failed to update reservations");
+    }
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
