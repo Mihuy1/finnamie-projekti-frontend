@@ -28,6 +28,7 @@ export const TimeSlot = ({
   onUpdate,
   onDelete,
   reservations = null,
+  setReservations,
 }) => {
   const navigate = useNavigate();
   const { user, refresh } = useAuth();
@@ -78,9 +79,6 @@ export const TimeSlot = ({
     const start = new Date(r.start_time).getTime();
     const end = new Date(r.end_time).getTime();
 
-    console.log(`start_time: ${r.start_time}, end_time: ${r.end_time}`);
-    console.log(`start: ${start}, end: ${end}, now: ${now}`);
-
     let status = "upcoming";
 
     if (now < start) {
@@ -99,6 +97,18 @@ export const TimeSlot = ({
           return err?.message || "Failed to confirm reservation";
         },
       });
+
+      setReservations((prev) =>
+        prev.map((reservation) =>
+          reservation.reservation_id === r.reservation_id
+            ? {
+                ...reservation,
+                booking_status: "confirmed",
+                current_status: status,
+              }
+            : reservation,
+        ),
+      );
 
       setReservationsData((prev) =>
         prev.map((reservation) =>
@@ -124,6 +134,18 @@ export const TimeSlot = ({
         return err?.message || "Failed to cancel reservation";
       },
     });
+
+    setReservations((prev) =>
+      prev.map((reservation) =>
+        reservation.reservation_id === r.reservation_id
+          ? {
+              ...reservation,
+              booking_status: "cancelled",
+              current_status: "cancelled",
+            }
+          : reservation,
+      ),
+    );
 
     setReservationsData((prev) =>
       prev.map((reservation) =>

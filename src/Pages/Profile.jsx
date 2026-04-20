@@ -1251,6 +1251,7 @@ export const Profile = () => {
               setSelectedSlot(null);
             }}
             reservations={reservations}
+            setReservations={setReservations}
           />
         )}
 
@@ -1401,7 +1402,8 @@ export const Profile = () => {
                           )}
 
                         {selectedSlot.booking_status === "confirmed" &&
-                          !isPastEvent && (
+                          !isPastEvent &&
+                          selectedSlot.current_status !== "ongoing" && (
                             <button
                               className="CancelBookingBtn"
                               onClick={() =>
