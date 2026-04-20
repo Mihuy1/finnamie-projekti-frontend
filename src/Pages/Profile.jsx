@@ -1215,10 +1215,11 @@ export const Profile = () => {
                                     ? "Edit Review"
                                     : "Rate Experience"}
                               </button>
-                              {!isPast && ( // && isPaid
+                              {!isPast && !res.payment_received && (
                                 <PaymentButton
                                   type={res.experience_length}
-                                  email={user.email}
+                                  user={user}
+                                  resId={res.reservation_id}
                                 />
                               )}
                             </span>

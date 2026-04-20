@@ -1275,7 +1275,7 @@ export const resendVerificationEmail = async (email) => {
   }
 };
 
-export const getCheckoutSession = async (type, email) => {
+export const getCheckoutSession = async (type, user, resId) => {
   try {
     const res = await fetch(`${BASE_URL}stripe/create-checkout-session`, {
       method: "POST",
@@ -1285,7 +1285,8 @@ export const getCheckoutSession = async (type, email) => {
       },
       body: JSON.stringify({
         type,
-        email,
+        user,
+        resId,
       }),
     });
     return await res.json();
@@ -1319,5 +1320,39 @@ export const setPriceData = async (prices) => {
     return await res.json();
   } catch (e) {
     console.error(e);
+  }
+};
+
+export const getAllReservations = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/payments`, {
+      method: "GET",
+      credentials: "include",
+    });
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const markReservationsPaid = async (reservationIds) => {
+  try {
+    const res = await fetch(`${BASE_URL}reservations/payments`, {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        reservation_ids: reservationIds,
+      }),
+    });
+    if (!res.ok) {
+      throw new Error("Failed to update reservations");
+    }
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
 };
