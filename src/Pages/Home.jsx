@@ -7,6 +7,24 @@ import { getActivities } from "../api/apiClient";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { municipalities } from "../data/municipalities";
+import { getCityImage } from "../api/apiClient";
+
+const cities = [
+{ query: "Finland nature", name: "Finnish Nature", description: "Breathtaking landscapes and wilderness" },
+{ query: "Finland city", name: "Finnish Cities", description: "Vibrant urban culture and architecture" },
+{ query: "Finland winter", name: "Finnish Winter", description: "Magical snow and northern lights" },
+{ query: "Finland summer", name: "Finnish Summer", description: "Midnight sun and endless lakes" },
+{ query: "Finland landscape", name: "Finnish Landscapes", description: "Stunning scenery from north to south" },
+{ query: "Finland nightlife", name: "Finnish Nightlife", description: "Vibrant social scene and entertainment options" },
+{ query: "Finland art", name: "Finnish Art", description: "Innovative art scene and world-class museums" },
+{ query: "Finland design", name: "Finnish Design", description: "Renowned design heritage and contemporary creativity" },
+{ query: "Finland culture", name: "Finnish Culture", description: "Rich traditions and unique cultural experiences" },
+{ query: "Finland saunas", name: "Finnish Saunas", description: "Traditional Finnish sauna culture and wellness experiences" },
+{ query: "Finland festivals", name: "Finnish Festivals", description: "Vibrant festivals celebrating music, culture, and traditions" },
+{ query: "Finland food", name: "Finnish Food", description: "Unique flavors and culinary traditions" },
+{ query: "Finland wildlife", name: "Finnish Wildlife", description: "Diverse wildlife and nature encounters" },
+{ query: "Finland lakes", name: "Finnish Lakes", description: "Serene lakes and water activities" },
+];
 
 function Home() {
   const [date, setDate] = useState([]);
@@ -29,6 +47,30 @@ function Home() {
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const [activitySearch, setActivitySearch] = useState("");
 
+  // kuvakaruselli
+const [active, setActive] = useState(0);
+const [animating, setAnimating] = useState(false);
+const [cityImage, setCityImage] = useState(null);
+
+const goTo = (index) => {
+  if (animating || index === active) return;
+  setAnimating(true);
+  setTimeout(() => {
+    setActive(index);
+    setAnimating(false);
+  }, 250);
+};
+
+const next = () => goTo((active + 1) % cities.length);
+const prev = () => goTo((active - 1 + cities.length) % cities.length);
+
+
+
+useEffect(() => {
+  setCityImage(null);
+  getCityImage(cities[active].query).then((url) => setCityImage(url));
+}, [active]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -42,16 +84,6 @@ function Home() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  /*useEffect(() => {
-    if (showDropdown || showActivityDropdown) {
-      document.body.classList.add('no-scroll');
-    } else {
-      document.body.classList.remove('no-scroll');
-    }
-
-    return () => document.body.classList.remove('no-scroll');
-  }, [showDropdown, showActivityDropdown]);*/
 
   useEffect(() => {
     const fetchActivites = async () => {
@@ -201,8 +233,8 @@ function Home() {
             <div className="step-number">1</div>
             <h3>Search</h3>
             <p>
-              Find an activity that fits you. Our discover page helps
-              you find the best options.
+              Find an activity that fits you. Our discover page helps you find
+              the best options.
             </p>
           </div>
           <div className="step">
@@ -263,6 +295,36 @@ function Home() {
           )}
         </div>
       </section>
+{/* Kuvakaruselli */}
+<section className="carousel-section">
+  <div className="carousel-heading">
+    <h2>Explore Finland</h2>
+    <p>Discover unique experiences across Finnish cities</p>
+  </div>
+  <div className="carousel-wrapper">
+    <button className="carousel-btn" onClick={prev} aria-label="Previous">
+      ‹
+    </button>
+
+    <div
+      className={`carousel-card ${animating ? "fading" : ""}`}
+      style={{
+        background: cityImage
+          ? `url(${cityImage}) center/cover no-repeat`
+          : "#1a2b5f",
+      }}
+    >
+      <div className="carousel-card-overlay">
+        <h3>{cities[active].name}</h3>
+        <p>{cities[active].description}</p>
+      </div>
+    </div>
+
+    <button className="carousel-btn" onClick={next} aria-label="Next">
+      ›
+    </button>
+  </div>
+</section>
 
       <div className="final-booking-action">
         <button className="book-now-large" onClick={handleFinalAction}>

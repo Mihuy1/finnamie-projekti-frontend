@@ -255,7 +255,7 @@ export const deleteTimeSlotImageByIdAndUrl = async (timeslot_id, image_url) => {
       const message =
         typeof payload === "string"
           ? payload
-          : (payload?.error ?? payload?.message);
+          : payload?.error ?? payload?.message;
 
       throw new Error(message || "Failed to delete image.");
     }
@@ -289,7 +289,7 @@ export const deleteExperienceImageByIdAndUrl = async (
       const message =
         typeof payload === "string"
           ? payload
-          : (payload?.error ?? payload?.message);
+          : payload?.error ?? payload?.message;
 
       throw new Error(message || "Failed to delete image.");
     }
@@ -318,7 +318,7 @@ export const deleteTimeSlotImage = async (timeslot_id) => {
       const message =
         typeof payload === "string"
           ? payload
-          : (payload?.error ?? payload?.message);
+          : payload?.error ?? payload?.message;
 
       throw new Error(message || "Failed to delete image.");
     }
@@ -353,7 +353,7 @@ export const uploadTimeSlotImage = async (timeslot_id, files) => {
       const message =
         typeof payload === "string"
           ? payload
-          : (payload?.error ?? payload?.message);
+          : payload?.error ?? payload?.message;
 
       throw new Error(message || "Upload failed");
     }
@@ -390,7 +390,7 @@ export const uploadExperienceImage = async (experience_id, files) => {
       const message =
         typeof payload === "string"
           ? payload
-          : (payload?.error ?? payload?.message);
+          : payload?.error ?? payload?.message;
 
       throw new Error(message || "Upload failed");
     }
@@ -462,7 +462,7 @@ export const updateTimeSlot = async (id, data) => {
       const message =
         typeof payload === "string"
           ? payload
-          : (payload?.error ?? payload?.message);
+          : payload?.error ?? payload?.message;
 
       throw new Error(message || "Failed to update timeslot.");
     }
@@ -524,7 +524,7 @@ export const postLogin = async (email, password) => {
     throw new Error(
       typeof payload === "string"
         ? payload
-        : (payload?.error ?? payload?.message),
+        : payload?.error ?? payload?.message,
     );
   return payload;
 };
@@ -543,7 +543,7 @@ export const logout = async () => {
     const message =
       typeof payload === "string"
         ? payload
-        : (payload?.error ?? payload?.message);
+        : payload?.error ?? payload?.message;
 
     throw new Error(message || "Failed to log out.");
   }
@@ -768,8 +768,7 @@ export const acceptActivitySuggestion = async (id, name) => {
       const message =
         typeof data === "string"
           ? data
-          : (data?.message ??
-            "Something went wrong while accepting suggestion");
+          : data?.message ?? "Something went wrong while accepting suggestion";
       throw Object.assign(new Error(message), { status: res.status });
     }
 
@@ -794,8 +793,7 @@ export const rejectActivitySuggestion = async (id) => {
       const message =
         typeof data === "string"
           ? data
-          : (data?.message ??
-            "Something went wrong while rejecting suggestion");
+          : data?.message ?? "Something went wrong while rejecting suggestion";
 
       throw Object.assign(new Error(message), { status: res.status });
     }
@@ -832,7 +830,7 @@ export const uploadUserImage = async (file) => {
     const message =
       typeof payload === "string"
         ? payload
-        : (payload?.error ?? payload?.message);
+        : payload?.error ?? payload?.message;
 
     throw new Error(message || "Upload failed");
   }
@@ -941,7 +939,7 @@ export const updateProfile = async (params) => {
     const message =
       typeof payload === "string"
         ? payload
-        : (payload?.error ?? payload?.message);
+        : payload?.error ?? payload?.message;
 
     throw new Error(message || "Failed to update profile.");
   }
@@ -1356,3 +1354,20 @@ export const markReservationsPaid = async (reservationIds) => {
     throw e;
   }
 };
+// api pyyntö Pexelsin kuvahaulle, hakee kuvia kaupungista ja palauttaa satunnaisen kuvan url:n
+const PEXELS_API_KEY = import.meta.env.VITE_PEXELS_API_KEY;
+export async function getCityImage(query) {
+  try {
+    const response = await fetch(
+      `https://api.pexels.com/v1/search?query=${query}&per_page=15`,
+      { headers: { Authorization: PEXELS_API_KEY } },
+    );
+    const data = await response.json();
+    if (!data.photos || data.photos.length === 0) return null;
+    const random = data.photos[Math.floor(Math.random() * data.photos.length)];
+    return random.src.large;
+  } catch (error) {
+    console.error("Pexels haku epäonnistui:", error);
+    return null;
+  }
+}
