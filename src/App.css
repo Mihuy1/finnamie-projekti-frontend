@@ -3450,6 +3450,27 @@ input.activity-input-host {
   color: white;
 }
 
+.Status-upcoming {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.Status-ongoing {
+  background: #f97316;
+  color: white;
+}
+
+.Status-ended,
+.Status-completed {
+  background: #64748b;
+  color: white;
+}
+
+.Status-cancelled {
+  background: #dc2626;
+  color: white;
+}
+
 .host-view-card {
   border-left: 5px solid #4caf50;
   background-color: #fcfdfc;
