@@ -149,7 +149,7 @@ body {
 }
 
 .booking-section {
-  background-image: url("https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?q=80&w=1600&auto=format&fit=crop") !important;
+  background-image: url("https://images.unsplash.com/photo-1651219470018-f1239fffd96d?q=80&w=3363&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") !important;
   background-size: cover !important;
   background-position: center 40% !important;
   background-repeat: no-repeat !important;
@@ -171,11 +171,9 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 47, 108, 0.2),
-    rgba(0, 0, 0, 0.3)
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 47, 108, 0.2),
+      rgba(0, 0, 0, 0.3));
   z-index: 1;
 }
 
@@ -273,8 +271,7 @@ body {
   transform: rotate(180deg);
 }
 
-.location-wrapper:has(.clear-location-btn)::after
-  .activity-wrapper:has(.clear-location-btn)::after {
+.location-wrapper:has(.clear-location-btn)::after .activity-wrapper:has(.clear-location-btn)::after {
   display: none;
 }
 
@@ -842,6 +839,7 @@ body {
 }
 
 @keyframes shake {
+
   0%,
   100% {
     transform: translateX(0);
@@ -2985,7 +2983,7 @@ input.activity-input-host {
   -webkit-text-fill-color: var(--text-muted);
 }
 
-.guest-input:disabled ~ .guest-clear-btn {
+.guest-input:disabled~.guest-clear-btn {
   display: none !important;
 }
 
@@ -3001,6 +2999,7 @@ input.activity-input-host {
 }
 
 @keyframes shake {
+
   0%,
   100% {
     transform: translateX(0);
@@ -3451,6 +3450,27 @@ input.activity-input-host {
   color: white;
 }
 
+.Status-upcoming {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.Status-ongoing {
+  background: #f97316;
+  color: white;
+}
+
+.Status-ended,
+.Status-completed {
+  background: #64748b;
+  color: white;
+}
+
+.Status-cancelled {
+  background: #dc2626;
+  color: white;
+}
+
 .host-view-card {
   border-left: 5px solid #4caf50;
   background-color: #fcfdfc;
@@ -3788,7 +3808,7 @@ input.activity-input-host {
   }
 
   .DayOfWeek-container,
-  .profile-form label > div {
+  .profile-form label>div {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 8px !important;
@@ -3975,6 +3995,7 @@ input.activity-input-host {
 }
 
 @media screen and (max-width: 768px) {
+
   .select__input-container input,
   .timeslot-address-select__input-container input {
     border: none !important;
@@ -4455,6 +4476,7 @@ input.activity-input-host {
 }
 
 @media screen and (max-width: 380px) {
+
   .filter-input,
   .filter-input-button {
     font-size: 14px !important;
@@ -4866,7 +4888,7 @@ input.activity-input-host {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-image: url("https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?q=80&w=1600&auto=format&fit=crop") !important;
+  background-image: url("https://images.unsplash.com/photo-1561634682-fc199f0cee5f?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") !important;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -4900,8 +4922,8 @@ input.activity-input-host {
   backdrop-filter: blur(10px);
 }
 
-.confirmation-section > p {
-  color: #666;
+.confirmation-section>p {
+  color: #444;
   margin-bottom: 30px;
 }
 
@@ -5075,7 +5097,7 @@ input.activity-input-host {
     line-height: 1.2;
   }
 
-  .confirmation-section > p {
+  .confirmation-section>p {
     font-size: 1rem;
     text-align: center;
     margin-bottom: 20px;
