@@ -1320,8 +1320,7 @@ export const setPriceData = async (prices) => {
   }
 };
 // api pyyntö Pexelsin kuvahaulle, hakee kuvia kaupungista ja palauttaa satunnaisen kuvan url:n
-const PEXELS_API_KEY =
-  "VgamRUurIryYslKwBDXsg8TauoQov38LbSgOb5ReDOftOFjPKgJQrH7b";
+const PEXELS_API_KEY = import.meta.env.VITE_PEXELS_API_KEY;
 export async function getCityImage(query) {
   try {
     const response = await fetch(
