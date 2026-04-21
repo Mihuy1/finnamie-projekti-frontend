@@ -7,6 +7,7 @@ import {
   confirmReservationApi,
   deleteExperienceById,
   deleteExperienceImageByIdAndUrl,
+  getReviewsByExperienceId,
   updateExperience,
   uploadExperienceImage,
 } from "../api/apiClient";
@@ -44,12 +45,24 @@ export const TimeSlot = ({
   const [showFeedbackId, setShowFeedbackId] = useState(null);
 
   const [reservationsData, setReservationsData] = useState(reservations);
+  const [reviews, setReviews] = useState();
   // Reset body overflow when component unmounts or modal closes
   useEffect(() => {
     return () => {
       document.body.style.overflow = "unset";
     };
   }, []);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      const r = await getReviewsByExperienceId(slot.id);
+
+      console.log("reviews:", r);
+      setReviews(r);
+    };
+
+    fetchReviews();
+  }, [slot.id]);
 
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
@@ -306,6 +319,66 @@ export const TimeSlot = ({
     }
   };
 
+  const renderStars = (rating) => {
+    const stars = [];
+
+    for (let i = 1; i <= 5; i++) {
+      // If the index is less than or equal to the rating (e.g., i=3, rating=3.5)
+      if (i <= Math.floor(rating)) {
+        stars.push(
+          <span key={i} className="star-full">
+            ★
+          </span>,
+        );
+      }
+      // If it's the "half" star (e.g., i=4, rating=3.5)
+      else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+        stars.push(
+          <span key={i} className="star-half" data-star="★">
+            ★
+          </span>,
+        );
+      } else {
+        stars.push(
+          <span key={i} className="star-empty">
+            ★
+          </span>,
+        );
+      }
+    }
+
+    return stars;
+  };
+
+  const renderReviewScoreAverage = () => {
+    const hasData = reviews && reviews.data.length > 0;
+
+    if (!hasData)
+      return (
+        <div>
+          <h3>No Reviews</h3>
+        </div>
+      );
+
+    const total = reviews.data.reduce((sum, item) => sum + item.score, 0);
+    const average = parseFloat((total / reviews.data.length).toFixed(1));
+    return (
+      <div className="score-container">
+        <p>{average}</p>
+        <div className="stars-display">
+          {Number.isInteger(average)
+            ? renderStars(parseFloat(average))
+            : renderStars(parseFloat(average - 1))}
+        </div>
+        <p>
+          <span style={{ fontSize: "0.8em", color: "#666" }}>
+            ({reviews.data.length})
+          </span>
+        </p>
+      </div>
+    );
+  };
+
   if (isEditing) {
     return (
       <div className="profile-timeslots">
@@ -387,6 +460,7 @@ export const TimeSlot = ({
                 <div className="timeslot-modal-header">
                   <h3>{slotData.title || "Unknown Title"}</h3>
                   <p style={{ marginBottom: "0.5rem" }}>{slotData.city}</p>
+                  {renderReviewScoreAverage()}
                 </div>
 
                 <div className="profile-timeslot-detail-grid">

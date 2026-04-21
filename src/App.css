@@ -8,6 +8,68 @@
   --accent-hover: rgba(150, 0, 140, 1);
 }
 
+/* Color for all active stars */
+.star-full,
+.star-half::before {
+  color: #ffc107; /* Gold */
+  height: auto;
+  line-height: 1;
+}
+
+/* Color for empty stars */
+.star-empty,
+.star-half {
+  color: #e4e5e9; /* Light Gray */
+  height: auto;
+  line-height: 1;
+}
+
+/* The Half Star Logic */
+.star-half {
+  position: relative;
+  display: inline-block;
+  height: auto;
+  line-height: 1;
+}
+
+.star-half::before {
+  content: attr(data-star); /* Pulls the ★ from the data attribute */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%; /* This is what makes it a 'half' */
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Star Display Styling */
+.stars-display {
+  line-height: normal;
+  font-size: 24px;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  transform: translateY(-2px);
+}
+
+.score-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.score-container h3 {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.score-container p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1.5;
+}
+
 /* Home page */
 
 body {
@@ -171,9 +233,11 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom,
-      rgba(0, 47, 108, 0.2),
-      rgba(0, 0, 0, 0.3));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 47, 108, 0.2),
+    rgba(0, 0, 0, 0.3)
+  );
   z-index: 1;
 }
 
@@ -271,7 +335,8 @@ body {
   transform: rotate(180deg);
 }
 
-.location-wrapper:has(.clear-location-btn)::after .activity-wrapper:has(.clear-location-btn)::after {
+.location-wrapper:has(.clear-location-btn)::after
+  .activity-wrapper:has(.clear-location-btn)::after {
   display: none;
 }
 
@@ -839,7 +904,6 @@ body {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -2983,7 +3047,7 @@ input.activity-input-host {
   -webkit-text-fill-color: var(--text-muted);
 }
 
-.guest-input:disabled~.guest-clear-btn {
+.guest-input:disabled ~ .guest-clear-btn {
   display: none !important;
 }
 
@@ -2999,7 +3063,6 @@ input.activity-input-host {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -3808,7 +3871,7 @@ input.activity-input-host {
   }
 
   .DayOfWeek-container,
-  .profile-form label>div {
+  .profile-form label > div {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 8px !important;
@@ -3995,7 +4058,6 @@ input.activity-input-host {
 }
 
 @media screen and (max-width: 768px) {
-
   .select__input-container input,
   .timeslot-address-select__input-container input {
     border: none !important;
@@ -4476,7 +4538,6 @@ input.activity-input-host {
 }
 
 @media screen and (max-width: 380px) {
-
   .filter-input,
   .filter-input-button {
     font-size: 14px !important;
@@ -4922,7 +4983,7 @@ input.activity-input-host {
   backdrop-filter: blur(10px);
 }
 
-.confirmation-section>p {
+.confirmation-section > p {
   color: #444;
   margin-bottom: 30px;
 }
@@ -5097,7 +5158,7 @@ input.activity-input-host {
     line-height: 1.2;
   }
 
-  .confirmation-section>p {
+  .confirmation-section > p {
     font-size: 1rem;
     text-align: center;
     margin-bottom: 20px;
@@ -5867,7 +5928,7 @@ input.activity-input-host {
   .admin-table td[data-label="Action"] {
     display: flex;
     justify-content: flex-start;
-    padding: 12px ;
+    padding: 12px;
     gap: 10px;
   }
 
@@ -5897,9 +5958,9 @@ input.activity-input-host {
 }
 /* kuvakaruselli mobiili sovelluksessa*/
 .carousel-section {
-  padding: 64px 24px ;
+  padding: 64px 24px;
   background: #f8f9fa;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
 }
 
 .carousel-heading {
@@ -5932,14 +5993,16 @@ input.activity-input-host {
 .carousel-card {
   flex: 1;
   border-radius: 20px;
-  padding: 64px 48px ;
+  padding: 64px 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   min-height: 260px;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
   box-shadow: 0 8px 32px rgba(26, 43, 95, 0.18);
 }
 
@@ -5977,7 +6040,10 @@ input.activity-input-host {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   font-size: 20px;
   color: #1a2b5f;
-  transition: background 0.2s, color 0.2s, transform 0.15s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.15s;
 }
 
 .carousel-btn:hover {
@@ -5986,13 +6052,10 @@ input.activity-input-host {
   transform: scale(1.08);
 }
 
-
-
-
 .carousel-section {
   padding: 64px 24px;
   background: white;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
 }
 
 .carousel-heading {
@@ -6032,7 +6095,9 @@ input.activity-input-host {
   justify-content: center;
   text-align: center;
   min-height: 260px;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
   box-shadow: 0 8px 32px rgba(26, 43, 95, 0.18);
   overflow: hidden;
 }
@@ -6054,7 +6119,7 @@ input.activity-input-host {
   background: rgba(0, 0, 0, 0.55);
   opacity: 0;
   transition: opacity 0.3s ease;
-  padding: 32px ;
+  padding: 32px;
 }
 
 .carousel-card:hover .carousel-card-overlay {
@@ -6090,7 +6155,10 @@ input.activity-input-host {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   font-size: 20px;
   color: #1a2b5f;
-  transition: background 0.2s, color 0.2s, transform 0.15s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.15s;
 }
 
 .carousel-btn:hover {
@@ -6098,6 +6166,3 @@ input.activity-input-host {
   color: white;
   transform: scale(1.08);
 }
-
-
-

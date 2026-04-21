@@ -255,7 +255,7 @@ export const deleteTimeSlotImageByIdAndUrl = async (timeslot_id, image_url) => {
       const message =
         typeof payload === "string"
           ? payload
-          : payload?.error ?? payload?.message;
+          : (payload?.error ?? payload?.message);
 
       throw new Error(message || "Failed to delete image.");
     }
@@ -289,7 +289,7 @@ export const deleteExperienceImageByIdAndUrl = async (
       const message =
         typeof payload === "string"
           ? payload
-          : payload?.error ?? payload?.message;
+          : (payload?.error ?? payload?.message);
 
       throw new Error(message || "Failed to delete image.");
     }
@@ -318,7 +318,7 @@ export const deleteTimeSlotImage = async (timeslot_id) => {
       const message =
         typeof payload === "string"
           ? payload
-          : payload?.error ?? payload?.message;
+          : (payload?.error ?? payload?.message);
 
       throw new Error(message || "Failed to delete image.");
     }
@@ -353,7 +353,7 @@ export const uploadTimeSlotImage = async (timeslot_id, files) => {
       const message =
         typeof payload === "string"
           ? payload
-          : payload?.error ?? payload?.message;
+          : (payload?.error ?? payload?.message);
 
       throw new Error(message || "Upload failed");
     }
@@ -390,7 +390,7 @@ export const uploadExperienceImage = async (experience_id, files) => {
       const message =
         typeof payload === "string"
           ? payload
-          : payload?.error ?? payload?.message;
+          : (payload?.error ?? payload?.message);
 
       throw new Error(message || "Upload failed");
     }
@@ -462,7 +462,7 @@ export const updateTimeSlot = async (id, data) => {
       const message =
         typeof payload === "string"
           ? payload
-          : payload?.error ?? payload?.message;
+          : (payload?.error ?? payload?.message);
 
       throw new Error(message || "Failed to update timeslot.");
     }
@@ -524,7 +524,7 @@ export const postLogin = async (email, password) => {
     throw new Error(
       typeof payload === "string"
         ? payload
-        : payload?.error ?? payload?.message,
+        : (payload?.error ?? payload?.message),
     );
   return payload;
 };
@@ -543,7 +543,7 @@ export const logout = async () => {
     const message =
       typeof payload === "string"
         ? payload
-        : payload?.error ?? payload?.message;
+        : (payload?.error ?? payload?.message);
 
     throw new Error(message || "Failed to log out.");
   }
@@ -768,7 +768,8 @@ export const acceptActivitySuggestion = async (id, name) => {
       const message =
         typeof data === "string"
           ? data
-          : data?.message ?? "Something went wrong while accepting suggestion";
+          : (data?.message ??
+            "Something went wrong while accepting suggestion");
       throw Object.assign(new Error(message), { status: res.status });
     }
 
@@ -793,7 +794,8 @@ export const rejectActivitySuggestion = async (id) => {
       const message =
         typeof data === "string"
           ? data
-          : data?.message ?? "Something went wrong while rejecting suggestion";
+          : (data?.message ??
+            "Something went wrong while rejecting suggestion");
 
       throw Object.assign(new Error(message), { status: res.status });
     }
@@ -830,7 +832,7 @@ export const uploadUserImage = async (file) => {
     const message =
       typeof payload === "string"
         ? payload
-        : payload?.error ?? payload?.message;
+        : (payload?.error ?? payload?.message);
 
     throw new Error(message || "Upload failed");
   }
@@ -939,7 +941,7 @@ export const updateProfile = async (params) => {
     const message =
       typeof payload === "string"
         ? payload
-        : payload?.error ?? payload?.message;
+        : (payload?.error ?? payload?.message);
 
     throw new Error(message || "Failed to update profile.");
   }
@@ -1171,6 +1173,24 @@ export const getReviewsByHostId = async (hostId) => {
     return await res.json();
   } catch (e) {
     console.error(e);
+  }
+};
+
+export const getReviewsByExperienceId = async (experience_id) => {
+  try {
+    const res = await fetch(`${BASE_URL}reviews/experience/${experience_id}`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!data) throw Error("Failed to fetch review by experience id");
+
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
 };
 
