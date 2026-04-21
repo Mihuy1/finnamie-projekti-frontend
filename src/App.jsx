@@ -16,7 +16,6 @@ import BookActivity from "./Pages/BookActivity";
 import Reservation from "./Pages/Reservation";
 import ReservationConfirmed from "./Pages/ReservationConfirmed";
 import { Success } from "./Pages/Success";
-import { Cancelled } from "./Pages/Cancelled";
 
 function App() {
   return (
@@ -54,8 +53,7 @@ function App() {
           path="/reservation-confirmed"
           element={<ReservationConfirmed />}
         />
-        <Route path="/success/:res_id" element={<Success />} />
-        <Route path="/cancel" element={<Cancelled />} />
+        <Route path="/success/" element={<Success />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

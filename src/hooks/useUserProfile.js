@@ -4,7 +4,6 @@ import {
   getExperienceByHostId,
   getProfile,
   getSuggestionActivitiesByHostId,
-  getTimeSlotsByHostId,
 } from "../api/apiClient";
 import { formatDateForInput } from "../utils/date-utils";
 

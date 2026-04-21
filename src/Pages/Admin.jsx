@@ -11,8 +11,10 @@ import {
   getActivities,
   getAllActivitySuggestions,
   getAllExperiencesWithHost,
+  getAllReservations,
   getAllUsers,
   getPriceData,
+  markReservationsPaid,
   rejectActivitySuggestion,
   setPriceData,
   updateActivityNameById,
@@ -33,7 +35,7 @@ const TABS = [
   { id: "activities", label: "Activities", icon: "🏃" },
   { id: "suggestions", label: "Suggestions", icon: "💡" },
   { id: "experiences", label: "Experiences", icon: "🕐" },
-  { id: "prices", label: "Prices", icon: "💲" },
+  { id: "payment", label: "Payments", icon: "💲" },
 ];
 
 const sortByName = (items = []) =>
@@ -135,7 +137,7 @@ export const Admin = () => {
             setExperiences={setExperiences}
           />
         )}
-        {activeTab === "prices" && <PriceSection prices={prices} />}
+        {activeTab === "payment" && <PaymentSection prices={prices} />}
       </div>
     </div>
   );
@@ -801,8 +803,19 @@ function ExperiencesSection({ experiences, setExperiences }) {
   );
 }
 
-const PriceSection = ({ prices }) => {
+const PaymentSection = ({ prices }) => {
   const [data, setData] = useState(prices);
+  const [reservations, setReservations] = useState([]);
+  const [selected, setSelected] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getAllReservations();
+      console.log(data);
+      setReservations(data);
+    };
+    fetchData();
+  }, []);
 
   const handleChange = (index, newPriceId) => {
     const updated = [...data];
@@ -813,73 +826,137 @@ const PriceSection = ({ prices }) => {
     setData(updated);
   };
 
+  const handleSelect = (id) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const handleMarkPaid = async () => {
+    await toast.promise(markReservationsPaid(selected), {
+      loading: "Updating payments...",
+      success: "Marked as paid!",
+      error: "Failed to update payments",
+    });
+    // UPDATE UI
+    setReservations((prev) =>
+      prev.map((res) =>
+        selected.includes(res.id) ? { ...res, payment_received: 1 } : res,
+      ),
+    );
+
+    setSelected([]);
+  };
+
   const handleUpdateAll = async () => {
-    const res = await toast.promise(setPriceData(data), {
+    await toast.promise(setPriceData(data), {
       loading: "Updating prices...",
       success: "Prices updated successfully!",
       error: (error) => error.message || "Failed to update profile",
     });
-
-    console.log(res);
   };
 
   const styles = {
-    th: {
-      border: "1px solid #ccc",
-      padding: "8px",
-      background: "#f5f5f5",
-      textAlign: "left",
-    },
-    td: {
-      border: "1px solid #ccc",
-      padding: "8px",
-    },
     input: {
       width: "100%",
       padding: "4px",
+      borderRadius: "4px",
+      borderWidth: "1px",
     },
     button: {
-      marginTop: "12px",
+      margin: "12px",
       padding: "8px 16px",
       cursor: "pointer",
     },
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <table style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead>
-          <tr>
-            <th style={styles.th}>Type</th>
-            <th style={styles.th}>Price ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr key={item.type}>
-              <td style={styles.td}>{item.type}</td>
-              <td style={styles.td}>
-                <input
-                  type="text"
-                  value={item.price_id}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  style={styles.input}
-                />
-              </td>
+    <div>
+      <div
+        className="table-card"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Price ID</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={item.type}>
+                <td className="td-muted">{item.type}</td>
+                <td className="td-muted">
+                  <input
+                    type="text"
+                    value={item.price_id}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    style={styles.input}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      <button style={styles.button} onClick={handleUpdateAll}>
-        Update
-      </button>
+        <button style={styles.button} onClick={handleUpdateAll}>
+          Update
+        </button>
+      </div>
+      <div
+        className="table-card"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <table className="admin-table" style={{ marginTop: "24px" }}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Select</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reservations.map((res) => (
+              <tr key={res.id}>
+                <td>
+                  {res.first_name} {res.last_name}
+                </td>
+                <td>{res.res_date}</td>
+                <td>{res.booking_status}</td>
+                <td>{res.payment_received ? "Paid" : "Unpaid"}</td>
+                <td>
+                  {!res.payment_received && (
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(res.id)}
+                      onChange={() => handleSelect(res.id)}
+                    />
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <button
+          style={styles.button}
+          onClick={handleMarkPaid}
+          disabled={selected.length === 0}
+        >
+          Mark selected as paid
+        </button>
+      </div>
     </div>
   );
 };

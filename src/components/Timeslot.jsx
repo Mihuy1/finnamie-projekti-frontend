@@ -28,6 +28,7 @@ export const TimeSlot = ({
   onUpdate,
   onDelete,
   reservations = null,
+  setReservations,
 }) => {
   const navigate = useNavigate();
   const { user, refresh } = useAuth();
@@ -71,6 +72,92 @@ export const TimeSlot = ({
   const handleClose = () => {
     setIsModalOpen(false);
     onClose?.();
+  };
+
+  const handleConfirmReservation = async (r) => {
+    const now = Date.now();
+    const start = new Date(r.start_time).getTime();
+    const end = new Date(r.end_time).getTime();
+
+    let status = "upcoming";
+
+    if (now < start) {
+      status = "upcoming";
+    } else if (now <= end) {
+      status = "ongoing";
+    } else {
+      status = "ended";
+    }
+
+    try {
+      await toast.promise(confirmReservationApi(r.reservation_id), {
+        loading: "Confirming reservation...",
+        success: (res) => res.message || "Reservation confirmed!",
+        error: (err) => {
+          return err?.message || "Failed to confirm reservation";
+        },
+      });
+
+      setReservations((prev) =>
+        prev.map((reservation) =>
+          reservation.reservation_id === r.reservation_id
+            ? {
+                ...reservation,
+                booking_status: "confirmed",
+                current_status: status,
+              }
+            : reservation,
+        ),
+      );
+
+      setReservationsData((prev) =>
+        prev.map((reservation) =>
+          reservation.reservation_id === r.reservation_id
+            ? {
+                ...reservation,
+                booking_status: "confirmed",
+                current_status: status,
+              }
+            : reservation,
+        ),
+      );
+    } catch (error) {
+      console.error("Error confirming reservation:", error);
+    }
+  };
+
+  const handleCancelReservation = async (r) => {
+    await toast.promise(cancelReservationApi(r.reservation_id), {
+      loading: "Canceling reservation...",
+      success: (res) => res.message || "Reservation cancelled successfully!",
+      error: (err) => {
+        return err?.message || "Failed to cancel reservation";
+      },
+    });
+
+    setReservations((prev) =>
+      prev.map((reservation) =>
+        reservation.reservation_id === r.reservation_id
+          ? {
+              ...reservation,
+              booking_status: "cancelled",
+              current_status: "cancelled",
+            }
+          : reservation,
+      ),
+    );
+
+    setReservationsData((prev) =>
+      prev.map((reservation) =>
+        reservation.reservation_id === r.reservation_id
+          ? {
+              ...reservation,
+              booking_status: "cancelled",
+              current_status: "cancelled",
+            }
+          : reservation,
+      ),
+    );
   };
 
   const filteredReservations = (reservationsData || []).filter(
@@ -421,9 +508,9 @@ export const TimeSlot = ({
                             {r.first_name} {r.last_name}{" "}
                           </h3>
                           <span
-                            className={`BookingStatusPill Status-${r.booking_status}`}
+                            className={`BookingStatusPill Status-${r.current_status}`}
                           >
-                            {r.booking_status}
+                            {r.current_status}
                           </span>
                         </div>
                         <p>
@@ -470,67 +557,14 @@ export const TimeSlot = ({
                           <div className="timeslot-reservation-card-bottom">
                             <button
                               className="ConfirmBookingBtn"
-                              onClick={async () => {
-                                await toast.promise(
-                                  confirmReservationApi(r.reservation_id),
-                                  {
-                                    loading: "Confirming reservation...",
-                                    success: (res) =>
-                                      res.message || "Reservation confirmed!",
-                                    error: (err) => {
-                                      return (
-                                        err?.message ||
-                                        "Failed to confirm reservation"
-                                      );
-                                    },
-                                  },
-
-                                  setReservationsData((prev) =>
-                                    prev.map((reservation) =>
-                                      reservation.reservation_id ===
-                                      r.reservation_id
-                                        ? {
-                                            ...reservation,
-                                            booking_status: "confirmed",
-                                          }
-                                        : reservation,
-                                    ),
-                                  ),
-                                );
-                              }}
+                              onClick={() => handleConfirmReservation(r)}
                             >
                               Confirm
                             </button>
                             <button
                               className="CancelBookingBtn"
-                              onClick={async () => {
-                                await toast.promise(
-                                  cancelReservationApi(r.reservation_id),
-                                  {
-                                    loading: "Canceling reservation...",
-                                    success: (res) =>
-                                      res.message ||
-                                      "Reservation cancelled successfully!",
-                                    error: (err) => {
-                                      return (
-                                        err?.message ||
-                                        "Failed to cancel reservation"
-                                      );
-                                    },
-                                  },
-                                );
-
-                                setReservationsData((prev) =>
-                                  prev.map((reservation) =>
-                                    reservation.reservation_id ===
-                                    r.reservation_id
-                                      ? {
-                                          ...reservation,
-                                          booking_status: "confirmed",
-                                        }
-                                      : reservation,
-                                  ),
-                                );
+                              onClick={() => {
+                                handleCancelReservation(r);
                               }}
                             >
                               Cancel
