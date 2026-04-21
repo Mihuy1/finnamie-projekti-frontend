@@ -5874,8 +5874,8 @@ input.activity-input-host {
   }
 /* kuvakaruselli mobiili sovelluksessa*/
 .carousel-section {
-  padding: 64px 24px !important;
-  background: #f7f4f9;
+  padding: 64px 24px ;
+  background: #f8f9fa;
   font-family: 'Segoe UI', sans-serif;
 }
 
@@ -5971,7 +5971,7 @@ input.activity-input-host {
 
 .carousel-section {
   padding: 64px 24px;
-  background: #f7f4f9;
+  background: white;
   font-family: 'Segoe UI', sans-serif;
 }
 
@@ -6034,7 +6034,7 @@ input.activity-input-host {
   background: rgba(0, 0, 0, 0.55);
   opacity: 0;
   transition: opacity 0.3s ease;
-  padding: 32px !important;
+  padding: 32px ;
 }
 
 .carousel-card:hover .carousel-card-overlay {

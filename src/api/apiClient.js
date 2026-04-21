@@ -1319,7 +1319,7 @@ export const setPriceData = async (prices) => {
     console.error(e);
   }
 };
-
+// api pyyntö Pexelsin kuvahaulle, hakee kuvia kaupungista ja palauttaa satunnaisen kuvan url:n
 const PEXELS_API_KEY =
   "VgamRUurIryYslKwBDXsg8TauoQov38LbSgOb5ReDOftOFjPKgJQrH7b";
 export async function getCityImage(query) {
