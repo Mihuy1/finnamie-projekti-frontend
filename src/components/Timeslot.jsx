@@ -322,17 +322,18 @@ export const TimeSlot = ({
   const renderStars = (rating) => {
     const stars = [];
 
-    for (let i = 1; i <= 5; i++) {
-      // If the index is less than or equal to the rating (e.g., i=3, rating=3.5)
-      if (i <= Math.floor(rating)) {
+    const rounded = Math.round(rating * 2) / 2;
+    const fullStars = Math.floor(rounded);
+    const hasHalf = rounded % 1 !== 0;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
         stars.push(
           <span key={i} className="star-full">
             ★
           </span>,
         );
-      }
-      // If it's the "half" star (e.g., i=4, rating=3.5)
-      else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+      } else if (i === fullStars && hasHalf) {
         stars.push(
           <span key={i} className="star-half" data-star="★">
             ★
@@ -364,12 +365,8 @@ export const TimeSlot = ({
     const average = parseFloat((total / reviews.data.length).toFixed(1));
     return (
       <div className="score-container">
-        <p>{average}</p>
-        <div className="stars-display">
-          {Number.isInteger(average)
-            ? renderStars(parseFloat(average))
-            : renderStars(parseFloat(average - 1))}
-        </div>
+        <p>{(total / reviews.data.length).toFixed(1)}</p>
+        <div className="stars-display">{renderStars(parseFloat(average))}</div>
         <p>
           <span style={{ fontSize: "0.8em", color: "#666" }}>
             ({reviews.data.length})
