@@ -1964,6 +1964,15 @@ input.activity-input-host {
   margin-top: 48px;
 }
 
+.filter-container-home {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 0;
+  margin-top: 20px;
+}
+
 .filter-btn {
   padding: 10px 20px;
   border-radius: 999px;
@@ -5964,7 +5973,7 @@ input.activity-input-host {
 
 .carousel-heading {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .carousel-heading h2 {
@@ -5989,7 +5998,7 @@ input.activity-input-host {
   gap: 16px;
 }
 
-.carousel-card {
+/* .carousel-card {
   flex: 1;
   border-radius: 20px;
   padding: 64px 48px;
@@ -6003,7 +6012,7 @@ input.activity-input-host {
     opacity 0.25s ease,
     transform 0.25s ease;
   box-shadow: 0 8px 32px rgba(26, 43, 95, 0.18);
-}
+} */
 
 .carousel-card.fading {
   opacity: 0;
@@ -6059,7 +6068,7 @@ input.activity-input-host {
 
 .carousel-heading {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .carousel-heading h2 {
@@ -6085,6 +6094,10 @@ input.activity-input-host {
 }
 
 .carousel-card {
+  aspect-ratio: 16 / 9;
+  min-height: unset;
+  background-size: cover;
+  background-position: 50% 35%;
   flex: 1;
   border-radius: 20px;
   padding: 0;
@@ -6093,7 +6106,6 @@ input.activity-input-host {
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 260px;
   transition:
     opacity 0.25s ease,
     transform 0.25s ease;
