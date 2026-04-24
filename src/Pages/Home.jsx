@@ -6,81 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { getActivities } from "../api/apiClient";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { municipalities } from "../data/municipalities";
 import { getCityImage } from "../api/apiClient";
-
-const cities = [
-  {
-    query: "Finland nature",
-    name: "Finnish Nature",
-    description: "Breathtaking landscapes and wilderness",
-  },
-  {
-    query: "Finland city",
-    name: "Finnish Cities",
-    description: "Vibrant urban culture and architecture",
-  },
-  {
-    query: "Finland winter",
-    name: "Finnish Winter",
-    description: "Magical snow and northern lights",
-  },
-  {
-    query: "Finland summer",
-    name: "Finnish Summer",
-    description: "Midnight sun and endless lakes",
-  },
-  {
-    query: "Finland landscape",
-    name: "Finnish Landscapes",
-    description: "Stunning scenery from north to south",
-  },
-  {
-    query: "Finland nightlife",
-    name: "Finnish Nightlife",
-    description: "Vibrant social scene and entertainment options",
-  },
-  {
-    query: "Finland art",
-    name: "Finnish Art",
-    description: "Innovative art scene and world-class museums",
-  },
-  {
-    query: "Finland design",
-    name: "Finnish Design",
-    description: "Renowned design heritage and contemporary creativity",
-  },
-  {
-    query: "Finland culture",
-    name: "Finnish Culture",
-    description: "Rich traditions and unique cultural experiences",
-  },
-  {
-    query: "Finland saunas",
-    name: "Finnish Saunas",
-    description: "Traditional Finnish sauna culture and wellness experiences",
-  },
-  {
-    query: "Finland festivals",
-    name: "Finnish Festivals",
-    description: "Vibrant festivals celebrating music, culture, and traditions",
-  },
-  {
-    query: "Finland food",
-    name: "Finnish Food",
-    description: "Unique flavors and culinary traditions",
-  },
-  {
-    query: "Finland wildlife",
-    name: "Finnish Wildlife",
-    description: "Diverse wildlife and nature encounters",
-  },
-  {
-    query: "Finland lakes",
-    name: "Finnish Lakes",
-    description: "Serene lakes and water activities",
-  },
-];
 
 function Home() {
   const [date, setDate] = useState([]);
@@ -98,7 +24,6 @@ function Home() {
   const navigate = useNavigate();
 
   const [showDropdown, setShowDropdown] = useState(false);
-  const [filteredMunicipalities, setFilteredMunicipalities] = useState([]);
 
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const [activitySearch, setActivitySearch] = useState("");
@@ -129,15 +54,6 @@ function Home() {
       (active - 1 + cityImage?.[activeTopic].length) %
         cityImage?.[activeTopic].length,
     );
-
-  // useEffect(() => {
-  //   // setCityImage(null);
-  //   const fetchData = async () => {
-  //     await getCityImage(cities[active].query).then((url) => setCityImage(url));
-  //   };
-
-  //   fetchData();
-  // }, [active]);
 
   useEffect(() => {
     let cancelled = false;

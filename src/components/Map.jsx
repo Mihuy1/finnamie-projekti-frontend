@@ -30,7 +30,6 @@ function Map({ activityType }) {
       try {
         const slots = await getAllExperiencesWithHost();
         if (slots) {
-          console.log("slots:", slots);
           setTimeslots(slots);
         }
       } catch (err) {

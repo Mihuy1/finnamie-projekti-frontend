@@ -1383,7 +1383,6 @@ export async function getCityImage(query) {
       { headers: { Authorization: PEXELS_API_KEY } },
     );
     const data = await response.json();
-    console.log("data:", data);
     if (!data.photos || data.photos.length === 0) return null;
     // const random = data.photos[Math.floor(Math.random() * data.photos.length)];
     // return random.src.large;
