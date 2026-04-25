@@ -901,6 +901,7 @@ export const Profile = () => {
 
         {isHost ? (
           <>
+            <hr className="profile-divider" />
             <h2 className="profile-section-title">Suggest new activities</h2>
             <form
               className="profile-activity-suggestion-form"
@@ -1004,6 +1005,7 @@ export const Profile = () => {
                 {/* <h2 className="profile-section-title">Bookings from Guests</h2> */}
 
                 <div className="BookingListContainer">
+                  {/*
                   {reservations
                     // .filter((res) => res.booking_status === "confirmed")
                     .map((res) => {
@@ -1095,6 +1097,7 @@ export const Profile = () => {
                         </div>
                       );
                     })}
+                  */}
 
                   {/* {reservations.filter(
                     (res) => res.booking_status === "confirmed",
