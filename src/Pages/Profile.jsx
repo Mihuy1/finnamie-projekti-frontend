@@ -1026,9 +1026,20 @@ export const Profile = () => {
                           style={{ cursor: "pointer" }}
                         >
                           <div className="BookingRowHeader">
-                            <span className="BookingTypeBadge">
-                              {res.experience_length}
-                            </span>
+                            <div>
+                              <span className="BookingTypeBadge">
+                                {res.experience_length}
+                              </span>
+                              {!!res.payment_received &&
+                                res.current_status !== "ended" && (
+                                  <span
+                                    className="BookingTypeBadge"
+                                    style={{ margin: "4px" }}
+                                  >
+                                    Payment received
+                                  </span>
+                                )}
+                            </div>
                             <span
                               className={`BookingStatusPill Status-${res.current_status}`}
                             >
@@ -1097,7 +1108,7 @@ export const Profile = () => {
                         </div>
                       );
                     })}
-                  */}
+                      */}
 
                   {/* {reservations.filter(
                     (res) => res.booking_status === "confirmed",
