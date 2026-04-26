@@ -1415,7 +1415,6 @@ export const Profile = () => {
                                 : "Rate Experience"}
                             </button>
                           )}
-
                         {selectedSlot.booking_status === "confirmed" &&
                           !isPastEvent &&
                           selectedSlot.current_status !== "ongoing" && (
@@ -1424,10 +1423,15 @@ export const Profile = () => {
                               onClick={() =>
                                 handleCancelBooking(selectedSlot.reservation_id)
                               }
+                              disabled={
+                                !isHost && !!selectedSlot.payment_received
+                              }
                             >
                               {isHost
                                 ? "Cancel Guest's Booking"
-                                : "Cancel My Reservation"}
+                                : !selectedSlot.payment_received // Jos maksu on jo suoritettu
+                                  ? "Cancel My Reservation"
+                                  : "Contact host to cancel reservation."}{" "}
                             </button>
                           )}
                       </div>
