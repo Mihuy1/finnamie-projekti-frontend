@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-const BASE_URL = "http://localhost:3000/api/";
-const GEOAPIFY_KEY = "b37952a659224430b7545612f420ab9c";
+const BASE_URL = import.meta.env.VITE_BACKEND_BASEURL;
+const GEOAPIFY_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
 
 export const getAllExperiencesWithHost = async () => {
   try {
