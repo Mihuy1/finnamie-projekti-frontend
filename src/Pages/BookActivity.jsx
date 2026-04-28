@@ -55,9 +55,6 @@ export default function BookActivity() {
           getActivities(),
           getAllExperiencesWithHost(),
         ]);
-
-        console.log("slotData:", slotData);
-
         setActivities(actData?.length > 0 ? actData : []);
         setTimeSlots(slotData || []);
       } catch (error) {
@@ -178,8 +175,8 @@ export default function BookActivity() {
                 setFilteredMunicipalities(
                   location
                     ? municipalities.filter((m) =>
-                      m.toLowerCase().includes(location.toLowerCase()),
-                    )
+                        m.toLowerCase().includes(location.toLowerCase()),
+                      )
                     : municipalities,
                 );
                 setShowLocationDropdown(true);

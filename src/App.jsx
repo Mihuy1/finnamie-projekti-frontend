@@ -16,6 +16,8 @@ import BookActivity from "./Pages/BookActivity";
 import Reservation from "./Pages/Reservation";
 import ReservationConfirmed from "./Pages/ReservationConfirmed";
 import { Success } from "./Pages/Success";
+import { VerifySuccess } from "./Pages/VerifySuccess";
+import { VerifyError } from "./Pages/VerifyError";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
         <Route path="/discover" element={<Discover />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/host/register" element={<HostRegister />} />
+        <Route path="/verify-success" element={<VerifySuccess />} />
+        <Route path="/verify-error" element={<VerifyError />} />
 
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<Admin />} />

@@ -11,6 +11,7 @@ import { MultiImageUpload } from "./MultiImageUpload";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { DayOfWeek } from "./DayOfWeek";
 import { SimpleModal } from "./SimpleModal";
+import { municipalitiesOptions } from "../data/municipalities";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -60,6 +61,11 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
   ]);
 
   const [activitiesData, setActivitiesData] = useState([]);
+
+  const currentYear = new Date().getFullYear();
+
+  const minDate = `${currentYear}-01-01`;
+  const maxDate = `${currentYear}-12-31`;
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -137,6 +143,38 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
     );
   }
 
+  const customTheme = (theme) => ({
+    ...theme,
+    colors: {
+      ...theme.colors,
+
+      // borderColor: "rgba(170, 0, 162, 0.45)",
+
+      // Primary brand color (selected option, focus border, etc.)
+      // primary: "rgba(170, 0, 162, 1)",
+      primary: "rgba(170, 0, 162, 0.45)",
+
+      // Hovered option background
+      primary25: "rgba(150, 0, 140, 0.15)",
+
+      // Active/pressed option
+      primary50: "rgba(150, 0, 140, 0.3)",
+
+      // Main background
+      neutral0: "#ffffff",
+
+      // Default text
+      neutral80: "rgba(0, 47, 108, 1)",
+
+      // Placeholder / muted text
+      neutral50: "rgba(72, 104, 145, 1)",
+
+      // Borders
+      neutral20: "rgba(0, 47, 108, 0.2)",
+      neutral30: "rgba(0, 47, 108, 0.4)",
+    },
+  });
+
   return (
     <div className="profile-timeslots">
       {isModalOpen && (
@@ -161,12 +199,29 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                 </label>
                 <label>
                   City
-                  <input
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    placeholder="Espoo"
+                  <Select
+                    theme={customTheme}
+                    options={municipalitiesOptions}
+                    name="cities"
+                    value={
+                      formData.city
+                        ? {
+                            label: formData.city,
+                            value: formData.city.toLowerCase(),
+                          }
+                        : ""
+                    }
+                    getOptionLabel={(option) => option.label}
+                    getOptionValue={(option) => option.value}
+                    className="profile-select"
+                    classNamePrefix="select"
                     required
+                    onChange={(option) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        city: option.label,
+                      }));
+                    }}
                   />
                 </label>
                 <label>
@@ -176,6 +231,8 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     type="date"
                     value={formData.start_date}
                     onChange={handleInputChange}
+                    min={minDate}
+                    max={maxDate}
                     required
                   />
                 </label>
@@ -226,25 +283,10 @@ export const CreateNewTimeslot = ({ onSave, onClose }) => {
                     <option value="Full-day">Full-day</option>
                   </select>
                 </label>
-
-                {/* <label>
-                  Reservation Status
-                  <select
-                    name="res_status"
-                    value={formData.res_status}
-                    onChange={handleInputChange}
-                    className="profile-select"
-                    required
-                  >
-                    <option value="">Select status...</option>
-                    <option value="available">Available</option>
-                    <option value="reserved">Reserved</option>
-                    <option value="pending">Pending</option>
-                  </select>
-                </label> */}
                 <label>
                   Activities
                   <Select
+                    theme={customTheme}
                     isMulti
                     name="activities"
                     options={activitiesData}

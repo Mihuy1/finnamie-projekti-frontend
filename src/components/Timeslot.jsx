@@ -354,12 +354,7 @@ export const TimeSlot = ({
   const renderReviewScoreAverage = () => {
     const hasData = reviews && reviews.data.length > 0;
 
-    if (!hasData)
-      return (
-        <div>
-          <h3>No Reviews</h3>
-        </div>
-      );
+    if (!hasData) return;
 
     const total = reviews.data.reduce((sum, item) => sum + item.score, 0);
     const average = parseFloat((total / reviews.data.length).toFixed(1));
@@ -632,6 +627,19 @@ export const TimeSlot = ({
                             >
                               Confirm
                             </button>
+                            <button
+                              className="CancelBookingBtn"
+                              onClick={() => {
+                                handleCancelReservation(r);
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                        {(r.current_status || "").toLowerCase() ===
+                          "upcoming" && (
+                          <div className="timeslot-reservation-card-bottom">
                             <button
                               className="CancelBookingBtn"
                               onClick={() => {

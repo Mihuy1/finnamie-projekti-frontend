@@ -8,7 +8,7 @@ import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 import L from "leaflet";
 import { Markers } from "./Markers";
 
-import { getAllExperiencesWithHost, getAllTimeSlots } from "../api/apiClient";
+import { getAllExperiencesWithHost } from "../api/apiClient";
 
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -68,17 +68,15 @@ function Map({ activityType }) {
               }
 
               const position = [lat, lng];
-              const start = new Date(slot.rule.start_date).toLocaleString(
-                "en-GB",
-              );
-              const end = new Date(slot.rule.end_date).toLocaleString("en-GB");
-
               return (
                 <Marker position={position} key={slot.id}>
                   <Popup>
+                    <strong style={{ paddingBottom: "0" }}>
+                      {slot.first_name} {slot.last_name}
+                    </strong>
                     <p>City: {slot.city}</p>
-                    <p>Start: {slot.rule.start_time}</p>
-                    <p>End: {slot.rule.end_time}</p>
+                    <p>Start: {slot.rule.start_time.slice(0, 5)}</p>
+                    <p>End: {slot.rule.end_time.slice(0, 5)}</p>
                   </Popup>
                 </Marker>
               );

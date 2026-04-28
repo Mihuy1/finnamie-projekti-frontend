@@ -993,7 +993,7 @@ export const Profile = () => {
             <div className="create-timeslot-div">
               <button
                 onClick={() => setShowNewTimeslot(true)}
-                className="create-new-timeslot-btn"
+                className="profile-btn profile-btn-primary"
               >
                 Create Experience
               </button>

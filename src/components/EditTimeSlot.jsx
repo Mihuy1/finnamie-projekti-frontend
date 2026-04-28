@@ -1,10 +1,15 @@
 import { useState, useMemo, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
-import { getTimeslotsByRuleId, loadOptions } from "../api/apiClient";
-import Select from "react-select";
+import {
+  finnishMunicipalities,
+  getTimeslotsByRuleId,
+  loadOptions,
+} from "../api/apiClient";
+import Select, { createFilter } from "react-select";
 import { MultiImageUpload } from "./MultiImageUpload";
 import { DayOfWeek } from "./DayOfWeek";
+import { municipalitiesOptions } from "../data/municipalities";
 
 const ChangeView = ({ center }) => {
   const map = useMap();
@@ -129,6 +134,37 @@ export const EditTimeSlot = ({
     onSave(dataToSend, selectedImages, toRemoveImages);
   };
 
+  const customTheme = (theme) => ({
+    ...theme,
+    colors: {
+      ...theme.colors,
+
+      // borderColor: "rgba(170, 0, 162, 0.45)",
+
+      // Primary brand color (selected option, focus border, etc.)
+      // primary: "rgba(170, 0, 162, 1)",
+      primary: "rgba(170, 0, 162, 0.45)",
+
+      // Hovered option background
+      primary25: "rgba(150, 0, 140, 0.15)",
+
+      // Active/pressed option
+      primary50: "rgba(150, 0, 140, 0.3)",
+
+      // Main background
+      neutral0: "#ffffff",
+
+      // Default text
+      neutral80: "rgba(0, 47, 108, 1)",
+
+      // Placeholder / muted text
+      neutral50: "rgba(72, 104, 145, 1)",
+
+      // Borders
+      neutral20: "rgba(0, 47, 108, 0.2)",
+      neutral30: "rgba(0, 47, 108, 0.4)",
+    },
+  });
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div
@@ -159,13 +195,40 @@ export const EditTimeSlot = ({
               </label>
               <label>
                 City
-                <input
+                {/* <input
                   type="text"
                   name="city"
                   value={formData.city || ""}
                   onChange={handleInputChange}
                   required
                   placeholder="e.g. Helsinki"
+                /> */}
+                <Select
+                  theme={customTheme}
+                  options={municipalitiesOptions}
+                  filterOption={createFilter({
+                    ignoreAccents: false,
+                  })}
+                  name="cities"
+                  value={
+                    formData.city
+                      ? {
+                          label: formData.city,
+                          value: formData.city.toLowerCase(),
+                        }
+                      : ""
+                  }
+                  getOptionLabel={(option) => option.label}
+                  getOptionValue={(option) => option.value}
+                  className="profile-select"
+                  classNamePrefix="select"
+                  required
+                  onChange={(option) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      city: option.label,
+                    }));
+                  }}
                 />
               </label>
 
@@ -243,6 +306,7 @@ export const EditTimeSlot = ({
               <label>
                 Activities
                 <Select
+                  theme={customTheme}
                   isMulti
                   name="activities"
                   options={activities}
@@ -281,7 +345,6 @@ export const EditTimeSlot = ({
                   setSelectedDays={setSelectedDays}
                 />
               </label>
-              <p> bitmask value: {calculateBitmask(selectedDays)} </p>
 
               <label className="profile-full-width">
                 Description
