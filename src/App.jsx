@@ -26,7 +26,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/" element={<Home />} />
         <Route path="/discover" element={<Discover />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/discover/:id" element={<Discover />} />
         <Route path="/host/register" element={<HostRegister />} />
         <Route path="/verify-success" element={<VerifySuccess />} />
         <Route path="/verify-error" element={<VerifyError />} />
@@ -39,9 +39,8 @@ function App() {
           element={<ProtectedRoute allowedRoles={["guest", "host", "admin"]} />}
         >
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/experience/:id" element={<Profile />} />
         </Route>
-
-        <Route path="/discover" element={<Discover />} />
 
         <Route path="/modal-test" element={<ReviewModal />} />
 
@@ -52,6 +51,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/host/login" element={<HostLogin />} />
         <Route path="/book-activity" element={<BookActivity />} />
+        <Route path="/book-activity/:id" element={<BookActivity />} />
         <Route path="/reserve-activity" element={<Reservation />} />
         <Route
           path="/reservation-confirmed"

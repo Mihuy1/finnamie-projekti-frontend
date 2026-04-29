@@ -1,11 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
-import {
-  finnishMunicipalities,
-  getTimeslotsByRuleId,
-  loadOptions,
-} from "../api/apiClient";
+import { getTimeslotsByRuleId, loadOptions } from "../api/apiClient";
 import Select, { createFilter } from "react-select";
 import { MultiImageUpload } from "./MultiImageUpload";
 import { DayOfWeek } from "./DayOfWeek";

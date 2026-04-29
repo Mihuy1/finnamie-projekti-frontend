@@ -54,10 +54,21 @@ export const TimeSlot = ({
   }, []);
 
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") handleClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchReviews = async () => {
       const r = await getReviewsByExperienceId(slot.id);
 
-      console.log("reviews:", r);
       setReviews(r);
     };
 

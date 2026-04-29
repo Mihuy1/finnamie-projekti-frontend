@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   createActivitySuggestion,
   getProfile,
@@ -47,8 +47,11 @@ const EMPTY_PROFILE = {
 configureLeaflet();
 
 export const Profile = () => {
-  const { user, loading, refresh } = useAuth();
+  const { user, loading } = useAuth();
   const { hash } = useLocation();
+
+  const navigate = useNavigate();
+  const { id: expId } = useParams();
 
   const {
     profile,
@@ -75,8 +78,6 @@ export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef(null);
 
-  const [openChat, setOpenChat] = useState(false);
-
   const [showNewTimeslot, setShowNewTimeslot] = useState(false);
 
   const [countries, setCountries] = useState([]);
@@ -100,7 +101,6 @@ export const Profile = () => {
 
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
-  const [showFeedbackId, setShowFeedbackId] = useState(null);
 
   const fetchTimeslotById = async (id) => {
     const data = await getTimeslotByIdWithExperience(id);
@@ -119,10 +119,6 @@ export const Profile = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    refresh();
   }, []);
 
   useEffect(() => {
@@ -187,6 +183,22 @@ export const Profile = () => {
       document.body.style.overflow = "unset";
     };
   }, [selectedSlot, showNewTimeslot]);
+
+  useEffect(() => {
+    if (!expId) {
+      setSelectedSlot(null);
+      return;
+    }
+
+    const existingSlot = timeSlots.find(
+      (slot) => String(slot.id) === String(expId),
+    );
+
+    if (existingSlot) {
+      setSelectedSlot(existingSlot);
+      return;
+    }
+  }, [expId, timeSlots]);
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -327,16 +339,6 @@ export const Profile = () => {
       day: "numeric",
       month: "long",
       year: "numeric",
-    });
-  };
-
-  const formatTime = (dateInput) => {
-    if (!dateInput) return "";
-    const date = new Date(dateInput);
-    if (isNaN(date)) return "";
-    return date.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
@@ -507,6 +509,16 @@ export const Profile = () => {
     }
   };
 
+  const openTimeslot = (slot) => {
+    setSelectedSlot(slot);
+    navigate(`/profile/experience/${slot.id}`);
+  };
+
+  const closeTimeslot = () => {
+    navigate(`/profile`);
+    setSelectedSlot(null);
+  };
+
   if (isProfileLoading)
     return <div className="profile-page">Loading profile data...</div>;
 
@@ -591,14 +603,6 @@ export const Profile = () => {
                 </div>
               </>
             )}
-            {/*<button
-              className="profile-btn profile-btn-primary"
-              aria-label="Open chat"
-              onClick={() => setOpenChat(true)}
-            >
-              Conversations
-            </button>
-            {openChat && <Chatbox closeChat={() => setOpenChat(false)} />}*/}
           </div>
         </div>
 
@@ -947,7 +951,7 @@ export const Profile = () => {
                   <article
                     className="profile-timeslot-card"
                     key={slot.id}
-                    onClick={() => setSelectedSlot(slot)}
+                    onClick={() => openTimeslot(slot)}
                     style={{ cursor: "pointer" }}
                   >
                     <div className="profile-timeslot-summary">
@@ -1257,13 +1261,14 @@ export const Profile = () => {
             slot={selectedSlot}
             activities={activitiesForm}
             canEdit={true}
-            onClose={() => setSelectedSlot(null)}
+            onClose={() => closeTimeslot()}
             onUpdate={(updatedTimeslot) => handleOnUpdate(updatedTimeslot)}
             onDelete={(deleteId) => {
               setTimeSlots((prev) =>
                 prev.filter((timeslot) => timeslot.id !== deleteId),
               );
               setSelectedSlot(null);
+              navigate("/profile");
             }}
             reservations={reservations}
             setReservations={setReservations}

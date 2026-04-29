@@ -3,6 +3,27 @@
 const BASE_URL = import.meta.env.VITE_BACKEND_BASEURL;
 const GEOAPIFY_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
 
+export const getExperienceById = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}experiences/byId/${id}`);
+
+    const data = await res.json();
+    if (!res.ok) {
+      const message =
+        typeof data === "string"
+          ? data
+          : data.message || "Something went wrong";
+
+      throw Object.assign(new Error(message), { status: res.status });
+    }
+
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 export const getAllExperiencesWithHost = async () => {
   try {
     const res = await fetch(`${BASE_URL}experiences/withHost`, {

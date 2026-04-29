@@ -1,7 +1,17 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
-import { getActivities, getAllExperiencesWithHost } from "../api/apiClient";
-import { Link, useLocation } from "react-router-dom";
+import {
+  getActivities,
+  getAllExperiencesWithHost,
+  getExperienceById,
+} from "../api/apiClient";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
 import { municipalities } from "../data/municipalities";
 import Calendar from "react-calendar";
@@ -30,12 +40,30 @@ export default function BookActivity() {
   const API_BASE_URL = "http://localhost:3000";
   const FALLBACK_IMAGE = "https://placehold.co/600x400";
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { id: expId } = useParams();
+  const navigate = useNavigate();
+
   const resolveImage = (path) => {
     if (!path) return FALLBACK_IMAGE;
     if (path.startsWith("http://")) return path;
     if (path.startsWith("https://")) return path;
     if (path.startsWith("/")) return API_BASE_URL + path;
     return API_BASE_URL + "/" + path;
+  };
+
+  // const closeTimeslot = () => {
+  //   const nextParams = new URLSearchParams(searchParams);
+  //   nextParams.delete("modal");
+  //   nextParams.delete("id");
+  //   setSearchParams(nextParams);
+  //   setSelectedSlot(null);
+  // };
+
+  const closeTimeslot = () => {
+    setSelectedSlot(null);
+    navigate("/book-activity");
   };
 
   useEffect(() => {
@@ -111,6 +139,42 @@ export default function BookActivity() {
   }, [location, selectedCategory, date, timeSlots]);
 
   useEffect(() => {
+    if (!expId) {
+      setSelectedSlot(null);
+      return;
+    }
+
+    const existingSlot = timeSlots.find(
+      (slot) => String(slot.id) === String(expId),
+    );
+
+    if (existingSlot) {
+      setSelectedSlot(existingSlot);
+      return;
+    }
+
+    if (loading) return;
+
+    let isActive = true;
+
+    const fetchData = async () => {
+      try {
+        const res = await getExperienceById(expId);
+
+        if (isActive && res) setSelectedSlot(res);
+      } catch (error) {
+        console.error("Error fetching experience:", error);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isActive = false;
+    };
+  }, [expId, timeSlots, loading]);
+
+  useEffect(() => {
     if (selectedSlot) {
       document.body.style.overflow = "hidden";
       document.body.style.paddingRight = "0px";
@@ -126,6 +190,11 @@ export default function BookActivity() {
 
   const handleSlotClick = (activity) => {
     setSelectedSlot(activity);
+    navigate(`/book-activity/${activity.id}`);
+    // const nextParams = new URLSearchParams(searchParams);
+    // nextParams.set("modal", "quickview");
+    // nextParams.set("id", activity.id);
+    // setSearchParams(nextParams);
   };
 
   const handleFilter = (category) => {
@@ -387,7 +456,7 @@ export default function BookActivity() {
           slot={selectedSlot}
           activities={activities}
           canEdit={false}
-          onClose={() => setSelectedSlot(null)}
+          onClose={() => closeTimeslot()}
         />
       )}
     </section>

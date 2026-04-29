@@ -1,11 +1,36 @@
 // @ts-nocheck
 import { useEffect, useState } from "react";
-import { getActivities, getAllExperiencesWithHost } from "../api/apiClient";
-import { Link, useLocation } from "react-router-dom";
+import {
+  getActivities,
+  getAllExperiencesWithHost,
+  getExperienceById,
+} from "../api/apiClient";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { TimeSlot } from "../components/Timeslot";
+
+const placeholders = [
+  {
+    id: 101,
+    name: "Nuuksio Camping",
+    category: "Nature & outdoors",
+    city: "Espoo",
+    image_url: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4",
+    experience_length: "Full-day",
+  },
+  {
+    id: 102,
+    name: "Traditional Smoke Sauna",
+    category: "Wellness",
+    city: "Helsinki",
+    image_url:
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format",
+    experience_length: "Half-day",
+  },
+];
 
 export default function Discover() {
   const { state } = useLocation();
+  const { id: expId } = useParams();
 
   const [activities, setActivities] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -13,8 +38,8 @@ export default function Discover() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  const [location, setLocation] = useState(state?.initialLocation || "");
-  const [date, setDate] = useState(state?.initialDate || null);
+  const [location] = useState(state?.initialLocation || "");
+  const [date] = useState(state?.initialDate || null);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const API_BASE_URL = "http://localhost:3000";
@@ -26,25 +51,33 @@ export default function Discover() {
     return `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
   };
 
-  const placeholders = [
-    {
-      id: 101,
-      name: "Nuuksio Camping",
-      category: "Nature & outdoors",
-      city: "Espoo",
-      image_url: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4",
-      experience_length: "Full-day",
-    },
-    {
-      id: 102,
-      name: "Traditional Smoke Sauna",
-      category: "Wellness",
-      city: "Helsinki",
-      image_url:
-        "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1200&auto=format",
-      experience_length: "Half-day",
-    },
-  ];
+  const navigate = useNavigate();
+
+  // const openTimeslot = (slot) => {
+  //   setSelectedSlot(slot);
+  //   const nextParams = new URLSearchParams(searchParams);
+  //   nextParams.set("modal", "quickview");
+  //   nextParams.set("id", slot.id);
+  //   setSearchParams(nextParams);
+  // };
+
+  // const closeTimeslot = () => {
+  //   const nextParams = new URLSearchParams(searchParams);
+  //   nextParams.delete("modal");
+  //   nextParams.delete("id");
+  //   setSearchParams(nextParams);
+  //   setSelectedSlot(null);
+  // };
+
+  const openTimeslot = (slot) => {
+    setSelectedSlot(slot);
+    navigate(`/discover/${slot.id}`);
+  };
+
+  const closeTimeslot = () => {
+    navigate("/discover");
+    setSelectedSlot(null);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,7 +141,46 @@ export default function Discover() {
     document.body.style.overflow = selectedSlot ? "hidden" : "unset";
   }, [selectedSlot]);
 
-  if (loading) return <div className="loading">Loading...</div>;
+  useEffect(() => {
+    if (!expId) {
+      setSelectedSlot(null);
+      return;
+    }
+
+    const existingSlot = timeSlots.find(
+      (slot) => String(slot.id) === String(expId),
+    );
+
+    if (existingSlot) {
+      setSelectedSlot(existingSlot);
+      return;
+    }
+
+    if (loading) return;
+
+    let isActive = true;
+
+    const fetchData = async () => {
+      try {
+        const res = await getExperienceById(expId);
+
+        if (isActive) {
+          setSelectedSlot(res);
+        }
+      } catch (error) {
+        console.error("Error fetching experience:", error);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isActive = false;
+    };
+  }, [expId, timeSlots, loading]);
+
+  if (loading || !filteredActivities)
+    return <div className="loading">Loading...</div>;
 
   return (
     <section className="discover-page">
@@ -150,7 +222,7 @@ export default function Discover() {
             <div
               key={item.id}
               className="activity-card"
-              onClick={() => setSelectedSlot(item)}
+              onClick={() => openTimeslot(item)}
             >
               <div className="card-image">
                 <img
@@ -181,7 +253,7 @@ export default function Discover() {
           slot={selectedSlot}
           activities={activities}
           canEdit={false}
-          onClose={() => setSelectedSlot(null)}
+          onClose={() => closeTimeslot()}
           onDelete={() => {}}
           onUpdate={() => {}}
         />
