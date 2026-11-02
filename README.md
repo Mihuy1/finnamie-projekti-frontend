@@ -1,16 +1,82 @@
-# React + Vite
+# Finnamie – Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Web app for **Finnamie**, a startup where tourists find and book experiences hosted by locals around Finland. Built as a Metropolia UAS innovation project by a team of four.
 
-Currently, two official plugins are available:
+Backend: [finnamie-projekti-backend](https://github.com/Mihuy1/finnamie-projekti-backend)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![Finnamie homepage](docs/homepage.jpg)
 
-## React Compiler
+## Features
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- **Discover** – browse experiences on an interactive map (Leaflet, clustered markers) or as a list
+- **Booking** – pick a timeslot from the host's calendar and pay with Stripe
+- **Accounts** – separate sign-up flows for travellers and hosts, email verification
+- **Host tools** – create and edit experiences, upload images, manage timeslots
+- **Chat** – real-time messaging between travellers and hosts (Socket.IO)
+- **Reviews** – rate and review completed experiences
+- **Admin** – admin view for managing content
 
-## Expanding the ESLint configuration
+## Tech stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+React 19 · Vite · React Router · Leaflet / react-leaflet · Socket.IO client · react-calendar · react-hot-toast
+
+External APIs: Geoapify (geocoding), Pexels (images), Stripe (payments, via the backend)
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 20+
+- The [backend](https://github.com/Mihuy1/finnamie-projekti-backend) running locally (default `http://localhost:3000`)
+
+### Install and run
+
+```bash
+git clone https://github.com/Mihuy1/finnamie-projekti-frontend.git
+cd finnamie-projekti-frontend
+npm install
+```
+
+Create a `.env` file in the project root:
+
+```env
+VITE_BACKEND_BASEURL=http://localhost:3000/   # trailing slash required
+VITE_GEOAPIFY_KEY=your_geoapify_key
+VITE_PEXELS_API_KEY=your_pexels_key
+```
+
+Then start the dev server:
+
+```bash
+npm run dev
+```
+
+The app runs at `http://localhost:5173`.
+
+### Scripts
+
+| Command           | Description                  |
+| ----------------- | ---------------------------- |
+| `npm run dev`     | Start the dev server         |
+| `npm run build`   | Production build to `dist/`  |
+| `npm run preview` | Preview the production build |
+| `npm run lint`    | Run ESLint                   |
+
+## Project structure
+
+```
+src/
+├── Pages/       # Route-level views (Home, Discover, BookActivity, Profile, Admin…)
+├── components/  # Reusable UI (Map, Chatbox, TimeslotSelector, ReviewModal…)
+├── api/         # apiClient.js – all REST calls to the backend
+├── auth/        # Auth context and provider
+├── contexts/    # Chatbox context
+├── hooks/       # Custom hooks (useUserProfile)
+├── utils/       # Date helpers, Leaflet config
+├── data/        # Static data (Finnish municipalities)
+└── socket.js    # Socket.IO client
+```
+
+## Team
+
+Built by Patrik Hyytiäinen, Sara Pappila, Mikael Asikainen and Abdullahi Ali for Finnamie as part of Metropolia's innovation project course.
